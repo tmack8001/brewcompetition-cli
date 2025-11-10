@@ -3,7 +3,7 @@ import axios from 'axios';
 import fs from 'node:fs';
 import path from 'node:path';
 
-import { parseMetadata } from '../bcoem.js';
+import { getParser } from '../parsers/index.js';
 
 interface Config {
   competitions: string[];
@@ -75,7 +75,10 @@ export default class Competitions extends Command {
   private async fetchCompetitionMetadata(url: string, output: string) {
     const response = await axios.get(url);
     const htmlString = response.data;
-    const result = await parseMetadata(htmlString);
+    
+    const parser = getParser(url);
+    const result = await parser.parseMetadata(htmlString);
+    
     if (result) {
       if (output.toLowerCase() === 'json') {
         const jsonData = csvToJson(result, '|');

@@ -1,0 +1,1956 @@
+<html lang="en"><head>
+<!-- tags to explain this website to Facebook and Twitter -->
+<meta property="og:title" content="Reggie Competition Software">
+<meta property="og:type" content="article">
+<meta property="og:description" content="Register to enter or judge Rocky Mountain Homebrew Challenge 2024">
+<meta property="og:image" content="https://reggiebeer.com/Logos/Logo00882.png">
+<meta property="og:url" content="https://www.reggiebeer.com/ReggieEntry.php?CompetitionID=DYXTYN1000882">
+<meta name="twitter:card" content="summary_large_image">
+
+<meta charset="UTF-8">
+
+<meta name="viewport" content="width=800, initial-scale=1.0"> <!-- can use width=device-width but too narrow for ReggieEntry screen and wraps -->
+
+<link rel="stylesheet" href="Reggie.css?version=9.53">
+<title>Reggie Competition Software</title>
+<script src="ReggieGlobalJS.js?version=9.53"></script>
+<script>
+
+var s_iEventID=0;
+var s_sEventName="";
+
+var s_bHasStyleCodes=0;
+
+var s_xQA=[]; // [QAid=Question#, QAtext=Question text, QAtype=ENTRANT_QA_TYPE_*, QApage=ENTRANT_QA_FLAG_* bitmap, QAvalue=answer]
+
+var s_xVolunteer=[];
+
+var s_iVolunteerJudgingIndex=0;
+var s_bNoMorePayments=0;
+var s_bNoMoreEntries=0;
+var s_bNo99xLimit=false;
+var s_xLastNameTimer=0,s_xAffiliateTimer=0;
+var s_sSaveLastName="",s_sSaveAffiliate="";
+var s_iCanceledJudgeSessionCount=0;
+var s_bUseLastNameTimer=1;
+var s_xEntries=[],s_xCoBrewer=[];
+var s_xCanceledJudgingSessions=[];
+var s_dBalance=0;
+var s_sCurrency="???";
+var s_iEntrantID=0,s_sEntrantName,s_iCompEntryIndex=0;
+var s_xFirstName,s_xLastName,s_xPassword,s_xEmail,s_xAddress,s_xCity,s_xState,s_xPostalCode,s_xCountry,s_xDiscountCode,s_xEJudgePIN;
+var s_xHomePhone,s_xOtherPhone,s_xClubName,s_xParticipantID,s_xBJCPID,s_xProvisional,s_xQuals,s_xAHAMemberNumber;
+var s_xAllergyInfo;
+var s_xNewAccount,s_iNewAcct_0Create1Save2Update=0,s_xNamesPopup;
+var s_sPreviousLabel,s_iColumnCount;
+var s_bEntryLimitationBySubStyle=0;
+var s_bCallGetEntryLimitation=0;
+
+var s_sAdminEmail="Nelson@ReggieBeer.com",s_iCompRecordID=882,s_bAcceptCashCheck=0,s_bAcceptBankTransfer=0,s_sBankTransferContact="",s_sSpecialStuff="";
+var s_xSP=[];
+s_xSP[1]={ Description:"Apple variety",PickOne:"",Flags:0 };
+s_xSP[2]={ Description:"Barrel wood type and info",PickOne:"",Flags:0 };
+s_xSP[3]={ Description:"Spices",PickOne:"",Flags:0 };
+s_xSP[4]={ Description:"Aging Process or Container",PickOne:"",Flags:0 };
+s_xSP[5]={ Description:"Experimental Nature",PickOne:"",Flags:0 };
+s_xSP[6]={ Description:"Fruit type or Flavor",PickOne:"",Flags:0 };
+s_xSP[7]={ Description:"Grape variety",PickOne:"",Flags:0 };
+s_xSP[8]={ Description:"Historical or Regional Nature",PickOne:"",Flags:0 };
+s_xSP[9]={ Description:"Major Ingredients and Adjuncts",PickOne:"",Flags:0 };
+s_xSP[10]={ Description:"Fruits or Juices",PickOne:"",Flags:0 };
+s_xSP[11]={ Description:"Is this a Modern or a Traditional style?",PickOne:"",Flags:0 };
+s_xSP[12]={ Description:"Kellerbier base style (Pale Helles, Amber Marzen, etc.)",PickOne:"",Flags:0 };
+s_xSP[13]={ Description:"Type of Microbial Contribution",PickOne:"",Flags:0 };
+s_xSP[14]={ Description:"Special Nature",PickOne:"",Flags:0 };
+s_xSP[15]={ Description:"Reason for unique flavor/aroma/appearance",PickOne:"",Flags:0 };
+s_xSP[16]={ Description:"Special Ingredients/Spices",PickOne:"",Flags:0 };
+s_xSP[17]={ Description:"Commercial Equivalent",PickOne:"",Flags:0 };
+s_xSP[18]={ Description:"Pear variety",PickOne:"",Flags:0 };
+s_xSP[19]={ Description:"Spices/Herbs/Vegetables",PickOne:"",Flags:0 };
+s_xSP[20]={ Description:"Special Ingredients or Processes",PickOne:"",Flags:0 };
+s_xSP[21]={ Description:"Traditional/Experimental Style",PickOne:"",Flags:0 };
+s_xSP[22]={ Description:"Vegetable type",PickOne:"",Flags:0 };
+s_xSP[23]={ Description:"Type of Wood/Other Source",PickOne:"",Flags:0 };
+s_xSP[24]={ Description:"Rouse the yeast before pouring?",PickOne:"",Flags:0 };
+s_xSP[25]={ Description:"Is this a rye beer?",PickOne:"",Flags:0 };
+s_xSP[27]={ Description:"Honey Variety",PickOne:"",Flags:0 };
+s_xSP[28]={ Description:"Carbonation",PickOne:"Still|Petillant|Sparkling",Flags:0 };
+s_xSP[29]={ Description:"Sweetness",PickOne:"Dry|Semi-Sweet|Sweet",Flags:0 };
+s_xSP[30]={ Description:"Strength",PickOne:"Hydromel|Standard|Sack",Flags:0 };
+s_xSP[31]={ Description:"Underlying style",PickOne:"",Flags:2 };
+s_xSP[32]={ Description:"Base style",PickOne:"",Flags:0 };
+s_xSP[33]={ Description:"Classic style",PickOne:"",Flags:0 };
+s_xSP[34]={ Description:"Classic or Experimental style",PickOne:"",Flags:0 };
+s_xSP[35]={ Description:"Rauchbier style (e.g. Marzen)",PickOne:"",Flags:0 };
+s_xSP[26]={ Description:"Sweetness",PickOne:"Dry|Medium-Dry|Medium|Medium-Sweet|Sweet",Flags:0 };
+s_xSP[36]={ Description:"Color",PickOne:"Pale|Dark",Flags:0 };
+s_xSP[37]={ Description:"Strength",PickOne:"Session|Standard|Double",Flags:0 };
+s_xSP[38]={ Description:"IPA Type",PickOne:"Belgian IPA|Black IPA|Brown IPA|Red IPA|Rye IPA|White IPA|New England IPA|Other (specify Details)",Flags:0 };
+s_xSP[39]={ Description:"Hop Varieties",PickOne:"",Flags:0 };
+s_xSP[40]={ Description:"Carbonation",PickOne:"Low|Medium|High",Flags:0 };
+s_xSP[41]={ Description:"Sweetness",PickOne:"Low/none|Medium|High",Flags:0 };
+s_xSP[42]={ Description:"Color",PickOne:"Blond|Amber|Brown",Flags:0 };
+s_xSP[43]={ Description:"Strength",PickOne:"Table|Standard|Super",Flags:0 };
+s_xSP[44]={ Description:"Historical Beer Style",PickOne:"Gose|Kentucky Common|Lichtenhainer|London Brown Ale|Piwo Grodziskie|Pre-Prohibition Lager|Pre-Prohibition Porter|Roggenbier|Sahti|Other (provide style Details)",Flags:0 };
+s_xSP[45]={ Description:"100 percent Brett fermentation?",PickOne:"Yes|No",Flags:0 };
+s_xSP[46]={ Description:"Brett strain(s) and Description",PickOne:"",Flags:0 };
+s_xSP[47]={ Description:"Alternative grain",PickOne:"",Flags:0 };
+s_xSP[48]={ Description:"Alternative sugar",PickOne:"",Flags:0 };
+s_xSP[49]={ Description:"Wood Char Level",PickOne:"",Flags:0 };
+s_xSP[50]={ Description:"Specifications",PickOne:"",Flags:0 };
+s_xSP[51]={ Description:"Sensory Description or Ingredients",PickOne:"",Flags:0 };
+s_xSP[52]={ Description:"Styles",PickOne:"",Flags:0 };
+s_xSP[53]={ Description:"Sensory Description or Specifications",PickOne:"",Flags:0 };
+s_xSP[54]={ Description:"Barrel Fermented?",PickOne:"No|Yes",Flags:0 };
+s_xSP[55]={ Description:"Aged?",PickOne:"No|Yes",Flags:0 };
+s_xSP[56]={ Description:"Spices/Herbs (Variety if hops)",PickOne:"",Flags:0 };
+s_xSP[57]={ Description:"IPA Type Details",PickOne:"",Flags:0 };
+s_xSP[58]={ Description:"Historical Style Details",PickOne:"",Flags:0 };
+s_xSP[59]={ Description:"Fruit/Spice/Herb/Wood info",PickOne:"",Flags:0 };
+s_xSP[60]={ Description:"Sweetness",PickOne:"Medium|Medium-Sweet|Sweet",Flags:0 };
+s_xSP[61]={ Description:"Style info",PickOne:"",Flags:2 };
+s_xSP[62]={ Description:"Chili Type",PickOne:"",Flags:0 };
+s_xSP[63]={ Description:"Chocolate Type",PickOne:"",Flags:0 };
+s_xSP[64]={ Description:"Coffee Type",PickOne:"",Flags:0 };
+s_xSP[65]={ Description:"Hop Usage Technique",PickOne:"",Flags:0 };
+s_xSP[66]={ Description:"Aging Time Length",PickOne:"",Flags:0 };
+s_xSP[67]={ Description:"Pour: Normal, Quiet, Rouse",PickOne:"",Flags:0 };
+s_xSP[68]={ Description:"Non-Traditional Ingredients",PickOne:"",Flags:0 };
+s_xSP[69]={ Description:"Contains at least 85% apple/pear juice?",PickOne:"Yes|No",Flags:0 };
+s_xSP[70]={ Description:"If high OG, explain why",PickOne:"",Flags:0 };
+s_xSP[71]={ Description:"Specify All Ingredients",PickOne:"",Flags:0 };
+s_xSP[72]={ Description:"BJCP 2015 Mead Style",PickOne:"Cyser|Pyment|Berry Mead|Stone Fruit Mead|Melomel|Fruit/Spice Mead|Braggot|Historical Mead|Experimental Mead",Flags:0 };
+s_xSP[73]={ Description:"BJCP 2015 Beer Style",PickOne:"",Flags:0 };
+s_xSP[74]={ Description:"ABV (Alcohol By Volume) Percent",PickOne:"",Flags:0 };
+s_xSP[75]={ Description:"Starting Gravity or Brix",PickOne:"",Flags:0 };
+s_xSP[76]={ Description:"Final Gravity or Brix",PickOne:"",Flags:0 };
+s_xSP[77]={ Description:"British Strong Type",PickOne:"Burton Ale|Other (specify Details)",Flags:0 };
+s_xSP[78]={ Description:"British Strong Type Details",PickOne:"",Flags:0 };
+s_xSP[79]={ Description:"Fruits/Vegetables Used",PickOne:"",Flags:0 };
+s_xSP[80]={ Description:"Spices/Herbs Used",PickOne:"",Flags:0 };
+s_xSP[81]={ Description:"Beer Style",PickOne:"",Flags:0 };
+s_xSP[82]={ Description:"What makes this Specialty?",PickOne:"",Flags:0 };
+s_xSP[83]={ Description:"Carbonation",PickOne:"Still|Sparkling",Flags:0 };
+s_xSP[84]={ Description:"Rye type/usage",PickOne:"",Flags:0 };
+s_xSP[85]={ Description:"ABV exceeds 5 percent? (No/Yes)",PickOne:"",Flags:0 };
+s_xSP[86]={ Description:"Souring Method",PickOne:"",Flags:0 };
+s_xSP[87]={ Description:"Metodo de elaboracion",PickOne:"",Flags:0 };
+s_xSP[88]={ Description:"Ingredientes",PickOne:"",Flags:0 };
+s_xSP[89]={ Description:"Regional Variation",PickOne:"",Flags:0 };
+s_xSP[90]={ Description:"IPA Type",PickOne:"Belgian IPA|Black IPA|Brown IPA|Red IPA|Rye IPA|White IPA|Brut IPA|Other (specify Details)",Flags:0 };
+s_xSP[91]={ Description:"Character Grains",PickOne:"",Flags:0 };
+s_xSP[92]={ Description:"Historical Beer Style",PickOne:"Kellerbier|Kentucky Common|Lichtenhainer|London Brown Ale|Piwo Grodziskie|Pre-Prohibition Lager|Pre-Prohibition Porter|Roggenbier|Sahti|Other (provide style Details)",Flags:0 };
+s_xSP[93]={ Description:"Kellerbier base style",PickOne:"German Pils|Munich Helles|Marzen|Munich Dunkel",Flags:0 };
+s_xSP[94]={ Description:"Base Style or Ingredients/Specs/Character",PickOne:"",Flags:0 };
+s_xSP[95]={ Description:"Carbohydrate sources",PickOne:"",Flags:0 };
+s_xSP[96]={ Description:"Fermentation type",PickOne:"",Flags:0 };
+s_xSP[97]={ Description:"Spices/Botanicals",PickOne:"",Flags:0 };
+s_xSP[98]={ Description:"Porcentaje de Alcohol",PickOne:"",Flags:0 };
+s_xSP[99]={ Description:"Sweetness",PickOne:"Dry|Semi-Dry|Medium|Semi-Sweet",Flags:0 };
+s_xSP[100]={ Description:"Sweetness",PickOne:"Dry|Semi-Dry|Medium",Flags:0 };
+s_xSP[101]={ Description:"Color of added fruit",PickOne:"",Flags:0 };
+s_xSP[102]={ Description:"Declarar gr/lt de azucar",PickOne:"",Flags:0 };
+s_xSP[103]={ Description:"Declarar alcohol base utilizado",PickOne:"",Flags:0 };
+var s_xCA=[
+ { StyleAndSubstyle:"1A",SubStyleName:"American Light Lager",Category:"B",FlagList:"",Alias:"1A",CanSplit:"",Conditional:"",SubSubStylesOnly:"" },
+ { StyleAndSubstyle:"1B",SubStyleName:"American Lager",Category:"B",FlagList:"",Alias:"1B",CanSplit:"",Conditional:"",SubSubStylesOnly:"" },
+ { StyleAndSubstyle:"1C",SubStyleName:"Cream Ale",Category:"B",FlagList:"",Alias:"1C",CanSplit:"",Conditional:"",SubSubStylesOnly:"" },
+ { StyleAndSubstyle:"1D",SubStyleName:"American Wheat Beer",Category:"B",FlagList:"",Alias:"1D",CanSplit:"",Conditional:"",SubSubStylesOnly:"" },
+ { StyleAndSubstyle:"2A",SubStyleName:"International Pale Lager",Category:"B",FlagList:"-89",Alias:"2A",CanSplit:"",Conditional:"",SubSubStylesOnly:"" },
+ { StyleAndSubstyle:"2B",SubStyleName:"International Amber Lager",Category:"B",FlagList:"",Alias:"2B",CanSplit:"",Conditional:"",SubSubStylesOnly:"" },
+ { StyleAndSubstyle:"2C",SubStyleName:"International Dark Lager",Category:"B",FlagList:"",Alias:"2C",CanSplit:"",Conditional:"",SubSubStylesOnly:"" },
+ { StyleAndSubstyle:"3A",SubStyleName:"Czech Pale Lager",Category:"B",FlagList:"",Alias:"3A",CanSplit:"",Conditional:"",SubSubStylesOnly:"" },
+ { StyleAndSubstyle:"3B",SubStyleName:"Czech Premium Pale Lager",Category:"B",FlagList:"",Alias:"3B",CanSplit:"",Conditional:"",SubSubStylesOnly:"" },
+ { StyleAndSubstyle:"3C",SubStyleName:"Czech Amber Lager",Category:"B",FlagList:"",Alias:"3C",CanSplit:"",Conditional:"",SubSubStylesOnly:"" },
+ { StyleAndSubstyle:"3D",SubStyleName:"Czech Dark Lager",Category:"B",FlagList:"",Alias:"3D",CanSplit:"",Conditional:"",SubSubStylesOnly:"" },
+ { StyleAndSubstyle:"4A",SubStyleName:"Munich Helles",Category:"B",FlagList:"",Alias:"4A",CanSplit:"",Conditional:"",SubSubStylesOnly:"" },
+ { StyleAndSubstyle:"4B",SubStyleName:"Festbier",Category:"B",FlagList:"",Alias:"4B",CanSplit:"",Conditional:"",SubSubStylesOnly:"" },
+ { StyleAndSubstyle:"4C",SubStyleName:"Helles Bock",Category:"B",FlagList:"",Alias:"4C",CanSplit:"",Conditional:"",SubSubStylesOnly:"" },
+ { StyleAndSubstyle:"5A",SubStyleName:"German Leichtbier",Category:"B",FlagList:"",Alias:"5A",CanSplit:"",Conditional:"",SubSubStylesOnly:"" },
+ { StyleAndSubstyle:"5B",SubStyleName:"Kolsch",Category:"B",FlagList:"",Alias:"5B",CanSplit:"",Conditional:"",SubSubStylesOnly:"" },
+ { StyleAndSubstyle:"5C",SubStyleName:"German Helles Exportbier",Category:"B",FlagList:"",Alias:"5C",CanSplit:"",Conditional:"",SubSubStylesOnly:"" },
+ { StyleAndSubstyle:"5D",SubStyleName:"German Pils",Category:"B",FlagList:"",Alias:"5D",CanSplit:"",Conditional:"",SubSubStylesOnly:"" },
+ { StyleAndSubstyle:"6A",SubStyleName:"Marzen",Category:"B",FlagList:"",Alias:"6A",CanSplit:"",Conditional:"",SubSubStylesOnly:"" },
+ { StyleAndSubstyle:"6B",SubStyleName:"Rauchbier",Category:"B",FlagList:"",Alias:"6B",CanSplit:"",Conditional:"",SubSubStylesOnly:"" },
+ { StyleAndSubstyle:"6C",SubStyleName:"Dunkles Bock",Category:"B",FlagList:"",Alias:"6C",CanSplit:"",Conditional:"",SubSubStylesOnly:"" },
+ { StyleAndSubstyle:"7A",SubStyleName:"Vienna Lager",Category:"B",FlagList:"",Alias:"7A",CanSplit:"",Conditional:"",SubSubStylesOnly:"" },
+ { StyleAndSubstyle:"7B",SubStyleName:"Altbier",Category:"B",FlagList:"",Alias:"7B",CanSplit:"",Conditional:"",SubSubStylesOnly:"" },
+ { StyleAndSubstyle:"8A",SubStyleName:"Munich Dunkel",Category:"B",FlagList:"",Alias:"8A",CanSplit:"",Conditional:"",SubSubStylesOnly:"" },
+ { StyleAndSubstyle:"8B",SubStyleName:"Schwarzbier",Category:"B",FlagList:"",Alias:"8B",CanSplit:"",Conditional:"",SubSubStylesOnly:"" },
+ { StyleAndSubstyle:"9A",SubStyleName:"Doppelbock",Category:"B",FlagList:"36",Alias:"9A",CanSplit:"",Conditional:"",SubSubStylesOnly:"" },
+ { StyleAndSubstyle:"9B",SubStyleName:"Eisbock",Category:"B",FlagList:"",Alias:"9B",CanSplit:"",Conditional:"",SubSubStylesOnly:"" },
+ { StyleAndSubstyle:"9C",SubStyleName:"Baltic Porter",Category:"B",FlagList:"",Alias:"9C",CanSplit:"",Conditional:"",SubSubStylesOnly:"" },
+ { StyleAndSubstyle:"10A",SubStyleName:"Weissbier",Category:"B",FlagList:"-24",Alias:"10A",CanSplit:"",Conditional:"",SubSubStylesOnly:"" },
+ { StyleAndSubstyle:"10B",SubStyleName:"Dunkles Weissbier",Category:"B",FlagList:"",Alias:"10B",CanSplit:"",Conditional:"",SubSubStylesOnly:"" },
+ { StyleAndSubstyle:"10C",SubStyleName:"Weizenbock",Category:"B",FlagList:"36",Alias:"10C",CanSplit:"",Conditional:"",SubSubStylesOnly:"" },
+ { StyleAndSubstyle:"11A",SubStyleName:"Ordinary Bitter",Category:"B",FlagList:"",Alias:"11A",CanSplit:"",Conditional:"",SubSubStylesOnly:"" },
+ { StyleAndSubstyle:"11B",SubStyleName:"Best Bitter",Category:"B",FlagList:"",Alias:"11B",CanSplit:"",Conditional:"",SubSubStylesOnly:"" },
+ { StyleAndSubstyle:"11C",SubStyleName:"Strong Bitter",Category:"B",FlagList:"",Alias:"11C",CanSplit:"",Conditional:"",SubSubStylesOnly:"" },
+ { StyleAndSubstyle:"12A",SubStyleName:"British Golden Ale",Category:"B",FlagList:"",Alias:"12A",CanSplit:"",Conditional:"",SubSubStylesOnly:"" },
+ { StyleAndSubstyle:"12B",SubStyleName:"Australian Sparkling Ale",Category:"B",FlagList:"",Alias:"12B",CanSplit:"",Conditional:"",SubSubStylesOnly:"" },
+ { StyleAndSubstyle:"12C",SubStyleName:"English IPA",Category:"B",FlagList:"",Alias:"12C",CanSplit:"",Conditional:"",SubSubStylesOnly:"" },
+ { StyleAndSubstyle:"13A",SubStyleName:"Dark Mild",Category:"B",FlagList:"",Alias:"13A",CanSplit:"",Conditional:"",SubSubStylesOnly:"" },
+ { StyleAndSubstyle:"13B",SubStyleName:"British Brown Ale",Category:"B",FlagList:"",Alias:"13B",CanSplit:"",Conditional:"",SubSubStylesOnly:"" },
+ { StyleAndSubstyle:"13C",SubStyleName:"English Porter",Category:"B",FlagList:"",Alias:"13C",CanSplit:"",Conditional:"",SubSubStylesOnly:"" },
+ { StyleAndSubstyle:"14A",SubStyleName:"Scottish Light",Category:"B",FlagList:"",Alias:"14A",CanSplit:"",Conditional:"",SubSubStylesOnly:"" },
+ { StyleAndSubstyle:"14B",SubStyleName:"Scottish Heavy",Category:"B",FlagList:"",Alias:"14B",CanSplit:"",Conditional:"",SubSubStylesOnly:"" },
+ { StyleAndSubstyle:"14C",SubStyleName:"Scottish Export",Category:"B",FlagList:"",Alias:"14C",CanSplit:"",Conditional:"",SubSubStylesOnly:"" },
+ { StyleAndSubstyle:"15A",SubStyleName:"Irish Red Ale",Category:"B",FlagList:"",Alias:"15A",CanSplit:"",Conditional:"",SubSubStylesOnly:"" },
+ { StyleAndSubstyle:"15B",SubStyleName:"Irish Stout",Category:"B",FlagList:"",Alias:"15B",CanSplit:"",Conditional:"",SubSubStylesOnly:"" },
+ { StyleAndSubstyle:"15C",SubStyleName:"Irish Extra Stout",Category:"B",FlagList:"",Alias:"15C",CanSplit:"",Conditional:"",SubSubStylesOnly:"" },
+ { StyleAndSubstyle:"16A",SubStyleName:"Sweet Stout",Category:"B",FlagList:"",Alias:"16A",CanSplit:"",Conditional:"",SubSubStylesOnly:"" },
+ { StyleAndSubstyle:"16B",SubStyleName:"Oatmeal Stout",Category:"B",FlagList:"",Alias:"16B",CanSplit:"",Conditional:"",SubSubStylesOnly:"" },
+ { StyleAndSubstyle:"16C",SubStyleName:"Tropical Stout",Category:"B",FlagList:"",Alias:"16C",CanSplit:"",Conditional:"",SubSubStylesOnly:"" },
+ { StyleAndSubstyle:"16D",SubStyleName:"Foreign Extra Stout",Category:"B",FlagList:"",Alias:"16D",CanSplit:"",Conditional:"",SubSubStylesOnly:"" },
+ { StyleAndSubstyle:"17A",SubStyleName:"British Strong Ale",Category:"B",FlagList:"77,78",Alias:"17A",CanSplit:"",Conditional:"77,Other (specify Details),78",SubSubStylesOnly:"" },
+ { StyleAndSubstyle:"17B",SubStyleName:"Old Ale",Category:"B",FlagList:"",Alias:"17B",CanSplit:"",Conditional:"",SubSubStylesOnly:"" },
+ { StyleAndSubstyle:"17C",SubStyleName:"Wee Heavy",Category:"B",FlagList:"",Alias:"17C",CanSplit:"",Conditional:"",SubSubStylesOnly:"" },
+ { StyleAndSubstyle:"17D",SubStyleName:"English Barley Wine",Category:"B",FlagList:"",Alias:"17D",CanSplit:"",Conditional:"",SubSubStylesOnly:"" },
+ { StyleAndSubstyle:"18A",SubStyleName:"Blonde Ale",Category:"B",FlagList:"",Alias:"18A",CanSplit:"",Conditional:"",SubSubStylesOnly:"" },
+ { StyleAndSubstyle:"18B",SubStyleName:"American Pale Ale",Category:"B",FlagList:"",Alias:"18B",CanSplit:"",Conditional:"",SubSubStylesOnly:"" },
+ { StyleAndSubstyle:"19A",SubStyleName:"American Amber Ale",Category:"B",FlagList:"",Alias:"19A",CanSplit:"",Conditional:"",SubSubStylesOnly:"" },
+ { StyleAndSubstyle:"19B",SubStyleName:"California Common",Category:"B",FlagList:"",Alias:"19B",CanSplit:"",Conditional:"",SubSubStylesOnly:"" },
+ { StyleAndSubstyle:"19C",SubStyleName:"American Brown Ale",Category:"B",FlagList:"",Alias:"19C",CanSplit:"",Conditional:"",SubSubStylesOnly:"" },
+ { StyleAndSubstyle:"20A",SubStyleName:"American Porter",Category:"B",FlagList:"",Alias:"20A",CanSplit:"",Conditional:"",SubSubStylesOnly:"" },
+ { StyleAndSubstyle:"20B",SubStyleName:"American Stout",Category:"B",FlagList:"",Alias:"20B",CanSplit:"",Conditional:"",SubSubStylesOnly:"" },
+ { StyleAndSubstyle:"20C",SubStyleName:"Imperial Stout",Category:"B",FlagList:"",Alias:"20C",CanSplit:"",Conditional:"",SubSubStylesOnly:"" },
+ { StyleAndSubstyle:"21A",SubStyleName:"American IPA",Category:"B",FlagList:"",Alias:"21A",CanSplit:"",Conditional:"",SubSubStylesOnly:"" },
+ { StyleAndSubstyle:"21B",SubStyleName:"Specialty IPA",Category:"B",FlagList:"-39,90,57,37",Alias:"21B",CanSplit:"90",Conditional:"90,Other (specify Details),57",SubSubStylesOnly:"" },
+ { StyleAndSubstyle:"21C",SubStyleName:"Hazy IPA",Category:"B",FlagList:"",Alias:"21C",CanSplit:"",Conditional:"",SubSubStylesOnly:"" },
+ { StyleAndSubstyle:"22A",SubStyleName:"Double IPA",Category:"B",FlagList:"",Alias:"22A",CanSplit:"",Conditional:"",SubSubStylesOnly:"" },
+ { StyleAndSubstyle:"22B",SubStyleName:"American Strong Ale",Category:"B",FlagList:"",Alias:"22B",CanSplit:"",Conditional:"",SubSubStylesOnly:"" },
+ { StyleAndSubstyle:"22C",SubStyleName:"American Barleywine",Category:"B",FlagList:"",Alias:"22C",CanSplit:"",Conditional:"",SubSubStylesOnly:"" },
+ { StyleAndSubstyle:"22D",SubStyleName:"Wheatwine",Category:"B",FlagList:"",Alias:"22D",CanSplit:"",Conditional:"",SubSubStylesOnly:"" },
+ { StyleAndSubstyle:"23A",SubStyleName:"Berliner Weisse",Category:"B",FlagList:"",Alias:"23A",CanSplit:"",Conditional:"",SubSubStylesOnly:"" },
+ { StyleAndSubstyle:"23B",SubStyleName:"Flanders Red Ale",Category:"B",FlagList:"",Alias:"23B",CanSplit:"",Conditional:"",SubSubStylesOnly:"" },
+ { StyleAndSubstyle:"23C",SubStyleName:"Oud Bruin",Category:"B",FlagList:"",Alias:"23C",CanSplit:"",Conditional:"",SubSubStylesOnly:"" },
+ { StyleAndSubstyle:"23D",SubStyleName:"Lambic",Category:"B",FlagList:"",Alias:"23D",CanSplit:"",Conditional:"",SubSubStylesOnly:"" },
+ { StyleAndSubstyle:"23E",SubStyleName:"Gueuze",Category:"B",FlagList:"",Alias:"23E",CanSplit:"",Conditional:"",SubSubStylesOnly:"" },
+ { StyleAndSubstyle:"23F",SubStyleName:"Fruit Lambic",Category:"B",FlagList:"40,6,41",Alias:"23F",CanSplit:"",Conditional:"",SubSubStylesOnly:"" },
+ { StyleAndSubstyle:"23G",SubStyleName:"Gose",Category:"B",FlagList:"",Alias:"23G",CanSplit:"",Conditional:"",SubSubStylesOnly:"" },
+ { StyleAndSubstyle:"24A",SubStyleName:"Witbier",Category:"B",FlagList:"",Alias:"24A",CanSplit:"",Conditional:"",SubSubStylesOnly:"" },
+ { StyleAndSubstyle:"24B",SubStyleName:"Belgian Pale Ale",Category:"B",FlagList:"",Alias:"24B",CanSplit:"",Conditional:"",SubSubStylesOnly:"" },
+ { StyleAndSubstyle:"24C",SubStyleName:"Biere de Garde",Category:"B",FlagList:"42",Alias:"24C",CanSplit:"",Conditional:"",SubSubStylesOnly:"" },
+ { StyleAndSubstyle:"25A",SubStyleName:"Belgian Blond Ale",Category:"B",FlagList:"",Alias:"25A",CanSplit:"",Conditional:"",SubSubStylesOnly:"" },
+ { StyleAndSubstyle:"25B",SubStyleName:"Saison",Category:"B",FlagList:"-91,36,43",Alias:"25B",CanSplit:"",Conditional:"",SubSubStylesOnly:"" },
+ { StyleAndSubstyle:"25C",SubStyleName:"Belgian Golden Strong Ale",Category:"B",FlagList:"",Alias:"25C",CanSplit:"",Conditional:"",SubSubStylesOnly:"" },
+ { StyleAndSubstyle:"26A",SubStyleName:"Belgian Single",Category:"B",FlagList:"",Alias:"26A",CanSplit:"",Conditional:"",SubSubStylesOnly:"" },
+ { StyleAndSubstyle:"26B",SubStyleName:"Belgian Dubbel",Category:"B",FlagList:"",Alias:"26B",CanSplit:"",Conditional:"",SubSubStylesOnly:"" },
+ { StyleAndSubstyle:"26C",SubStyleName:"Belgian Tripel",Category:"B",FlagList:"",Alias:"26C",CanSplit:"",Conditional:"",SubSubStylesOnly:"" },
+ { StyleAndSubstyle:"26D",SubStyleName:"Belgian Dark Strong Ale",Category:"B",FlagList:"",Alias:"26D",CanSplit:"",Conditional:"",SubSubStylesOnly:"" },
+ { StyleAndSubstyle:"27 ",SubStyleName:"Historical Beer",Category:"B",FlagList:"92,58,93",Alias:"27 ",CanSplit:"92",Conditional:"92,Kellerbier,93;92,Other (provide style Details),58",SubSubStylesOnly:"" },
+ { StyleAndSubstyle:"28A",SubStyleName:"Brett Beer",Category:"B",FlagList:"94,-46",Alias:"28A",CanSplit:"",Conditional:"",SubSubStylesOnly:"" },
+ { StyleAndSubstyle:"28B",SubStyleName:"Mixed-Fermentation Sour Beer",Category:"B",FlagList:"94,13",Alias:"28B",CanSplit:"",Conditional:"",SubSubStylesOnly:"" },
+ { StyleAndSubstyle:"28C",SubStyleName:"Wild Specialty Beer",Category:"B",FlagList:"94,59,13",Alias:"28C",CanSplit:"",Conditional:"",SubSubStylesOnly:"" },
+ { StyleAndSubstyle:"28D",SubStyleName:"Straight Sour Beer",Category:"B",FlagList:"",Alias:"28D",CanSplit:"",Conditional:"",SubSubStylesOnly:"" },
+ { StyleAndSubstyle:"29A",SubStyleName:"Fruit Beer",Category:"B",FlagList:"94,6",Alias:"29A",CanSplit:"",Conditional:"",SubSubStylesOnly:"" },
+ { StyleAndSubstyle:"29B",SubStyleName:"Fruit and Spice Beer",Category:"B",FlagList:"94,6,19",Alias:"29B",CanSplit:"",Conditional:"",SubSubStylesOnly:"" },
+ { StyleAndSubstyle:"29C",SubStyleName:"Specialty Fruit Beer",Category:"B",FlagList:"94,6,20",Alias:"29C",CanSplit:"",Conditional:"",SubSubStylesOnly:"" },
+ { StyleAndSubstyle:"29D",SubStyleName:"Grape Ale",Category:"B",FlagList:"-94,7",Alias:"29D",CanSplit:"",Conditional:"",SubSubStylesOnly:"" },
+ { StyleAndSubstyle:"30A",SubStyleName:"Spice/Herb/Vegetable Beer",Category:"B",FlagList:"94,19",Alias:"30A",CanSplit:"",Conditional:"",SubSubStylesOnly:"" },
+ { StyleAndSubstyle:"30B",SubStyleName:"Autumn Seasonal Beer",Category:"B",FlagList:"94,19",Alias:"30B",CanSplit:"",Conditional:"",SubSubStylesOnly:"" },
+ { StyleAndSubstyle:"30C",SubStyleName:"Winter Seasonal Beer",Category:"B",FlagList:"94,16",Alias:"30C",CanSplit:"",Conditional:"",SubSubStylesOnly:"" },
+ { StyleAndSubstyle:"30D",SubStyleName:"Specialty Spice Beer",Category:"B",FlagList:"94,20,19",Alias:"30D",CanSplit:"",Conditional:"",SubSubStylesOnly:"" },
+ { StyleAndSubstyle:"31A",SubStyleName:"Alternative Grain Beer",Category:"B",FlagList:"47,94",Alias:"31A",CanSplit:"",Conditional:"",SubSubStylesOnly:"" },
+ { StyleAndSubstyle:"31B",SubStyleName:"Alternative Sugar Beer",Category:"B",FlagList:"48,94",Alias:"31B",CanSplit:"",Conditional:"",SubSubStylesOnly:"" },
+ { StyleAndSubstyle:"32A",SubStyleName:"Classic Style Smoked Beer",Category:"B",FlagList:"33,-23",Alias:"32A",CanSplit:"",Conditional:"",SubSubStylesOnly:"" },
+ { StyleAndSubstyle:"32B",SubStyleName:"Specialty Smoked Beer",Category:"B",FlagList:"94,20,-23",Alias:"32B",CanSplit:"",Conditional:"",SubSubStylesOnly:"" },
+ { StyleAndSubstyle:"33A",SubStyleName:"Wood-Aged Beer",Category:"B",FlagList:"2,94,-49",Alias:"33A",CanSplit:"",Conditional:"",SubSubStylesOnly:"" },
+ { StyleAndSubstyle:"33B",SubStyleName:"Specialty Wood-Aged Beer",Category:"B",FlagList:"2,94",Alias:"33B",CanSplit:"",Conditional:"",SubSubStylesOnly:"" },
+ { StyleAndSubstyle:"34A",SubStyleName:"Commercial Specialty Beer",Category:"B",FlagList:"17,51,50",Alias:"34A",CanSplit:"",Conditional:"",SubSubStylesOnly:"" },
+ { StyleAndSubstyle:"34B",SubStyleName:"Mixed-Style Beer",Category:"B",FlagList:"-53,20,52",Alias:"34B",CanSplit:"",Conditional:"",SubSubStylesOnly:"" },
+ { StyleAndSubstyle:"34C",SubStyleName:"Experimental Beer",Category:"B",FlagList:"51,14,50",Alias:"34C",CanSplit:"",Conditional:"",SubSubStylesOnly:"" },
+ { StyleAndSubstyle:"35A",SubStyleName:"Dry Mead",Category:"M",FlagList:"28,-27,30",Alias:"M1A",CanSplit:"",Conditional:"",SubSubStylesOnly:"" },
+ { StyleAndSubstyle:"35B",SubStyleName:"Semi-Sweet Mead",Category:"M",FlagList:"28,-27,30",Alias:"M1B",CanSplit:"",Conditional:"",SubSubStylesOnly:"" },
+ { StyleAndSubstyle:"35C",SubStyleName:"Sweet Mead",Category:"M",FlagList:"28,-27,30",Alias:"M1C",CanSplit:"",Conditional:"",SubSubStylesOnly:"" },
+ { StyleAndSubstyle:"36A",SubStyleName:"Cyser",Category:"M",FlagList:"-1,28,-27,30,29",Alias:"M2A",CanSplit:"29",Conditional:"",SubSubStylesOnly:"" },
+ { StyleAndSubstyle:"36B",SubStyleName:"Pyment",Category:"M",FlagList:"28,-7,-27,30,29",Alias:"M2B",CanSplit:"29",Conditional:"",SubSubStylesOnly:"" },
+ { StyleAndSubstyle:"36C",SubStyleName:"Berry Mead",Category:"M",FlagList:"28,6,-27,30,29",Alias:"M2C",CanSplit:"29",Conditional:"",SubSubStylesOnly:"" },
+ { StyleAndSubstyle:"36D",SubStyleName:"Stone Fruit Mead",Category:"M",FlagList:"28,6,-27,30,29",Alias:"M2D",CanSplit:"29",Conditional:"",SubSubStylesOnly:"" },
+ { StyleAndSubstyle:"36E",SubStyleName:"Melomel",Category:"M",FlagList:"28,6,-27,30,29",Alias:"M2E",CanSplit:"29",Conditional:"",SubSubStylesOnly:"" },
+ { StyleAndSubstyle:"37A",SubStyleName:"Fruit and Spice Mead",Category:"M",FlagList:"28,6,-27,3,30,29",Alias:"M3A",CanSplit:"29",Conditional:"",SubSubStylesOnly:"" },
+ { StyleAndSubstyle:"37B",SubStyleName:"Spice/Herb/Vegetable Mead",Category:"M",FlagList:"28,-27,19,30,29",Alias:"M3B",CanSplit:"29",Conditional:"",SubSubStylesOnly:"" },
+ { StyleAndSubstyle:"38A",SubStyleName:"Braggot",Category:"M",FlagList:"-32,28,-27,30,29",Alias:"M4A",CanSplit:"29",Conditional:"",SubSubStylesOnly:"" },
+ { StyleAndSubstyle:"38B",SubStyleName:"Historical Mead",Category:"M",FlagList:"28,-27,14,30,29",Alias:"M4B",CanSplit:"29",Conditional:"",SubSubStylesOnly:"" },
+ { StyleAndSubstyle:"38C",SubStyleName:"Experimental Mead",Category:"M",FlagList:"28,-27,14,30,29",Alias:"M4C",CanSplit:"29",Conditional:"",SubSubStylesOnly:"" },
+ { StyleAndSubstyle:"39A",SubStyleName:"New World Cider",Category:"C",FlagList:"-1,28,26",Alias:"C1A",CanSplit:"",Conditional:"",SubSubStylesOnly:"" },
+ { StyleAndSubstyle:"39B",SubStyleName:"English Cider",Category:"C",FlagList:"-1,28,26",Alias:"C1B",CanSplit:"",Conditional:"",SubSubStylesOnly:"" },
+ { StyleAndSubstyle:"39C",SubStyleName:"French Cider",Category:"C",FlagList:"-1,28,60",Alias:"C1C",CanSplit:"",Conditional:"",SubSubStylesOnly:"" },
+ { StyleAndSubstyle:"39D",SubStyleName:"New World Perry",Category:"C",FlagList:"28,-18,26",Alias:"C1D",CanSplit:"",Conditional:"",SubSubStylesOnly:"" },
+ { StyleAndSubstyle:"39E",SubStyleName:"Traditional Perry",Category:"C",FlagList:"28,18,26",Alias:"C1E",CanSplit:"",Conditional:"",SubSubStylesOnly:"" },
+ { StyleAndSubstyle:"40A",SubStyleName:"New England Cider",Category:"C",FlagList:"55,-1,54,28,26",Alias:"C2A",CanSplit:"",Conditional:"",SubSubStylesOnly:"" },
+ { StyleAndSubstyle:"40B",SubStyleName:"Cider with Other Fruit",Category:"C",FlagList:"28,10,26",Alias:"C2B",CanSplit:"",Conditional:"",SubSubStylesOnly:"" },
+ { StyleAndSubstyle:"40C",SubStyleName:"Applewine",Category:"C",FlagList:"28,26",Alias:"C2C",CanSplit:"",Conditional:"",SubSubStylesOnly:"" },
+ { StyleAndSubstyle:"40D",SubStyleName:"Ice Cider",Category:"C",FlagList:"28,50",Alias:"C2D",CanSplit:"",Conditional:"",SubSubStylesOnly:"" },
+ { StyleAndSubstyle:"40E",SubStyleName:"Cider with Herbs/Spices",Category:"C",FlagList:"28,56,26",Alias:"C2E",CanSplit:"",Conditional:"",SubSubStylesOnly:"" },
+ { StyleAndSubstyle:"40F",SubStyleName:"Specialty Cider/Perry",Category:"C",FlagList:"28,20,26",Alias:"C2F",CanSplit:"",Conditional:"",SubSubStylesOnly:"" },
+ { StyleAndSubstyle:"41 ",SubStyleName:"Dorada Pampeana",Category:"B",FlagList:"",Alias:"X1 ",CanSplit:"",Conditional:"",SubSubStylesOnly:"" },
+ { StyleAndSubstyle:"42 ",SubStyleName:"IPA Argenta",Category:"B",FlagList:"",Alias:"X2 ",CanSplit:"",Conditional:"",SubSubStylesOnly:"" },
+ { StyleAndSubstyle:"43 ",SubStyleName:"Italian Grape Ale",Category:"B",FlagList:"",Alias:"X3 ",CanSplit:"",Conditional:"",SubSubStylesOnly:"" },
+ { StyleAndSubstyle:"44 ",SubStyleName:"Catharina Sour",Category:"B",FlagList:"-6,-80",Alias:"X4 ",CanSplit:"",Conditional:"",SubSubStylesOnly:"" },
+ { StyleAndSubstyle:"45 ",SubStyleName:"New Zealand Pilsner",Category:"B",FlagList:"",Alias:"X5 ",CanSplit:"",Conditional:"",SubSubStylesOnly:"" }
+];
+var s_xJudgingGroups=[
+[1,"Light Lager"]
+,[2,"Pilsner"]
+,[3,"European Amber Lager"]
+,[4,"Dark Lager"]
+,[5,"Bock"]
+,[6,"Light Hybrid Beer"]
+,[7,"Amber Hybrid Beer"]
+,[8,"English Pale Ale"]
+,[9,"Scottish and Irish Ale"]
+,[10,"American Ale"]
+,[11,"English Brown Ale"]
+,[12,"Porter"]
+,[13,"Stout"]
+,[14,"India Pale Ale"]
+,[15,"German Wheat and Rye Beer"]
+,[16,"Belgian and French Ale"]
+,[17,"Sour Ale"]
+,[18,"Belgian Strong Ale"]
+,[19,"Strong Ale"]
+,[20,"Fruit Beer"]
+,[21,"Spice/Herb/Vegetable Beer"]
+,[22,"Smoke Flavored/Wood Aged Beer"]
+,[23,"Specialty Beer"]
+,[24,"Mead-Traditional"]
+,[25,"Mead-Melomel"]
+,[26,"Mead-Metheglin/Braggot/Open"]
+,[27,"Cider"]
+,[51,"Gin"]];
+var s_sCompName="Rocky Mountain Homebrew Challenge 2024",s_iBottleCount=2,s_sPayPalID="kostedgaard@yahoo.com",s_iEntryLimitation=0;
+
+var s_bUsePaypalSandbox=0; // 0 for production, 1 for sandbox
+var s_sPayPalPath="https://ReggieBeer.com/ReggiePaypal.php";
+
+function ReggieEncode(s) {
+ return s.replace(/&/g,"~").replace(/["`]/g,"'").replace(/[\\\|\<\>]/g,"");
+}
+
+function FromEntities(s) {
+ var i,j,iCount=0;
+ while((i=s.indexOf("&#"))>=0 && iCount++<100 /* safety valve */) {
+  j=s.substr(i).indexOf(";");
+  s=(i>0 ? s.substr(0,i) : "")+String.fromCharCode(1*s.substr(i+2,j-2))+s.substr(i+j+1);
+ }
+ return s;
+}
+
+function PrintPDF(sFormName,sParams) {
+ var i,xField,xVariables=[
+  ["EntrantID",s_iEntrantID]
+  ,["DBIndex",0]
+  ,["Bin2HexPswd",StringToHex(s_xPassword.value)]
+  ,["CompRecordID",882]
+  ,["Language","English"]
+  ,["FormName",sFormName]
+  ,["FormParams",sParams]
+ ];
+ var xForm=document.createElement("form");
+ xForm.setAttribute("method", "post");
+ xForm.setAttribute("action", "ReggieEntryPDF.php");
+ xForm.setAttribute("target", "ReggieEntryForm");
+ for(i=0;i<xVariables.length;i++) {
+  xField=document.createElement("input");
+  xField.setAttribute("type","hidden");
+  xField.setAttribute("name",xVariables[i][0]);
+  xField.setAttribute("value",xVariables[i][1]);
+  xForm.appendChild(xField);
+ }
+ document.body.appendChild(xForm);
+ window.open("","ReggieEntryForm","height=600,left=100,location=0,menubar=0,resizable=1,status=0,toolbar=0,titlebar=0",true);
+ xForm.submit();
+ xForm.remove();
+}
+
+function PrintBottleLabels() {
+ var i,x=document.getElementsByClassName("PrintLabelClass");
+ var sParams="";
+ for(i=0;i<x.length;i++) {
+  if(x[i].checked)
+   sParams+=(sParams=="" ? "" : ",")+x[i].id.substr(10); // PrintLabelxxx where xxx is CompEntryID
+ }
+ if(sParams=="")
+  ShowAlert("You have not selected any labels to print.\n\nPlease check the checkbox next to each entry for which you would like a label printed.\n\nTo print labels for all of your entries, check the box at the top of the column.", 10);
+ else
+  PrintPDF("BottleLabel",sParams);
+}
+
+function SortByStyle(a,b) {
+ return (a[0]>b[0] ? 1 : (a[0] < b[0] ? -1 : 0));
+}
+
+function PrintEntryList() {
+ if(s_xEntries.length <= 0) { ShowAlert("You don't have any entries to print"); return; }
+ var xLabelWindow=window.open("", "ReggiePrint", "width=800,toolbar=yes,resizable=yes,scrollbars=yes");
+ var xElement=document.getElementById("Delivery");
+ var iIndex=xElement.selectedIndex;
+ var sLocation=xElement.options[iIndex].text;
+ var sContent="<html><head><title>Reggie Entry List</title><style>table, td, th { border: 1px solid black;padding:2px } </style></head><body>"
+  +"<div style='text-align:center'><input type='button' value='Print Entry List' onClick='javascript:window.print()'></div>"
+  +(iIndex>0 ? "You have chosen to "+(sLocation.substr(0,4)=="Ship" ? "Ship your entries to" : "Drop Off your entries at")+":<br>"+
+   sLocation.substr(sLocation.indexOf(":")+2)
+   : "<span style='color:red'>You have not yet selected where you will deliver your entries - please choose a location</span>")
+  +"<br><br>"
+  +"<div style='font:bold 20px Arial'>"+s_sCompName+" entries for "+s_sEntrantName+"</div>"
+  +"Date of Competition: 2024-Oct-05<br>Dates for Entry Registration: 2024-Jul-31 - 2024-Sep-18<br>Dates for Judge and Volunteer Registration: 2024-Jul-31 - 2024-Oct-05<br>Dates for Entry Delivery: 2024-Sep-06 - 2024-Sep-20<br>Bottles needed for each entry: 2<br><br>"
+  +"<table><tr><th>#</th><th>Category</th><th>Entry Name</th></tr>";
+ var iCount=0;
+ for(var i=0;i<s_xEntries.length;i++) {
+  var x=s_xEntries[i];
+  var bIsWithdrawn=x["Flags"] & 2049;
+  var iBottlesSubmitted=x["BottlesSubmitted"];
+  sContent+="<tr><td>#"+(++iCount)+"</td><td>"+x["EntryStyle"]+"</td><td>"+x["BrewName"]
+   +(iBottlesSubmitted>0 ? " <span style='font-weight:bold;color:red'>Bottles submitted:"+iBottlesSubmitted+"</span>" : "")
+   +(bIsWithdrawn ? "<span style='font-weight:bold;color:red'> (Withdrawn"
+   +((bIsWithdrawn & 2048) ? " by Comp Org" : "")+")</span>" : "")
+   +"</td></tr>";
+ }
+ for(var i=0;i<s_xCoBrewer.length;i++)
+  sContent+="<tr><td>#"+(++iCount)+"</td><td>"+s_xCoBrewer[i]["EntryStyle"]+"</td><td>"+s_xCoBrewer[i]["BrewName"]+" : "+s_xCoBrewer[i]["BrewerName"]+"</td></tr>";
+ sContent+="</table><br><br>Your balance is "+s_sCurrency+s_dBalance+"</body></html>";
+ xLabelWindow.document.writeln(sContent);
+ xLabelWindow.document.close();
+}
+
+function ShowPage(s) {
+ var bIsLogin=(s=="Login");
+ document.getElementById("MainMenu").style.display=(bIsLogin ? "none" : "");
+ document.getElementById("Login").style.display=(bIsLogin || s=="EditProfile" ? "" : "none");
+ document.getElementById("Login2").style.display=(bIsLogin || s=="EditProfile" ? "" : "none");
+ document.getElementById("LoginLanguages").style.display=(bIsLogin ? "" : "none");
+ document.getElementById("Entries").style.display=(bIsLogin || s!="Entries" ? "none" : "");
+ document.getElementById("Judging").style.display=(bIsLogin || s!="Judging" ? "none" : "");
+ document.getElementById("Volunteer").style.display=(bIsLogin || s!="Volunteer" ? "none" : "");
+ if(!bIsLogin && s!="EditProfile") document.getElementById("ClubInfo").style.display="none";
+ document.getElementById("PopupQA").style.visibility="hidden";
+}
+
+function GetQA(iPage) {
+ var i,s,sInnerHTML="";
+ document.getElementById("PopupQAPage").innerHTML=iPage;
+ for(i=0;i<s_xQA.length;i++) {
+  x=s_xQA[i];
+  if(!(x.QApage & iPage)) continue;
+  sInnerHTML+="<tr><td>"+x.QAtext+"</td><td>";
+  s="QA"+x.QAid;
+  if(x.QAtype==2)
+   sInnerHTML+="<input type='text' value='"+x.QAvalue+"' id='"+s+"'>";
+  else if(x.QAtype==3)
+   sInnerHTML+="<input type='text' style='width:220px' disabled id='"+s+"' value=\""+x.QAvalue+"\">"
+     +"<br>Last Name: "
+     +"<div style='position:relative'>"
+      +"<input type='text' id='Affiliate' style='width:220px' autocomplete='off' onkeyup='StartAffiliateTimer()'>"
+      +"<span style='position:absolute;left:10px;top:12px;visibility:hidden;height:1px;z-index:40'"
+       +" id='AffiliatePopup'></span></div>"
+      +"<input type='button' value='Add' onclick='AddAffiliate("+s+")'>"
+      +"&nbsp;<input type='button' value='Remove' onclick='RemoveAffiliate("+s+")'>"
+      +"&nbsp;<input type='button' value='Not Affiliated' onclick='NoAffiliate("+s+")'><br>&nbsp;";
+  else if(x.QAtype==1)
+   sInnerHTML+="<select id='"+s+"'>"
+     +"<option value='' selected>Pick one</option>"
+     +"<option value='1'"+(x.QAvalue==1 ? " selected" : "")+">No</option>"
+     +"<option value='2'"+(x.QAvalue==2 ? " selected" : "")+">Yes</option></select>";
+  sInnerHTML+="</td></tr>";
+ }
+ if(sInnerHTML!="") {
+  document.getElementById("PopupQA").style.visibility="visible";
+  document.getElementById("PopupQAQuestions").innerHTML=sInnerHTML;
+ } else
+  HandleUpdateQA("");
+}
+
+function HandleGetEntryLimitation(sText) {
+ var i,sStyle,sSubStyle,bDisabled,saText=sText.split(":"),sa=saText[0].split(","),sStyles=","+saText[1]+",";
+ var xStyle=document.getElementById("EntryStyle"),iStyleSelected=xStyle.selectedIndex;
+ var xActive=document.getElementById("Status"),iActiveSelected=xActive.selectedIndex;
+ var bIsActive=(xActive.options[iActiveSelected].value=="Active");
+ s_iEntryLimitation=1*sa[0];
+ s_bEntryLimitationBySubStyle=1*sa[1];
+ i0OK1None2Allow99x=1*sa[2];
+ for(i=1;i<xStyle.length;i++) {
+  sSubStyle=xStyle.options[i].value.trim(); // trim for Styles with no SubStyle divisions (like BJCP 2015 category 27)
+  if(i0OK1None2Allow99x>0)
+   bDisabled=(i0OK1None2Allow99x==1 || sSubStyle.length<3 || sSubStyle.substr(0,3)<"991" || sSubStyle.substr(0,3)>"999");
+  else if(s_bEntryLimitationBySubStyle)
+   bDisabled=(sStyles.indexOf(","+sSubStyle+",")>=0);
+  else {
+   sStyle=sSubStyle;
+   if(sStyle.substr(-1)>="A") sStyle=sStyle.substr(0,sStyle.length-1);
+   bDisabled=(sStyles.indexOf(","+sStyle+",")>=0);
+  }
+  if(i==iStyleSelected) {
+   if(bIsActive) bDisabled=false; else if(bDisabled) { xStyle.selectedIndex=0; iStyleSelected=0; ChangeStyle(); }
+  }
+  xStyle.options[i].disabled=bDisabled;
+ }
+}
+
+function HandleUpdateQA(sText) {
+ var i,x,iPage=document.getElementById("PopupQAPage").innerHTML;
+ if(sText!="" && sText!="Updated") ShowAlert(sText);
+ if(iPage & 1) {
+  if(s_iCanceledJudgeSessionCount==0) {
+   x=document.getElementsByClassName("JSCxl");
+   for(i=0;i<x.length;i++) x[i].style.display="none";
+  }
+  ShowPage("Judging");
+  CallAjax("GetJudgingPreferences","");
+ } else if(iPage & 10) {
+    ShowPage("Entries");
+  CallAjax("GetEntryInfo","");
+ } else if(iPage & 4) {
+  BuildVolunteerPage();
+  ShowPage("Volunteer");
+ }
+}
+
+function UpdatePopupQA() {
+ var iPage=document.getElementById("PopupQAPage").innerHTML;
+ UpdateQA(iPage);
+}
+
+function UpdateQA(iPage) {
+ var i,iIndex,sValue,xElement,x,sRequest="",iType;
+ for(i=0;i<s_xQA.length;i++) {
+  x=s_xQA[i];
+  if(!(x.QApage & iPage)) continue;
+  xElement=document.getElementById("QA"+x.QAid);
+  sValue="";
+  iType=x.QAtype;
+  if(iType==1 && (iIndex=xElement.selectedIndex)>0)
+   sValue=xElement.options[iIndex].value;
+  else if(iType==2)
+   sValue=xElement.value.replace(/[\|^&"`\>\<+;]/g,"");
+  else if(iType==3)
+   sValue=xElement.value.replace(/[\|^&"`\>\<+;]/g,"");
+  if(sValue=="") { ShowAlert("Please provide this information"); return; }
+  if(sValue!=x.QAvalue) { sRequest+=(sRequest=="" ? "&Values=" : "|")+x.QAid+"`"+x.QApage+"`"+sValue; s_xQA[i].QAvalue=sValue; }
+ }
+ document.getElementById("PopupQA").style.visibility="hidden";
+ if(sRequest!="") CallAjax("UpdateQA",sRequest); else HandleUpdateQA("");
+}
+
+function DoLogout() {
+ EntryButtonCancel();
+ ClearAccountFields(1);
+ SetEntrantName();
+ ShowHideAccountInfo(0);
+ ShowPage("Login");
+}
+
+function DoLogin() {
+ if(s_xFirstName.value=="") { ShowAlert("Please enter First Name"); s_xFirstName.focus(); return; }
+ if(s_xLastName.value=="") { ShowAlert("Please enter Last Name"); s_xLastName.focus(); return; }
+ if(s_xPassword.value=="") { ShowAlert("Please enter Password"); s_xPassword.focus(); return; }
+ CallAjax("Login","");
+}
+
+function SendPassword() {
+ if(s_xFirstName.value=="") { ShowAlert("Please enter First Name"); s_xFirstName.focus(); return; }
+ if(s_xLastName.value=="") { ShowAlert("Please enter Last Name"); s_xLastName.focus(); return; }
+ CallAjax("SendPassword","");
+}
+
+function ShowHideAccountInfo(iFlag) {
+ // iFlag=1 if displaying fields for Add Account
+ // iFlag=2 if displaying fields for Update Account
+ // iFlag=0 otherwise (state is Logging In)
+ if(iFlag==2) { sEditAccount=""; bEditNameDisabled=true; sLoggingIn="none"; }
+ else if(iFlag==1) { sEditAccount=""; bEditNameDisabled=false; sLoggingIn="none"; }
+ else /* iFlag==0 */ { sEditAccount="none"; bEditNameDisabled=false; sLoggingIn=""; }
+ document.getElementById("AddAccount1").style.display=sLoggingIn;
+ document.getElementById("AddAccount15").style.display=(iFlag==2 ? "none" : "");
+ document.getElementById("AddAccount2").style.display=sLoggingIn;
+ document.getElementById("AddAccount3").style.display=sEditAccount;
+ document.getElementById("ClubInfo").style.display=sEditAccount;
+ document.getElementById("AddAccount4").style.display=sLoggingIn;
+ document.getElementById("NewAccountCxl").style.display=sEditAccount;
+ s_xFirstName.disabled=bEditNameDisabled;
+ s_xLastName.disabled=bEditNameDisabled;
+ s_bUseLastNameTimer=(iFlag > 0 ? 0 : 1);
+ var xLoginInstruction=document.getElementById("LoginInstruction");
+ document.getElementById("ShowQuals").style.display=(iFlag==2 && 1 ? "" : "none");
+ document.getElementById("ShowBJCP").style.display=(iFlag==1 && 1 ? "" : "none");
+ if(iFlag==2) {
+  xLoginInstruction.innerHTML="Please enter any changes, then click Update Account.<span style='font-size:12px'><br>NOTE - if you need to change your First Name / Last Name, send details to <a href=\"mailto:"+s_sAdminEmail+"\">"+s_sAdminEmail+"</span></a>";
+  s_xNewAccount.value="Update Account";
+  s_iNewAcct_0Create1Save2Update=2;
+ } else if(iFlag==1) {
+  s_xNewAccount.value="Save New Account";
+  xLoginInstruction.innerHTML="Please enter your name, password, and contact information, then click Save New Account";
+  s_iNewAcct_0Create1Save2Update=1;
+ } else {
+  s_xNewAccount.value="Create New Account";
+  xLoginInstruction.innerHTML="Please enter your name and password, then click Log In OR Create New Account";
+  s_iNewAcct_0Create1Save2Update=0;
+ }
+}
+
+function CxlCreateUpdateAccount() {
+ if(s_iNewAcct_0Create1Save2Update==2) ShowPage("MainMenu"); else { ShowHideAccountInfo(0); ShowPage("Login"); }
+}
+
+function DoEditProfile() {
+ ShowHideAccountInfo(2);
+ ShowPage("EditProfile");
+}
+
+function VolClicked(xElement) {
+ CallAjax("UpdateVolunteer","&VolRecordID="+xElement.title+"&Status="+(xElement.checked ? 1 : 0));
+}
+
+function HandleUpdateVolunteer(x) {
+ var i;
+ ShowAlert(x[0]);
+ if(x.length>3) {
+  s_xVolunteer[x[3]].signedUpCSV=x[1];
+  s_xVolunteer[x[3]].standbyCSV=x[2];
+ }
+ BuildVolunteerPage();
+}
+
+function BuildVolunteerPage() {
+ var iRecordID,bIsVolunteer,bIsStandby,iCountVolunteer,iCountStandby,iTotalUsed,iSlotsVolunteer,iAvailable,xVolunteer;
+ var sContent,sSignedUp,sStandby;
+ sContent="<br><span style='font:bold 14px arial'>Volunteering for "+s_sEventName+":</span>"
+  +"<br><table class='DataTable'><thead>"
+  +"<tr><th>Volunteering?</th><th>Shift</th><th>Date</th>"
+  +"<th>Start Time</th><th>End Time</th></tr></thead><tbody>";
+ for(iRecordID in s_xVolunteer) {
+  xVolunteer=s_xVolunteer[iRecordID];
+  if(xVolunteer.flags & 2) continue; // don't list Approved To Judge here
+  sSignedUp=xVolunteer.signedUpCSV;
+  sStandby=xVolunteer.standbyCSV;
+  bIsVolunteer=((","+sSignedUp+",").indexOf(","+s_iEntrantID+",")>=0 ? 1 : 0);
+  bIsStandby=((","+sStandby+",").indexOf(","+s_iEntrantID+",")>=0 ? 1 : 0);
+  iCountVolunteer=(sSignedUp=="" ? 0 : sSignedUp.split(",").length);
+  iCountStandby=(sStandby=="" ? 0 : sStandby.split(",").length);
+  iSlotsVolunteer=xVolunteer.slotCount;
+  iTotalUsed=iCountVolunteer+iCountStandby;
+  iAvailable=iSlotsVolunteer-iTotalUsed;
+  sContent+="<tr><td>"+(!bIsVolunteer && !bIsStandby && iAvailable<=0 ? "(Full)" :
+   "<input type='checkbox'"+(bIsVolunteer || bIsStandby ? " checked" : "")+" title='"+iRecordID+"' onclick='VolClicked(this)'>")
+   +(bIsStandby ? " (You are on a waiting list)" : (bIsVolunteer ? " (Confirmed)" : " (available: "+iAvailable+")"))+"</td>"
+   +"<td>"+xVolunteer.shiftName+"</td><td>"+xVolunteer.YYYYMMDD+"</td><td>"+xVolunteer.HHMMStart+"</td><td>"+xVolunteer.HHMMEnd+"</td></tr>\n";
+ }
+ sContent+="</tbody></table>";
+ document.getElementById("Volunteer").innerHTML=sContent;
+}
+
+function GetLoginElementIDs() {
+ s_xNewAccount=document.getElementById("NewAccount");
+ s_xNamesPopup=document.getElementById("NamesPopup");
+
+ // Account input fields
+ s_xFirstName=document.getElementById("FirstName");
+ s_xLastName=document.getElementById("LastName");
+ s_xPassword=document.getElementById("Pswd");
+ s_xEJudgePIN=document.getElementById("EJudgePIN");
+ s_xEmail=document.getElementById("Email");
+ s_xAddress=document.getElementById("Address");
+ s_xCity=document.getElementById("City");
+ s_xState=document.getElementById("State");
+ s_xPostalCode=document.getElementById("PostalCode");
+ s_xDiscountCode=document.getElementById("DiscountCode");
+ s_xCountry=document.getElementById("Country");
+ s_xHomePhone=document.getElementById("HomePhone");
+ s_xOtherPhone=document.getElementById("OtherPhone");
+ s_xAllergyInfo=document.getElementById("AllergyInfo");
+ s_xAHAMemberNumber=document.getElementById("AHAMemberNumber");
+ s_xClubName=document.getElementById("HomebrewClub");
+ s_xBJCPID=document.getElementById("BJCPID");
+ s_xParticipantID=document.getElementById("ParticipantID");
+ s_xProvisional=document.getElementById("Provisional");
+ s_xQuals=document.getElementById("Quals");
+}
+
+function ClearAccountFields(bNameAlso) {
+ var i,x,sPage;
+ if(bNameAlso) {
+  s_xFirstName.value="";  s_xLastName.value="";
+  s_xPassword.value="";
+ }
+ s_xEmail.value="";
+ s_xEJudgePIN.value="";
+ s_xAddress.value="";
+ s_xCity.value="";
+ s_xState.value="";
+ s_xPostalCode.value="";
+ s_xDiscountCode.value="";
+ s_xCountry.value="US";
+ s_xHomePhone.value="";
+ s_xOtherPhone.value="";
+ s_xAllergyInfo.value="";
+ s_xAHAMemberNumber.value="";
+ s_xClubName.value="";
+ s_xParticipantID.value="";
+ s_xBJCPID.value="";
+ s_xProvisional.checked=false;
+ s_xQuals.value="";
+ s_iEntrantID=0;
+}
+
+function CreateUpdateAccount() {
+ var sEJudgePIN,sLower;
+ if(s_iNewAcct_0Create1Save2Update==0) {
+  ClearAccountFields(0);
+  ShowHideAccountInfo(1);
+ } else {
+  var bIsUpdate=(s_iNewAcct_0Create1Save2Update==2 ? 1 : 0);
+  var sEmail=s_xEmail.value;
+  if(!bIsUpdate) {
+   s_xFirstName.value=s_xFirstName.value.trim();
+   s_xLastName.value=s_xLastName.value.trim();
+   sLower=s_xLastName.value.toLowerCase();
+   if(s_xFirstName.value=="") { ShowAlert("Please enter First Name"); s_xFirstName.focus(); return; }
+   if(s_xLastName.value=="") { ShowAlert("Please enter Last Name"); s_xLastName.focus(); return; }
+   if(s_xPassword.value=="") { ShowAlert("Please enter Password"); s_xPassword.focus(); return; }
+   if(sLower=="club" || sLower=="translator" || sLower=="circuit" || sLower=="certification") { ShowAlert("Create this type of account at https://ReggieBeer.com - go to Login / Login / Create New Reggie Account"); s_xLastName.focus(); return; }
+  }
+  if(sEmail.indexOf("@")<1 || sEmail.indexOf(".")<1) { ShowAlert("Please enter valid Email address"); s_xEmail.focus(); return; }
+  if(s_xCity.value=="") { ShowAlert("Please enter City"); s_xCity.focus(); return; }
+  if(s_xState.value=="") { ShowAlert("Please enter State"); s_xState.focus(); return; }
+  if(s_xCountry.value=="") { ShowAlert("Please enter Country"); s_xCountry.focus(); return; }
+    var sEJudgePIN=s_xEJudgePIN.value;
+  if(sEJudgePIN!="" && (sEJudgePIN.length!=4 || sEJudgePIN.replace(/\D/g,"").length!=4)) { ShowAlert("Please enter EJudge PIN"); s_xEJudgePIN.focus(); return; }
+  var sClubName=s_xClubName.value;
+  if(sClubName=="") sClubName="None";
+  var sBJCPID=s_xBJCPID.value.replace("/[^A-Za-z0-9]/g","").toUpperCase();
+  if(sBJCPID.length!=5 || sBJCPID.charAt(0)<"A" || sBJCPID.charAt(0)>"Z") sBJCPID="";
+  if(sBJCPID.length==5)
+   for(var i=1;i<5;i++)
+    if(sBJCPID.charAt(i)<"0" || sBJCPID.charAt(i)>"9") {
+     sBJCPID="";
+     break;
+    }
+  s_xBJCPID.value=sBJCPID;
+  var sXMLRequest="&Email="+ReggieEncode(sEmail)+
+   "&Address="+ReggieEncode(s_xAddress.value)+"&City="+ReggieEncode(s_xCity.value)+
+   "&State="+ReggieEncode(s_xState.value)+"&PostalCode="+ReggieEncode(s_xPostalCode.value)+
+   "&Country="+ReggieEncode(s_xCountry.value)+"&HomePhone="+ReggieEncode(s_xHomePhone.value)+
+   "&OtherPhone="+ReggieEncode(s_xOtherPhone.value)+"&ClubName="+ReggieEncode(sClubName)+
+   "&AllergyInfo="+ReggieEncode(s_xAllergyInfo.value)+"&EJudgePIN="+ReggieEncode(sEJudgePIN)+
+   "&BJCPID="+sBJCPID+"&ParticipantID="+ReggieEncode(s_xParticipantID.value)+
+   "&Provisional="+(s_xProvisional.checked ? 1 : 0)+"&DiscountCode="+ReggieEncode(s_xDiscountCode.value)+
+   "&AHAMemberNumber="+ReggieEncode(s_xAHAMemberNumber.value);
+  CallAjax((bIsUpdate ? "UpdateAccount" : "AddAccount"),sXMLRequest);
+ }
+}
+
+function toMixedCase(sString) {
+ var bStartNewWord=1;
+ var iLen=sString.length;
+ var i;
+ var c;
+ var sReturn="";
+
+ for(i=0;i<iLen;i++) {
+  c=sString[i];
+  if(c>="a") {
+   if(bStartNewWord && c<="z")
+    c=c.toUpperCase();
+   bStartNewWord=0;
+  } else
+   bStartNewWord=((c>="A" && c<="Z") || c=="'" ? 0 : 1);
+  sReturn+=c;
+ }
+ return sReturn;
+}
+
+function CaseMe(id,iCase) { // >0 for Upper, <0 for lower, =0 for mixed
+ var xElement=document.getElementById(id);
+ var s=xElement.value;
+ xElement.value=(iCase > 0 ? s.toUpperCase() : (iCase < 0 ? s.toLowerCase() : toMixedCase(s)));
+}
+
+function SetEntrantName() {
+ s_sEntrantName=s_xFirstName.value+" "+ s_xLastName.value;
+ document.getElementById("EntrantName").innerHTML=s_sEntrantName;
+}
+
+function LabelAllClicked(x) {
+ var bNewCheck=x.checked;
+ var i,x2=document.getElementsByClassName("PrintLabelClass");
+ for(i=0;i<x2.length;i++)
+  if(!x2[i].disabled) x2[i].checked=bNewCheck;
+}
+
+function CheckConditionals() {
+ var i,sSubStyle,sConditional="",sHide=",",xConditional,xOneConditional,sDisplay;
+ var x=document.getElementsByClassName("StyleParams"),xElement=document.getElementById("EntryStyle"),iIndex=xElement.selectedIndex;
+ if(iIndex<0) return;
+ sSubStyle=xElement.options[iIndex].value;
+ if(sSubStyle=="") return;
+ for(i=0;i<s_xCA.length;i++) if(s_xCA[i].StyleAndSubstyle==sSubStyle) { sConditional=s_xCA[i].Conditional; break; }
+ if(sConditional=="") return;
+ xConditional=sConditional.split(";");
+ for(i=0;i<xConditional.length;i++) {
+  xOneConditional=xConditional[i].split(",");
+  if(xOneConditional.length!=3 || !(xElement=document.getElementById("StyleParam"+xOneConditional[0]))) continue;
+  iIndex=xElement.selectedIndex;
+  if(iIndex<=0 || xElement[iIndex].text.indexOf(xOneConditional[1])<0) sHide+=xOneConditional[2]+",";
+ }
+ for(i=0;i<x.length;i++) {
+  sDisplay=(sHide.indexOf(","+x[i].id.substr(10)+",")>=0 ? "none" : "");
+  x[i].style.display=sDisplay;
+  if(xElement=document.getElementById(x[i].id+"Label")) xElement.style.display=sDisplay;
+ }
+}
+
+function ChangeStyle() {
+ var xElement=document.getElementById("EntryStyle");
+ var i=xElement.selectedIndex;
+ var sSubStyle=xElement.options[i].value,sCategoryText=xElement.options[i].text;
+ var sPickOne,iType,j,x,x2,iPIndex,sFind;
+ var sParamList="",s="";
+ var bHasParams=(sSubStyle=="" ? 0 : 1);
+ var iSubstyleLimit=0;
+ var bFound=0,xCA={};
+ if(bHasParams) {
+  for(i=0;i<s_xCA.length && !bFound;i++) if(s_xCA[i].StyleAndSubstyle==sSubStyle) { xCA=s_xCA[i]; bFound=1; }
+  if(!bFound) { xElement.selectedIndex=0; bHasParams=0; sSubStyle=""; }
+ }
+ if(bHasParams && iSubstyleLimit) {
+  sSubStyle=sCategoryText.split(".")[0].split(" ")[0]; // space split handles "27 " and "41 "-"45 "
+  sCategory=sSubStyle.replace(/[A-Z]/g,"");
+  var sType=xCA.Category;
+  var s2=",,";
+  if (s2.indexOf(","+sCategory+",")<0 && s2.indexOf(","+sSubStyle+",")<0
+   && (sType!="M" || s2.indexOf(",M,")<0) && (sType!="C" || s2.indexOf(",C,")<0) && (sType!="S" || s2.indexOf(",S,")<0)) {
+   var iSubstyleCount=0;
+   for(i=0;i<s_xEntries.length;i++)
+    if(i!=s_iCompEntryIndex && sSubStyle.trim()==s_xEntries[i]["EntryStyle"]) iSubstyleCount++;
+   if(iSubstyleCount>=iSubstyleLimit) {
+    ShowAlert("Competition is limited to 0 entries per substyle: Please choose another substyle");
+    xElement.selectedIndex=0;
+    bHasParams=0;
+    sSubStyle="";
+   }
+  }
+ }
+ if(bHasParams) {
+  sParamList=xCA.FlagList;
+  if(s_sSpecialStuff!="")
+   sParamList+=(sParamList=="" ? "" : ",")+"0";
+  if(sParamList=="") bHasParams=0;
+ }
+ if(bHasParams) {
+  s+="<b class=\"RowLabel250\">Style Parameters:</b>";
+  x=sParamList.split(",");
+  for(iType=0;iType<2;iType++) { // 0 for PickOne, 1 for Text
+   for(i=0;i<x.length;i++) {
+    iPIndex=Math.abs(x[i]);
+    sPickOne=s_xSP[iPIndex].PickOne;
+    if((sPickOne=="" && iType==0) || (sPickOne!="" && iType==1)) continue;
+    s+="<br><b class='RowLabel250'>&nbsp;</b> <span class='StyleParam' id='StyleParam"+iPIndex+"Label'>"
+     +s_xSP[iPIndex].Description+(x[i] < 0 ? " (optional)" : "")+"</span> ";
+    if(sPickOne=="")
+     s+="<input type='text' id='StyleParam"+iPIndex+"' class='StyleParams' size=40 maxlength=200>";
+    else {
+     s+="<select id='StyleParam"+iPIndex+"' class='StyleParams' translate='no' onchange='CheckConditionals()'><option value=''>Pick one</option>";
+     x2=sPickOne.split("|");
+     if(1*xCA.CanSplit==iPIndex && xCA.SubSubStylesOnly!="") {
+      for(j=0;j<x2.length;j++) {
+       sFind=(x2[j].substr(0,5)=="Other" ? "z" : String.fromCharCode(97+j)); // 97='a'
+       if(xCA.SubSubStylesOnly.indexOf(sFind)<0) x2[j]="";
+      }
+     }
+     for(j=0;j<x2.length;j++) if(x2[j]!="") s+="<option value='"+x2[j]+"'>"+x2[j]+"</option>";
+     s+="</select>";
+    }
+   }
+  }
+ }
+ document.getElementById("StyleParams").innerHTML=s;
+ document.getElementById("PrevEntries").style.display="none";
+ CheckConditionals();
+ if(sSubStyle!="") CallAjax("PrevEntries","&SubStyle="+sSubStyle);
+}
+
+var s_iEntryButtonAdd0Save1Update2=0;
+function SetEntryButtonText(xElement,iAdd0Save1Update2) {
+ xElement.value=FromEntities(iAdd0Save1Update2 ? (iAdd0Save1Update2==1 ? "Save new entry"
+  : "Update entry") : "Add an entry");
+ s_iEntryButtonAdd0Save1Update2=iAdd0Save1Update2;
+}
+
+function EditEntry(iIndex) {
+ var xElement,sFind,sPickOne,iOption,i,j,iPIndex,x,x2,x3;
+ var xEntry=s_xEntries[iIndex];
+ var sStyleParams=xEntry["StyleParams"];
+ var sSubStyle="", sParamValue="";
+ s_iCompEntryIndex=iIndex;
+ document.getElementById("EntryEdit").style.display="";
+ xElement=document.getElementById("EntryButton");
+ SetEntryButtonText(xElement,2);
+ xElement.style.display="";
+ document.getElementById("EntryButtonCxl").style.display="";
+ document.getElementById("ShowStatus").style.display="";
+ document.getElementById("ClubInfo").style.display="";
+ var bHaveRecipe=(xEntry["RecipeGotIt"]==1);
+ document.getElementById("RecipeGotIt").checked=bHaveRecipe;
+ document.getElementById("ShowRecipe").style.display=(bHaveRecipe ? "" : "none");
+ if(bHaveRecipe) document.getElementById("RecipeForm").action=xEntry["RecipePath"];
+ document.getElementById("RecipeUploadSelect").value="";
+ xElement=document.getElementById("EntryStyle");
+ sFind=xEntry["EntryStyle"];
+ iOption=0; // default
+ for(j=0;j<xElement.options.length;j++)
+  if(sFind==xElement.options[j].text.split(".")[0].trim()) { iOption=j; break; }
+ xElement.selectedIndex=iOption;
+ s_bCallGetEntryLimitation=1;
+ ChangeStyle();
+ sSubStyle=sFind;
+ xElement=document.getElementById("Status");
+ sFind=xEntry["Status"];
+ iOption=0; // default
+ for(j=0;j<xElement.options.length;j++)
+  if(sFind==xElement.options[j].value.trim()) { iOption=j; break; }
+ xElement.selectedIndex=iOption;
+ xElement=document.getElementById("BottlesSubmitted");
+ sFind=xEntry["BottlesSubmitted"];
+ iOption=0; // default
+ for(j=0;j<xElement.options.length;j++)
+  if(sFind==xElement.options[j].value.trim()) { iOption=j; break; }
+ xElement.selectedIndex=iOption;
+ x=sStyleParams.split("~");
+ for(i=0;i<x.length;i++) {
+  x2=x[i].split("=");
+  if(x2.length>1) {
+   iPIndex=x2[0];
+   sParamValue=x2[1];
+   sPickOne=s_xSP[iPIndex].PickOne;
+   xElement=document.getElementById("StyleParam"+iPIndex);
+   if(xElement!=undefined) {
+    if(sPickOne=="")
+     xElement.value=sParamValue;
+    else {
+     xElement.selectedIndex=-1;
+     for(j=0;j<xElement.length;j++) if(xElement.options[j].text==sParamValue) { xElement.selectedIndex=j; break; }
+    }
+   }
+  }
+ }
+ CheckConditionals();
+ var xItems=["AddName","BrewName","Comments"];
+ for(i=0;i<xItems.length;i++)
+  document.getElementById(xItems[i]).value=xEntry[xItems[i]];
+ s_xClubName.value=xEntry["ClubName"];
+ window.scrollTo(0,0);
+}
+
+function AddOrSaveEntry() {
+ var xElementGotIt=document.getElementById("RecipeGotIt");
+ var sClubName,xElement,iIndex,s,i,sLabel,iOffset,sItemLabel,xEntry;
+ var sXMLRequest="";
+ if(s_iEntryButtonAdd0Save1Update2==0) {
+  SetEntryButtonText(document.getElementById("EntryButton"),1);
+  document.getElementById("PrevEntryList").innerHTML="";
+  document.getElementById("EntryEdit").style.display="";
+  document.getElementById("EntryButtonCxl").style.display="";
+  document.getElementById("ClubInfo").style.display="";
+  document.getElementById("ShowStatus").style.display="none";
+  document.getElementById("RecipeUploadSelect").value="";
+  xElementGotIt.checked=false;
+  s_iCompEntryIndex=-1;
+  CallAjax("GetEntryLimitation","&IsAdd=1");
+  return 1;
+ }
+ sClubName=s_xClubName.value;
+ if(sClubName=="") sClubName="None";
+ sXMLRequest+="&ClubName="+ReggieEncode(sClubName)+"&DiscountCode="+ReggieEncode(s_xDiscountCode.value);
+ xElement=document.getElementById("EntryStyle");
+ iIndex=xElement.selectedIndex;
+ if(iIndex<1) { ShowAlert("Please select an entry style"); xElement.focus(); return; }
+ sXMLRequest+="&Style="+xElement.options[iIndex].value.trim()+"&StyleName="+xElement.options[iIndex].text;
+
+ var x,j,sValue,sParamLabel,bOptional,sType,sName,iPIndex;
+ var sStyleParams="";
+ x=document.getElementsByClassName("StyleParams");
+ for(i=0;i<x.length;i++) {
+  iPIndex=x[i].id.substr(10);
+  sParamLabel=document.getElementById(x[i].id+"Label").innerHTML;
+  bOptional=0;
+  if((j=sParamLabel.indexOf(" (optional)"))>0) {
+   bOptional=1;
+   sParamLabel=sParamLabel.substr(0,j);
+  }
+  sName=x[i].nodeName;
+  if(x[i].style.display=="none") { // parameter control is not displayed because Conditional hid it, so ignore
+   sValue="";
+   bOptional=1;
+  } else if(sName=="SELECT") {
+   iIndex=x[i].selectedIndex;
+   sValue=(iIndex>0 ? x[i].options[iIndex].text : "");
+  } else if(sName=="INPUT") {
+   if(x[i].getAttribute("type")=="text") {
+    sValue=x[i].value;
+   }
+  }
+  if(!bOptional && sValue<" ") { x[i].focus(); ShowAlert("Please enter "+sParamLabel); return; }
+  if(sValue>" ") sStyleParams+=(sStyleParams=="" ? "&StyleParams=" : "")+"~"+iPIndex+"="
+   +sValue.replace(/"/g,"'").replace(/&/g,"+").replace(/[|~]/g,"");
+ }
+ if(sStyleParams!="") sXMLRequest+=sStyleParams;
+ xElement=document.getElementById("BrewName");
+ s=xElement.value;
+ sXMLRequest+="&BrewName="+ReggieEncode(s);
+  xElement=document.getElementById("BottlesSubmitted");
+ sXMLRequest+="&BottlesSubmitted="+xElement.options[xElement.selectedIndex].value;
+ if(s_iEntryButtonAdd0Save1Update2==2) {
+  xEntry=s_xEntries[s_iCompEntryIndex];
+  xElement=document.getElementById("Status");
+  sXMLRequest+="&CompEntryID="+xEntry["CompEntryID"]+"&Flags="+xEntry["Flags"]+
+   "&Status="+xElement.options[xElement.selectedIndex].value;
+ }
+ sXMLRequest="&AddName="+ReggieEncode(document.getElementById("AddName").value)+"&Comments="+ReggieEncode(document.getElementById("Comments").value)+sXMLRequest;
+ sXMLRequest=sXMLRequest.replace(/"/g,"'");
+ var sRecipeRequired="";
+ if(sRecipeRequired!="" && ! xElementGotIt.checked)
+  ShowConfirm(sRecipeRequired,(s_iEntryButtonAdd0Save1Update2==1 ? AddEntryCallback1 : UpdEntryCallback),sXMLRequest);
+ else if(s_iEntryButtonAdd0Save1Update2==1)
+  AddEntryCallback1(sXMLRequest);
+ else
+  UpdEntryCallback(sXMLRequest);
+}
+
+function AddEntryCallback1(sXMLRequest) {
+ ShowConfirm("Are you sure that you want to submit this entry?", AddEntryCallback2, sXMLRequest);
+}
+
+function UpdEntryCallback(sXMLRequest) {
+ CallAjax("UpdateEntry",sXMLRequest);
+ return 0;
+}
+
+function AddEntryCallback2(sXMLRequest) {
+ CallAjax("AddEntry",sXMLRequest);
+ return 0;
+}
+
+function EntryButtonCancel() {
+ document.getElementById("EntryEdit").style.display="none";
+ var xElement=document.getElementById("EntryButton");
+ SetEntryButtonText(xElement,0);
+ document.getElementById("EntryButtonCxl").style.display="none";
+ document.getElementById("ClubInfo").style.display="none";
+ document.getElementById("StyleParams").innerHTML="";
+ document.getElementById("AddName").value="";
+ document.getElementById("Comments").value="";
+ document.getElementById("BrewName").value="";
+ document.getElementById("EntryStyle").selectedIndex=0;
+ document.getElementById("Status").selectedIndex=0;
+ document.getElementById("BottlesSubmitted").selectedIndex=0;
+ CallAjax("PrevEntryPicked","&Recipe=");
+}
+
+function PayPalSubmit() {
+ var dAmount=document.getElementById("PayPalAmount").value.replace(/[^0-9.]/g,"");
+ if(dAmount=="" || dAmount<1)
+  ShowAlert("Please enter the amount which you would like to pay");
+ else
+  CallAjax("PayPalStage","&PaymentAmount="+dAmount+"&TxnType=Entry");
+ return false;
+}
+
+function HandlePayPalStage(sTxnID) {
+ var sPayPalParams="&CompRecordID="+s_iCompRecordID+"&ParticipantID="+s_iEntrantID+"&DBIndex=0&TxnID="+sTxnID;
+ document.getElementById("PayPal_return").value=s_sPayPalPath+"?Action=Paid"+(s_bUsePaypalSandbox ? "Sandbox" : "")+sPayPalParams;
+ document.getElementById("PayPal_cancel_return").value=s_sPayPalPath+"?Action=Cancel"+sPayPalParams;
+ document.getElementById("item_number").value=s_iCompRecordID+"/"+s_iEntrantID+"/"+s_xFirstName.value+"/"+s_xLastName.value+"/"+sTxnID;
+ document.getElementById("PayPalButton").style.display="";
+}
+
+function PayPalFormSubmitted() {
+ document.getElementById("PayPalButton").style.display="none";
+ return true;
+}
+
+function DeliveryChanged(xElement) {
+ var sID=xElement.id;
+ var iIndex=xElement.selectedIndex;
+ var sLocation=xElement.options[iIndex].text;
+ var xElementMap=document.getElementById(sID+"Map");
+ var s9=sLocation.split(", Address=");
+ var bShowMap=(iIndex>0 && s9.length>1 ? 1 : 0);
+ if(bShowMap)
+  xElementMap.href="https://www.google.com/maps/place/"+s9[1].replace(/ /g,"+");
+ xElementMap.style.display=(bShowMap ? "" : "none");
+ CallAjax("UpdateDelivery","&EntryLocation="+xElement.options[iIndex].value);
+ document.getElementById(sID+"Please").style.display=(iIndex==0 ? "" : "none");
+}
+
+function AjaxResponse() {
+ var iIndex,s,sAction,x;
+ if(xmlhttp.readyState==4 && xmlhttp.status==200) {
+  s=xmlhttp.responseText;
+  if(document.getElementById("ShowAjax").checked)
+   for(iIndex=0;1400*iIndex<s.length;iIndex++)
+    alert("RECEIVED AJAX"+(iIndex ? " (part "+(iIndex+1)+")" : "")+":\n\n"+s.substr(iIndex*1400));
+  document.getElementById("AJAXStatus").style.backgroundColor="green";
+  x=s.split("`");
+  sAction=x[0];
+  x.shift();
+  s=x[0];
+  if(sAction=="UpdateJudgingPreferences" || sAction=="RequestJudging" || sAction=="SendPassword" || sAction=="UpdateDelivery")
+   ShowAlert(s);
+  else if(sAction=="AddAccount") HandleAddAccount(s);
+  else if(sAction=="AddEntry" || sAction=="UpdateEntry") HandleAddUpdateEntry(s,x);
+  else if(sAction=="CheckVersion") HandleCheckVersion(s);
+  else if(sAction=="GetAffiliateName") HandleGetAffiliateName(x);
+  else if(sAction=="GetClubName") HandleGetClubName(x);
+  else if(sAction=="GetEntryInfo") HandleGetEntryInfo(s,x);
+  else if(sAction=="GetEntryLimitation") HandleGetEntryLimitation(s);
+  else if(sAction=="GetJudgingPreferences") HandleGetJudgingPreferences(s,x);
+  else if(sAction=="GetParticipantName") HandleGetParticipantName(x);
+  else if(sAction=="Login") HandleLogin(s);
+  else if(sAction=="PayPalStage") HandlePayPalStage(s);
+  else if(sAction=="PrevEntries") HandlePrevEntries(s,x);
+  else if(sAction=="PrevEntryPicked") document.getElementById("RecipeGotIt").checked=(s=="OK" ? 1 : 0);
+  else if(sAction=="UpdateAccount") HandleUpdateAccount(s);
+  else if(sAction=="UpdateJudgingSessions") { s_iCanceledJudgeSessionCount=0; ShowAlert(s); }
+  else if(sAction=="UpdateQA") HandleUpdateQA(s);
+  else if(sAction=="UpdateStyleCode") HandleUpdateStyleCode(s);
+  else if(sAction=="UpdateVolunteer") HandleUpdateVolunteer(x);
+ }
+}
+
+function HandleUpdateStyleCode(s) {
+ var bDisabled,i,xElement=document.getElementById("EntryStyle");
+ s=","+s+",";
+ for(i=1;i<xElement.length;i++) { // skip Style Guideline name
+  bDisabled=(s.indexOf(","+xElement.options[i].value+",")>=0 ? 0 : 1);
+  xElement.options[i].style.display=(bDisabled ? "none" : "");
+  xElement.options[i].disabled=bDisabled;
+ }
+ xElement.selectedIndex=0;
+ ChangeStyle();
+}
+
+function HandleAddUpdateEntry(s,x) {
+ if(s=="OK") {
+  s=x[1];
+  EntryButtonCancel();
+  HandleUpdateQA("");
+ }
+ ShowAlert(s);
+}
+
+function HandleGetJudgingPreferences(s,x) {
+ var x2,sLiked,sDisliked,iGroup,sFind,sWhich;
+ if(s=="OK") {
+  x2=x[1].split("|");
+  sLiked=","+x2[0]+",";
+  sDisliked=","+x2[1]+",";
+  for(i=0;i<s_xJudgingGroups.length;i++) {
+   iGroup=s_xJudgingGroups[i][0];
+   sFind=","+iGroup+",";
+   if(sLiked.indexOf(sFind)>=0) sWhich="Yes"; else if(sDisliked.indexOf(sFind)>=0) sWhich="No"; else sWhich="OK";
+   document.getElementById("Group"+sWhich+iGroup).checked=true;
+  }
+  if(s_iCanceledJudgeSessionCount) UpdateJudgingSessions();
+ } else
+  ShowAlert(s);
+}
+
+function HandlePrevEntries(s,x) {
+ var s2,i,x2;
+ if(s!="") {
+  s2="<select onchange='PrevEntryPicked(this)'><option>You have had entries in previous competitions for this style - choose one here if you want to reenter it</option>";
+  for(i=0;i<x.length;i++) {
+   x2=x[i].split("|");
+   s2+="<option value=\""+x[i]+"\">"+x2[0]+" "+x2[1]+" "+x2[4]+(x2[5]=="" ? "" : " (Recipe)")+"</option>";
+  }
+  s2+="</select>";
+  document.getElementById("PrevEntryList").innerHTML=s2;
+  document.getElementById("PrevEntries").style.display="";
+ }
+ if(s_bCallGetEntryLimitation) {  s_bCallGetEntryLimitation=0; CallAjax("GetEntryLimitation","&IsAdd="+(s_iEntryButtonAdd0Save1Update2==2 ? 0 : 1)); }
+}
+
+function HandleGetEntryInfo(s,x) {
+  var x2,x4,i,j,k,iLen;
+ var sInfo,bEntryMax;
+ var sEntryInfo="",sCoBrewerInfo="";
+ var iUnpaid;
+ var dMoneyExpected,dMoneyCollected;
+ var iTotalEntryCount=0,i99xEntryCount=0;
+ var sCurrencyCode="USD";
+ var iMaxBrewerEntries=0;
+ var iEntryLimitation=0;
+ s_sCurrency="$";
+ if(s.substr(0,2)=="OK") {
+  x2=s.split(",");
+  iUnpaid=x2[1];
+  dMoneyExpected=x2[2];
+  dMoneyCollected=x2[3];
+  s_dBalance=Math.round(100*(1*dMoneyExpected-1*dMoneyCollected))/100; // > 0 if still owe money
+  if(s_dBalance < 0) s_dBalance=0;
+  s_xEntries=[];
+  s_xCoBrewer=[];
+  x.shift();
+  for(i=0;i<x.length;i++) {
+   if(i==0)
+    sEntryInfo+="<div style='text-align:center'><table style='display:inline-block;text-align:left'>"
+     +"<tr><th> # </th><th>Entry#</th><th>Style</th>"
+     +"<th>Entry Name</th><th>Recipe?</th>"
+     +"<th><span style='display:inline-block;height:100%;vertical-align:middle'>Label <input type='checkbox' id='LabelAll' onchange='LabelAllClicked(this)'></span> "
+     +"<img src='PrinterIcon.png' width=25 height=25 style='vertical-align:middle' title='Print selected labels' onclick='PrintBottleLabels()'></th>"
+     +'<th>Edit/Withdraw</th>'     +"</tr>";
+   x2=x[i].split("|");
+   if(x2[0]=="COBREWER") {
+    iLen=s_xCoBrewer.length;
+    s_xCoBrewer[iLen]=[];
+    for(j=1;j<x2.length;j++)
+     if((k=x2[j].indexOf("=")) > 0) s_xCoBrewer[iLen][x2[j].substr(0,k)]=x2[j].substr(k+1);
+    x4=s_xCoBrewer[iLen];
+    sInfo=x4['Info'];
+    if(sInfo!="") sInfo=" <span style='color:white;background-color:blue' title=\""+sInfo+"\">&nbsp; I &nbsp;</span>";
+    var bIsWithdrawn=x4["Flags"] & 2049;
+    var bReceived=x4["Flags"] & 128;
+    sCoBrewerInfo+="<tr style='background-color:"+(i%2==0 ? "#F0F0F0" : "#E0E0E0")+"'><td>"+(1+i)+"</td>"
+     +"<td>"+x4["CompEntryID"]+"</td><td>"+x4["EntryStyle"]+"</td><td>"+x4['BrewName']+sInfo
+      +(bReceived ? " <span style='color:white;background-color:green' title='Entry received'>&nbsp;&#x2713;&nbsp;</span>" : "")
+      +(bIsWithdrawn ? "<span style='color:red'> (Withdrawn"
+      +((bIsWithdrawn & 2048) ? " by Comp Org" : "")+")</span>" : "")+"</td>"
+     +"<td colspan=3>Add Brewers Name:"+x4["BrewerName"]+"</td></tr>";
+   } else {
+    iLen=s_xEntries.length;
+    s_xEntries[iLen]=[];
+    for(j=0;j<x2.length;j++)
+     if((k=x2[j].indexOf("=")) > 0) s_xEntries[iLen][x2[j].substr(0,k)]=x2[j].substr(k+1);
+    x4=s_xEntries[iLen];
+    sInfo=x4["Info"];
+    if(sInfo!="") sInfo=" <span style='color:white;background-color:blue' title=\""+sInfo+"\">&nbsp; I &nbsp;</span>";
+    var bIsWithdrawn=x4["Flags"] & 2049;
+    var bReceived=x4["Flags"] & 128;
+    iTotalEntryCount++;
+    if(x4["EntryStyle"].substr(0,3)>="991" && x4["EntryStyle"].substr(0,3)<="999") i99xEntryCount++;
+    var iBottlesSubmitted=x4["BottlesSubmitted"];
+    sEntryInfo+="<tr style='background-color:"+(i%2==0 ? "#F0F0F0" : "#E0E0E0")+"'><td>"+(1+i)+"</td>"
+     +"<td>"+x4["CompEntryID"]+"</td><td>"+x4["EntryStyle"]+"</td>"
+     +"<td>"+x4["BrewName"]+sInfo
+      +(bReceived ? " <span style='color:white;background-color:green' title='Entry received'>&nbsp;&#x2713;&nbsp;</span>" : "")
+      +(iBottlesSubmitted>0 ? "<br><span style='color:red'>Bottles submitted:"+iBottlesSubmitted+"</span>" : "")
+      +(bIsWithdrawn ? "<span style='color:red'> (Withdrawn"
+      +((bIsWithdrawn & 2048) ? " by Comp Org" : "")+")</span>" : "")
+     +"</td>"
+     +"<td style='text-align:center'>"+(x4["RecipeGotIt"]==1 ? "Yes" : "")+"</td>"
+     +"<td style='text-align:center'>"+"<input type='checkbox' class='PrintLabelClass' id='PrintLabel"+(x4["CompEntryID"] % 100000)
+      +"'"+(bIsWithdrawn ? " disabled" : "")+"></td>"
+     +"<td><input type='button' value='Edit' onclick='EditEntry("+i+")'></td>"     +"</tr>";
+   }
+  }
+  sEntryInfo+=sCoBrewerInfo;
+  if(sEntryInfo!="") sEntryInfo+="</table></div>";
+  sEntryInfo+="<div style='text-align:center'>"
+   +"<input type='button' value='Print Bottle Labels' onclick='PrintBottleLabels()'>"
+   +" &nbsp; (mark checkboxes to select which labels to print; mark top-of-column checkbox to select all)"
+   +"<br><input type='button' value='Print Entry List' onclick='PrintEntryList()'>"
+   +" &nbsp; (this is for you - do not send to competition)<br>"
+   +"<br>Unpaid entry count: "+iUnpaid+". You owe "+sCurrencyCode+" "+s_sCurrency+s_dBalance;
+  if(s_dBalance>0) {
+   if(s_bNoMorePayments)
+    sEntryInfo+="<br><b>No more payments are being accepted - the number of paid entries has reached the limit.</b>";
+   else {
+    if(s_sPayPalID!="") sEntryInfo+=
+     "<form style='display:inline' id='PayPalForm' target='paypal' "+
+      "action='https://www."+(s_bUsePaypalSandbox ? "sandbox." : "")+"paypal.com/cgi-bin/webscr' method='post'>"
+      +"<input type='hidden' name='notify_url' value='"+s_sPayPalPath+"'>"
+      +"<input type='hidden' name='add' value='0'>"
+      +"<input type='hidden' name='cmd' value='_xclick'>"
+      +"<input type='hidden' name='no_note' value='0'>"
+      +"<input type='hidden' name='tax' value='0'>"
+      +"<input type='hidden' name='currency_code' value='"+sCurrencyCode+"'>"
+      +"<input type='hidden' name='no_shipping' value='1'>"
+      +"<input type='hidden' name='item_name' value=\""+s_sCompName+" Entry\">"
+      +"<input type='hidden' name='item_number' id='item_number'>"
+      +"<input type='hidden' name='business' value='"+s_sPayPalID+"'>"
+      +"<br>Pay "+sCurrencyCode+" "+s_sCurrency+"<input type='text' size=2 id='PayPalAmount' name='amount' value='"+s_dBalance+"'> using "
+      +"<input type='hidden' name='quantity' value='1'>"
+      +"<input type='hidden' name='return' id='PayPal_return'>"
+      +"<input type='hidden' name='cancel_return' id='PayPal_cancel_return'>"
+      +"<input type='button' value='Pay with PayPal' onclick='return PayPalSubmit()'>"
+      +"<div style='color:red;width:300px;margin:0 auto;font-weight:bold;display:none;border:2px solid red;padding:2px' id='PayPalButton'>"
+       +"CLICK BUTTON BELOW TO PAY"
+       +"<br><input type='image' style='border:0;width:75px;height:26px' src='https://www.paypal.com/en_US/i/btn/x-click-but6.gif' onclick='return PayPalFormSubmitted()' name='PayPalSubmit' id='PayPalSubmit'>"
+       +"<br>Click 'Return To Merchant' after paying</div>"
+      +"</form>"+(s_bUsePaypalSandbox ? " (SANDBOX)" : "");
+    sEntryInfo+="<br>Price per entry: "
+    +sCurrencyCode+' '+s_sCurrency+'10';
+    var sContact="http://www.foamontherange.org/rmhbc/";
+    var sEmail="ray@kkpsi.org";
+    var sPayByCheck="";
+    var sMailCheckTo="";
+    var sCheckInfo=(sMailCheckTo=="" ? "Rubber band a check (or cash) to your entry, payable to"
+     : "Mail a check to arrive by 2024-Sep-20 to");
+    if(sContact!="" && sContact.indexOf("//")<0) sContact="http://"+sContact;
+    if(sContact!="") sContact="<a href=\""+sContact+"\" target='_blank'>"+sContact+"</a>";
+    if(sContact=="") sContact="<a href=\"mailto:"+sEmail+"\">"+sEmail+"</a>";
+    sEntryInfo+=
+     (s_sPayPalID!="" ? (s_bAcceptCashCheck==0 && s_bAcceptBankTransfer==0 ?
+      "<br>ONLY ELECTRONIC PAYMENTS WILL BE ACCEPTED - use PayPal" :
+      "<br>PLEASE PAY ELECTRONICALLY - use PayPal - If you can't, then,") :
+      "<br>For payment info: "+sContact)
+     +(s_bAcceptCashCheck ? "<br>"+sCheckInfo+" "+sPayByCheck+(sMailCheckTo=="" ? " " : ", "+sMailCheckTo)+" for "
+      +sCurrencyCode+' '+s_sCurrency+s_dBalance : "")
+     +(s_bAcceptCashCheck && s_bAcceptBankTransfer ? "<br>OR" : "")
+     +(s_bAcceptBankTransfer ? "<br>Set up a Bank Transfer To  for "
+      +sCurrencyCode+' '+s_sCurrency+s_dBalance
+    +(s_sBankTransferContact=="" ? "" : " (Bank Transfer contact: "+s_sBankTransferContact+")") : "");
+   }
+  }
+    sEntryInfo+="</div>";
+  bEntryMax=(iMaxBrewerEntries>0 && iTotalEntryCount-(s_bNo99xLimit ? i99xEntryCount : 0)>=iMaxBrewerEntries ? 1 : 0);
+  document.getElementById("EntryButton").style.display=(s_bNoMoreEntries ? "none" : "");
+  document.getElementById("EntryCount").innerHTML="Your entry count: "+iTotalEntryCount+(s_bNo99xLimit && i99xEntryCount>0 ? " (99x count: "+i99xEntryCount+")" : "") ;
+  document.getElementById("NoMoreEntries").innerHTML=(s_bNoMoreEntries || bEntryMax ?
+   "<span style='color:red'>NO MORE ENTRIES"+(s_bNo99xLimit && (iEntryLimitation==0 || i99xEntryCount<iEntryLimitation) ? " (additional 99x OK)" : "")+"</span>"
+   +(bEntryMax ? " Competition is limited to 0 for each Entrant." : "") : "");
+  document.getElementById("EntryInfo").innerHTML=sEntryInfo;
+ } else
+  ShowAlert(s);
+}
+
+function HandleUpdateAccount(s) {
+ if(s.substr(0,2)=="OK") {
+  CxlCreateUpdateAccount();
+  SetEntrantName();
+  ShowPage("MainMenu");
+  s=s.substr(2);
+ }
+ ShowAlert(s);
+}
+
+function HandleAddAccount(s) {
+ var x;
+ if(s.substr(0,2)=="OK") {
+  CxlCreateUpdateAccount();
+  SetEntrantName();
+  ShowPage("MainMenu");
+  x=s.split("::");
+  s_iEntrantID=x[0].substr(2);
+  s=x[1];
+ }
+ ShowAlert(s);
+}
+
+function HandleGetClubName(x) {
+ var i,xElement,sText="<div class='NameListWide'><ul>"
+  +"<li id='ClubMouseClickCancel' onclick='ClubNameMouseClicked(this);'><span>*** CANCEL ***</span></li>";
+ for(i=0;i<x.length;i++)
+  if(x[i]!="") sText+="<li id='ClubMouseClick"+i+"' onclick='ClubNameMouseClicked(this);'><span>"+x[i]+"</span></li>";
+ sText+="</ul></div>";
+ xElement=document.getElementById("ClubResults");
+ xElement.innerHTML=sText;
+ xElement.style.display="";
+}
+
+function HandleGetParticipantName(x) {
+ var i,s,iIndex,sText="<div class='LastNameListNew'><ul>"+
+  "<li id='MouseClickCancel' onClick='LastNameMouseClicked(this);'><span>*** CANCEL ***</span></li>";
+ for(i=0;i<x.length;i++) {
+  s=x[i].replace(/&#/g,"###").replace(/&/g,"&amp;").replace(/###/g,"&#");
+  iIndex=s.lastIndexOf(" (");
+  sText+="<li id='MouseClick"+i+"' title=\""+s.substr(iIndex+1)+"\" onclick='LastNameMouseClicked(this);'><span>"+s.substr(0,iIndex)+"</span></li>";
+ }
+ sText+="</ul></div>";
+ s_xNamesPopup.style.visibility="visible";
+ s_xNamesPopup.innerHTML=sText;
+}
+
+function HandleGetAffiliateName(x) {
+ var i,x2,sText="<div class='LastNameListNew'><ul>"+
+  "<li id='MouseClickCancel' onClick='AffiliateMouseClicked(this);'><span>*** CANCEL ***</span></li>";
+ for(i=0;i<x.length;i++)
+  sText+="<li id='MouseClick"+i+"' onclick='AffiliateMouseClicked(this);'><span>"
+   +x[i].replace(/&#/g,"###").replace(/&/g,"&amp;").replace(/###/g,"&#")+"</span></li>";
+ sText+="</ul></div>";
+ x2=document.getElementById("AffiliatePopup");
+ x2.style.visibility="visible";
+ x2.innerHTML=sText;
+} 
+
+function HandleLogin(s) {
+ var x,x2,x3,x4,x5,sKey,sValue,i,j,xElement,iIndex,sPage,iID,iType,bEntriesBtnDisabled,bJudgesBtnDisabled,bVolunteerBtnDisabled,sBlockByLocation;
+ if(s.substr(0,2)!="OK") { ShowAlert(s); return; }
+ sBlockByLocation="";
+ ClearAccountFields(0);
+ s_xQA=[];
+ x2=s.substr(2).split("|");
+ for(i=0;i<x2.length;i++) {
+  if((iIndex=x2[i].indexOf("="))<0) { sValue=""; sKey=x2[i]; } else { sValue=x2[i].substr(iIndex+1); sKey=x2[i].substr(0,iIndex); }
+  switch(sKey) {
+   case "BlockByLocation": sBlockByLocation=sValue; break;
+   case "Email": s_xEmail.value=sValue; break;
+   case "EJudgePIN": (sValue==-1 ? "" : s_xEJudgePIN.value=sValue); break;
+   case "Address": s_xAddress.value=sValue; break;
+   case "City": s_xCity.value=sValue; break;
+   case "State": s_xState.value=sValue; break;
+   case "PostalCode": s_xPostalCode.value=sValue; break;
+   case "DiscountCode": s_xDiscountCode.value=sValue; break;
+   case "Country": s_xCountry.value=sValue; break;
+   case "HomePhone": s_xHomePhone.value=sValue; break;
+   case "OtherPhone": s_xOtherPhone.value=sValue; break;
+   case "AllergyInfo": s_xAllergyInfo.value=sValue; break;
+   case "AHAMemberNumber": s_xAHAMemberNumber.value=sValue; break;
+   case "ParticipantID": if(sValue>"A") s_xBJCPID.value=sValue; s_xParticipantID.value=sValue; break;
+   case "Rank": if(sValue=="Provisional BJCP") s_xProvisional.checked=true; s_xQuals.innerHTML=sValue; break;
+   case "EntrantID": s_iEntrantID=sValue; break;
+   case "JudgingStatus":
+    if(0) {
+     bDisabled=1;
+     if(sValue==1) {
+      sMessage="The Judge Director has approved you for Judging this competition";
+      bDisabled=0;
+     } else if(sValue==-1) sMessage="Waiting for the Judge Director to approve you for Judging this competition";
+     else sMessage="<input type='button' onclick=\"CallAjax('RequestJudging','')\" value=\"Click here to request that the Judge Director approve you for Judging this competition\">";
+     document.getElementById("JudgingApprovalStatus").innerHTML=sMessage;
+     x=document.getElementsByClassName("JSList");
+     for(j=0;j<x.length;j++) x[j].disabled=bDisabled;
+    }
+    break;
+   case "EntryLocation":
+    sValue=sValue.replace(/~/g,"|");
+    xElement=document.getElementById("Delivery");
+    iIndex=0;
+    for(j=1;j<xElement.options.length;j++)
+     if(sValue==xElement.options[j].value) { iIndex=j; break; }
+    xElement.selectedIndex=iIndex;
+    document.getElementById("DeliveryPlease").style.display=(iIndex==0 ? "" : "none");
+    break;
+   case "VJudgePickupLocation":
+    sValue=sValue.replace(/~/g,"|");
+    xElement=document.getElementById("VJudgePickup");
+    iIndex=0;
+    for(j=1;j<xElement.options.length;j++)
+     if(sValue==xElement.options[j].value) { iIndex=j; break; }
+    xElement.selectedIndex=iIndex;
+    document.getElementById("VJudgePickupPlease").style.display=(iIndex==0 ? "" : "none");
+    break;
+   case "ClubName": s_xClubName.value=sValue; break;
+   case "Judge0Steward1": document.getElementById("JSStewardOnly").checked=(sValue==1 ? true : false); break;
+   case "JudgingSessions":
+    var bChecked,sValue,sCanceledJudgingSessions="";
+    s_iCanceledJudgeSessionCount=0;
+    x3=sValue.split(",");
+    for(ii=0;ii<2;ii++) {
+     x=document.getElementsByClassName(ii ? "JSList" : "JSLock");
+     for(j=0;j<x.length;j++) {
+      bChecked=0;
+      sValue=x[j].id.substr(6);
+      x4=document.getElementById("JSGrup"+sValue);
+      s="";
+      for(k=0;k<x3.length;k++) {
+       x5=x3[k].split(":");
+       if(sValue==x5[0]) {
+        bChecked=1;
+        if(x5.length>1) s=" : "+x5[1];
+       }
+      }
+      x4.innerHTML=s+(ii ? "" : " [LOCKED]");
+      x[j].checked=bChecked;
+     }
+    }
+    for(j=0;j<x3.length;j++) {
+     sValue=s_xCanceledJudgingSessions[x3[j]];
+     if(sValue>" ") { sCanceledJudgingSessions+="\n\n"+sValue; s_iCanceledJudgeSessionCount++; }
+    }
+    if(s_iCanceledJudgeSessionCount)
+     ShowAlert(
+      "<span style=\"font-weight:bold; color:red\"> &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; ** IMPORTANT **\n\n</span>"
+      +"These Judging Sessions have been canceled:"
+      +sCanceledJudgingSessions+"\n\nClick Judges / Stewards to acknowledge that you know about this.",60);
+    break;
+   case "QA": // sValue: Question#`ENTRANT_QA_FLAG_* bitmap`Question text`ENTRANT_QA_TYPE_*`Answer text[~...]
+    x3=sValue.split("~");
+    for(j=0;j<x3.length;j++) {
+     x4=x3[j].split("^");
+     if(x4.length<5) continue;
+     iIndex=s_xQA.length;
+     s_xQA[iIndex]=[];
+     s_xQA[iIndex].QAid=x4[0];
+     s_xQA[iIndex].QApage=x4[1];
+     s_xQA[iIndex].QAtext=x4[2];
+     s_xQA[iIndex].QAtype=x4[3];
+     s_xQA[iIndex].QAvalue=x4[4];
+    }
+    break;
+  }
+ }
+ bEntriesBtnDisabled=(0 || sBlockByLocation!="");
+ bJudgesBtnDisabled=0 ;
+ bVolunteerBtnDisabled=0;
+ if(0 && s_xLastName.value!="Club") bEntriesBtnDisabled=1;
+ if(s_xLastName.value=="Club") { bVolunteerBtnDisabled=1; bJudgesBtnDisabled=1; if(1) bEntriesBtnDisabled=1; }
+ if(s_xLastName.value=="Certification" || s_xLastName.value=="Translator" || s_xLastName.value=="Circuit") { bEntriesBtnDisabled=1; bJudgesBtnDisabled=1; bVolunteerBtnDisabled=1; }
+ document.getElementById("EntriesBtn").disabled=bEntriesBtnDisabled;
+ document.getElementById("JudgesBtn").disabled=bJudgesBtnDisabled;
+ if(x=document.getElementById("VolunteerBtn")) x.disabled=bVolunteerBtnDisabled;
+ SetEntrantName();
+ ShowPage("MainMenu");
+ s=s_xEmail.value;
+ if(sBlockByLocation!="") ShowAlert(sBlockByLocation);
+ else if(s<" " || s.indexOf("@")<0 || s.indexOf(".")<0) ShowAlert("We need your Email address - click on Edit My Profile");
+}
+
+function CallAjax(sAction, sRequest) {
+ xmlhttp=new XMLHttpRequest();
+ xmlhttp.onreadystatechange=AjaxResponse;
+ xmlhttp.open("POST","ReggieEntryAjax.php",true);
+ xmlhttp.setRequestHeader("Content-type","application/x-www-form-urlencoded");
+ var sXMLRequest="Action="+sAction+sRequest
+  +"&FirstName="+ReggieEncode(s_xFirstName.value)+"&LastName="+ReggieEncode(s_xLastName.value)+"&Language=English"
+  +"&Bin2HexPswd="+StringToHex(s_xPassword.value)+"&EntrantID="+s_iEntrantID+"&CompRecordID="+s_iCompRecordID
+  +"&JudgeProComp=0"+"&DBIndex=0";
+ if(document.getElementById("ShowAjax").checked) alert(sXMLRequest);
+ document.getElementById("AJAXStatus").style.backgroundColor="red";
+ xmlhttp.send(sXMLRequest);
+}
+
+function LastNameMouseClicked(x) {
+ var i,sSelection=x.innerHTML.replace(/&amp;/g,"&");
+ if((i=sSelection.indexOf(">"))>0) sSelection=sSelection.substr(i+1);
+ sSelection=sSelection.split("<")[0];
+ var saName=sSelection.split(", ");
+ if(sSelection.substr(0,3)!='***') {
+  s_sSaveLastName=saName[0];
+  s_xLastName.value=s_sSaveLastName;
+  if(saName.length>1) s_xFirstName.value=saName[1]; }
+ s_xNamesPopup.innerHTML="";
+ s_xNamesPopup.style.visibility="hidden";
+}
+
+function StartLastNameTimer() {
+ if(s_xLastNameTimer)
+  clearTimeout(s_xLastNameTimer);
+ if(s_bUseLastNameTimer) s_xLastNameTimer=setTimeout("LastNameTimerTick()", 500);
+}
+
+function LastNameTimerTick() {
+ clearTimeout(s_xLastNameTimer);
+ s_xLastNameTimer=0;
+ var sLastName=s_xLastName.value;
+ if(sLastName.length > 2 && sLastName!=s_sSaveLastName)
+  CallAjax("GetParticipantName","");
+ else {
+  s_xNamesPopup.style.visibility="hidden";
+  s_xNamesPopup.innerHTML="";
+ }
+}
+
+function AffiliateMouseClicked(x) {
+ var sSelection=x.innerHTML.replace(/&amp;/g,"&");
+ var i,x=sSelection.split(">");
+ if(x.length>1) sSelection=x[1];
+ x=sSelection.split("<");
+ if(x.length>1) sSelection=x[0];
+ x=sSelection.split(" [");
+ var sID=(x.length>1 ? x[1] : "?]");
+ x=sSelection.split(" (");
+ if(x.length>1) sSelection=x[0];
+ if(sSelection.substr(0,3)!='***') {
+  i=sSelection.indexOf(", ");
+  if(i>0) sSelection=sSelection.substr(i+2)+" "+sSelection.substr(0,i);
+  sSelection+=" ["+sID;
+  s_sSaveAffiliate=sSelection;
+  document.getElementById("Affiliate").value=s_sSaveAffiliate;
+ }
+ x=document.getElementById("AffiliatePopup");
+ x.innerHTML="";
+ x.style.visibility="hidden";
+}
+
+function StartAffiliateTimer() {
+ if(s_xAffiliateTimer)
+  clearTimeout(s_xAffiliateTimer);
+ s_xAffiliateTimer=setTimeout("AffiliateTimerTick()", 500);
+}
+
+function AffiliateTimerTick() {
+ clearTimeout(s_xAffiliateTimer);
+ s_xAffiliateTimer=0;
+ var sAffiliate=document.getElementById("Affiliate").value;
+ if(sAffiliate.length > 2 && sAffiliate!=s_sSaveAffiliate)
+  CallAjax("GetAffiliateName","&Affiliate="+sAffiliate);
+ else {
+  var x=document.getElementById("AffiliatePopup");
+  x.style.visibility="hidden";
+  x.innerHTML="";
+ }
+}
+
+function AddAffiliate(xElement) {
+ var s=xElement.value;
+ if(s=="None") s="";
+ var sNew=document.getElementById("Affiliate").value;
+ if(sNew.indexOf("[")<1) { ShowAlert("Please select Last Name"); return; }
+ if(s.indexOf(sNew)<0) xElement.value=(s=="" ? "" : s+",")+sNew;
+}
+
+function RemoveAffiliate(xElement) {
+ var s,i,bFound=0,x=xElement.value.split(",");
+ var sNew=document.getElementById("Affiliate").value;
+ if(sNew.indexOf("[")<1) { ShowAlert("Please select Last Name"); return; }
+ s="";
+ for(i=0;i<x.length;i++)
+  if(sNew.split("[")[1]!=x[i].split("[")[1]) s+=(s=="" ? "" : ",")+x[i]; else bFound=1;
+ xElement.value=s;
+ if(!bFound)
+  s="Please select Last Name";
+ else
+  s="Remove successful";
+ ShowAlert(s);
+}
+
+function NoAffiliate(xElement) {
+ xElement.value="None";
+}
+
+function UpdateJudgingPreferences() {
+ var sLiked="";
+ var sDisliked="";
+ var iGroup;
+ for(var i=0;i<s_xJudgingGroups.length;i++) {
+  iGroup=s_xJudgingGroups[i][0];
+  if(document.getElementById("GroupYes"+iGroup).checked) sLiked+=(sLiked=="" ? "" : ",")+iGroup;
+  if(document.getElementById("GroupNo"+iGroup).checked) sDisliked+=(sDisliked=="" ? "" : ",")+iGroup;
+ }
+ var sXMLRequest="&Liked="+sLiked+"&Disliked="+sDisliked;
+ CallAjax("UpdateJudgingPreferences",sXMLRequest);
+}
+
+function UpdateJudgingSessions() {
+ var i;
+ var sJudgingSessions="";
+ var x=document.getElementsByClassName("JSList");
+ for(i=0;i<x.length;i++) if(x[i].checked) sJudgingSessions+=(sJudgingSessions=="" ? "" : ",")+x[i].id.substr(6);
+ var sXMLRequest="&JudgingSessions="+sJudgingSessions+"&Judge0Steward1="+(document.getElementById("JSStewardOnly").checked ? 1 : 0);
+ CallAjax("UpdateJudgingSessions",sXMLRequest);
+}
+
+var s_xRecipeFileName=[];
+function UploadNewRecipe() {
+ var xElement=document.getElementById("RecipeUploadSelect");
+ var sError="";
+ s_xRecipeFileName=[];
+ if("files" in RecipeUploadSelect) {
+  s_xRecipeFileName=xElement.files;
+  if(s_xRecipeFileName.length==0)
+   sError="Please select a file";
+  else {
+   var xFile=s_xRecipeFileName[0];
+   var sFileName=xFile.name;
+   var x=sFileName.split(".");
+   var sExtension=(x.length > 1 ? x[1].toLowerCase() : "");
+   var sBase=x[0];
+   var iFileSize=xFile.size;
+   if(sBase=="" || (sExtension!="xml" && sExtension!="pdf"))
+    sError="Please choose an XML file (BeerXML format) or a PDF document or PDF scan";
+   else if(iFileSize>=1000000 || (iFileSize>=100000 && sExtension=="xml"))
+    sError="File is too large (it should be under 100,000 bytes if XML or 500,000 bytes if PDF)";
+  }
+ } else
+  sError="Your browser doesn't support file uploading - please use a recent version of Chrome, Firefox, or Internet Explorer";
+ if(sError!="") ShowAlert(sError, 15);
+ document.getElementById("RecipeUpload").style.display=(sError=="" ? "" : "none");
+}
+
+function RecipeUpload() {
+ if(s_xRecipeFileName.length>0)
+  CallAjaxUploadFile(s_xRecipeFileName[0],"Recipe",AjaxResponseUploadRecipe, s_iEntrantID+";"+StringToHex(s_xPassword.value));
+ else
+  ShowAlert("No file to upload");
+}
+
+function AjaxResponseUploadRecipe() {
+ if(xmlhttpUpload.readyState==4 && xmlhttpUpload.status==200) {
+  var s=xmlhttpUpload.responseText;
+  if(document.getElementById("ShowAjax").checked) alert(s);
+  var bOK=(s.substr(0,8)=="Uploaded");
+  if(bOK) {
+   var x=s.split("`");
+   if(x.length > 1 && (x[1]!="" || x[2]!="")) {
+    ShowConfirm(x[0]+"\n\nFill in this info for your Entry?"+(x[1]=="" ? "" : "\n - Entry Name ("+x[1]+")")
+     +(x[2]=="" ? "" : "\n - Style ("+x[2]+")"),UploadRecipeCallback,x[1]+"`"+x[2]);
+   } else
+    ShowAlert(x[0],15);
+  } else
+   ShowAlert(s,15);
+  s_xRecipeFileName=[];
+  document.getElementById("RecipeUpload").style.display="none";
+  document.getElementById("RecipeGotIt").checked=bOK;
+ }
+}
+
+function UploadRecipeCallback(sParams) {
+ var x=sParams.split("`");
+ var sName=x[0];
+ var sStyle=x[1];
+ var iStyleIndex=0;
+ if(sName!="") document.getElementById("BrewName").value=sName;
+ if(sStyle!="") {
+  var xElement=document.getElementById("EntryStyle");
+  for(var i=1;i<xElement.length;i++)
+   if(xElement.options[i].value==sStyle) { iStyleIndex=i; break; }
+  if(iStyleIndex==0) ShowAlert("Style in Recipe file did not match styles available");
+  xElement.selectedIndex=iStyleIndex;
+  ChangeStyle();
+ }
+ return 0;
+}
+
+function CallAjaxUploadFile(xFile,sAction,xCallback,sParams) {
+ xmlhttpUpload=new XMLHttpRequest();
+ if(!xmlhttpUpload.upload) { ShowAlert("Your browser doesn't support file uploading - please use a recent version of Chrome, Firefox, or Internet Explorer"); return; }
+ xmlhttpUpload.onreadystatechange=xCallback;
+ if(s_iCompEntryIndex>=0) s_xEntries[s_iCompEntryIndex]["RecipeGotIt"]=true;
+ var sHeader=sAction+"|"+sParams+"|"+882+"|"+
+  (s_iEntryButtonAdd0Save1Update2==2 ? s_xEntries[s_iCompEntryIndex]["CompEntryID"] : s_iEntrantID)+
+  (xFile.name.split(".")[1].toLowerCase()=="pdf" ? ".pdf" : ".xml")+"|0";
+ sHeader=sHeader.replace(/#/g,"*HASH*"); // HTTP treating # specially in URL
+ if(document.getElementById("ShowAjax").checked) alert(sHeader);
+ xmlhttpUpload.open("POST","ReggieUpload.php?Params="+sHeader,true); // pass params on URL; HTTPS doesn't setRequestHeader
+ xmlhttpUpload.setRequestHeader("X_FILENAME",sHeader);
+ xmlhttpUpload.send(xFile);
+}
+
+var s_xClubTimer=0;
+var s_sSaveClubName="";
+
+function StartClubTimer() {
+ if(s_xClubTimer)
+  clearTimeout(s_xClubTimer);
+ s_xClubTimer=setTimeout("ClubTimerTick()", 500);
+}
+
+function ClubTimerTick() {
+ clearTimeout(s_xClubTimer);
+ s_xClubTimer=0;
+ var sClubName=document.getElementById("HomebrewClub").value;
+ var xElement=document.getElementById("ClubResults");
+ xElement.style.display="none";
+ xElement.innerHTML="";
+ if (sClubName.length>2 && sClubName!=s_sSaveClubName) {
+  s_sSaveClubName=sClubName;
+  CallAjax("GetClubName","&ClubName="+escape(sClubName));
+ }
+}
+
+function ClubNameMouseClicked(x) {
+ var sSelection=x.innerHTML.replace(/\<\/*span\>/g,"");
+ if(sSelection[0]!="*") document.getElementById("HomebrewClub").value=sSelection;
+ xElement=document.getElementById("ClubResults");
+ xElement.innerHTML="";
+ xElement.style.display="none";
+}
+
+function PrevEntryPicked(xElement) {
+ var i,j,x,x2,xElement;
+ var iIndex=xElement.selectedIndex;
+ if(iIndex<=0) return;
+ x=xElement.options[iIndex].value.split("|");
+ var sRecipe=x[5];
+ document.getElementById("BrewName").value=x[1];
+ document.getElementById("AddName").value=x[3];
+ x=x[2].split("~");
+ for(i=0;i<x.length;i++) {
+  x2=x[i].split("=");
+  if(x2.length>1 && (xElement=document.getElementById("StyleParam"+x2[0]))!=undefined) {
+   if(xElement.nodeName.toLowerCase()=="select") {
+    for(j=0;j<xElement.length;j++)
+     if(xElement.options[j].text==x2[1]) { xElement.selectedIndex=j; break; }
+   } else
+    xElement.value=x2[1];
+  }
+ }
+ CallAjax("PrevEntryPicked","&Recipe="+sRecipe);
+}
+
+function ChangeLanguage(sLanguage) {
+window.location="ReggieEntry.php?CompetitionID=DYXTYN1000882&Language="+sLanguage;
+}
+
+function JudgeProComp(bJudge) {
+window.location="ReggieEntry.php?CompetitionID=DYXTYN1000882"+(bJudge ? "&BeAJudge=1" : '');
+}
+
+var s_xSponsors=[
+ [4,5000,0,"Brew Hut","http://TheBrewHut.com","Logos/Sponsor/Sponsor_000001.jpg",400,400,200,200]
+ ,[3,5000,1,"Luki Brewery","https://www.lukibrew.com/home/","Logos/Sponsor/Sponsor_000923.png",459,250,184,100]
+ ,[2,5000,0,"Brewcursion","https://brewcursion.com/","Logos/Sponsor/Sponsor_001011.png",150,30,150,30]
+ ,[1,5000,0,"Brew Fort Homebrew and Winemaking Supply","https://brewfort.com/","Logos/Sponsor/Sponsor_000905.png",1024,784,154,118]
+ ,[1,5000,0,"Tom's Brew Shop","https://tomsbrewshop.com/","Logos/Sponsor/Sponsor_000816.png",292,254,190,165]
+ ,[1,5000,0,"Boulder Fermentation Supply","https://www.boulderfermentationsupply.com/","Logos/Sponsor/Sponsor_000336.jpg",90,90,180,180]
+ ,[1,5000,0,"Altitude Brewing  and  Supply","http://www.altitudebrew.com/","Logos/Sponsor/Sponsor_000286.png",198,193,198,193]
+ ,[1,5000,0,"Old West Hombrew Supply","http://shop.oldwestbrew.com/","Logos/Sponsor/Sponsor_000113.jpg",500,294,200,118]
+ ,[1,5000,0,"Quirky Homebrew","http://www.QuirkyHomebrew.com","Logos/Sponsor/Sponsor_000019.jpg",638,638,191,191]
+];
+
+function ShowAllSponsors(xButton) {
+ var xElement=document.getElementById("AllSponsors");
+ var bShow=(xElement.style.display=="none" ? 1 : 0);
+ xElement.style.display=(bShow ? "" : "none");
+ xButton.value=(bShow ? "Hide all sponsors" : "Show all sponsors");
+}
+
+var s_iSPIndex=0;
+var s_iSPDirection=-1;
+var s_iSPOp1=0;
+var s_iSPOp2=100;
+var s_iSPInc=10;
+var s_iSPTime=100;
+var s_bSPFirstTime=1;
+var s_sSPName="",s_sSPWeb="";
+var s_iSPLen=s_xSponsors.length;
+
+function SPTimer() {
+ var xElementImage1=document.getElementById("SponsorImage1");
+ if(xElementImage1==null || s_iSPLen==0) return;
+ var xElementImage2=document.getElementById("SponsorImage2");
+ var xElementName=document.getElementById("SponsorName");
+ var bChangeSettings=0;
+ var xWhichElement=xElementImage1;
+ var iTime=100;
+ if(s_bSPFirstTime)
+  bChangeSettings=1;
+ else {
+  var iMove=s_iSPDirection*s_iSPInc;
+  s_iSPOp1+=iMove;
+  s_iSPOp2-=iMove;
+  if(s_iSPOp1>=100) {
+   xWhichElement=xElementImage2;
+   bChangeSettings=1;
+  } else if(s_iSPOp1<=0)
+   bChangeSettings=1;
+  else
+   xElementName.innerHTML="&nbsp;";
+ }
+ if(bChangeSettings) {
+  var x=s_xSponsors[s_iSPIndex];
+  xWhichElement.src=x[5];
+  if(s_bSPFirstTime) { s_bSPFirstTime=0; iTime=10; } else iTime=s_iSPTime;
+  xWhichElement.style.width=x[8]+"px";
+  xWhichElement.style.height=x[9]+"px";
+  xWhichElement.style.left=Math.floor((250-x[8])/2)+"px";
+  xElementName.innerHTML=s_sSPName;
+  xElementName.href=s_sSPWeb;
+  document.getElementById("SponsorImages").href=s_sSPWeb;
+  s_iSPTime=x[1];
+  s_sSPName=x[3];
+  s_sSPWeb=x[4];
+  if(++s_iSPIndex>=s_iSPLen) s_iSPIndex=0;
+  s_iSPDirection=-s_iSPDirection;
+ }
+ xElementImage1.style.opacity=s_iSPOp1/100;
+ xElementImage2.style.opacity=s_iSPOp2/100;
+
+ // address bug in IE10 where opacity sometimes doesn't work
+ xElementImage1.style.visibility=(s_iSPOp1 == 0 ? "hidden" : "visible");
+ xElementImage2.style.visibility=(s_iSPOp2 == 0 ? "hidden" : "visible");
+
+ setTimeout("SPTimer()",iTime);
+}
+
+</script>
+
+<style>
+.SectionHeader { font:bold 28px arial;color:blue }
+.CompName { text-align:center;font:bold 28px arial;color:black }
+.CompInfo { text-align:center;font:16px arial;color:black }
+.Title { text-align:center;font:20px arial;color:blue }
+.TitleLeft { font:20px arial;color:blue }
+.Alert { text-align:center;color:red;font:24px arial }
+.HelpInfo { font:10px arial;color:black }
+.PopUpQA { position:fixed;border:10px ridge #80FF80;z-index:2;visibility:hidden;background-color:white;top:60px;left:110px;width:600px;
+  box-shadow:10px 10px 5px #808080;border-radius:20px;padding:5px }
+.RowLabel { display:inline-block;width:150px;font-size:14px }
+.RowLabel250 { display:inline-block;width:250px }
+option:disabled { color:red }
+.StyleParam { font-weight:700;background-color:#C0C0C0 }
+.TabTitle { font:bold 24px arial;color:blue }
+th { text-align:center;vertical-align:middle }
+</style>
+</head>
+
+<body style="font-family:arial,helvetica,sans-serif;font-size:14px">
+<div class="AJAXStatus" style="background-color:blue" id="AJAXStatus"></div>
+<div id="PopupQA" class="PopUpQA">
+ <div class="TabTitle">Please provide this information</div>
+ <div style="display:none" id="PopupQAPage"></div>
+ <table><colgroup><col><col></colgroup><tbody id="PopupQAQuestions"><tr><td></td><td></td></tr></tbody></table>
+ <br><input type="button" onclick="UpdatePopupQA()" value="Update">
+</div>
+<div style="text-align:center; font:16px arial">Reggie+eJudge+vJudge Competition Software V9.53 ©2005-2025 by Nelson Crowle (Nelson@ReggieBeer.com)&nbsp; &nbsp; <input id="ShowAjax" type="checkbox" style="display:none"></div>
+
+<div style="white-space:nowrap">
+ <div style="display:inline-block;margin:0px 20px">
+  <img src="https://reggiebeer.com/Logos/Logo00882.png" style="width:130px; height:238px" title="Competition Logo" alt="Competition Logo"> </div>
+ <div style="text-align:center;width:750px;border:1px solid black;margin-bottom:0;display:inline-block;vertical-align:top">
+  <div class="CompName">Rocky Mountain Homebrew Challenge 2024</div>Date of Competition: 2024-Oct-05 &nbsp; &nbsp; &nbsp; Current Date: 2025-Nov-09 UTC-7 Mountain Standard Time<br>Dates for Entry Registration: 2024-Jul-31 0:00 AM - 2024-Sep-18 11:59 PM<br>Dates for Judge and Volunteer Registration: 2024-Jul-31 0:00 AM - 2024-Oct-05 9:00 AM<br>Dates for Entry Delivery: 2024-Sep-06 0:00 AM - 2024-Sep-20 5:00 PM<br>Entry limit for competition: 493<br>Entry count: 466<br>Bottles needed for each entry: 2<br><div style="text-align:center;font:24px arial;color:green"></div> </div>
+ <div style="display:inline-block;width:250px;vertical-align:top">
+  <div style="text-align:center">
+   <input type="button" value="Show all sponsors" onclick="ShowAllSponsors(this)">
+   <br><a href="https://brewfort.com/" id="SponsorName" target="SponsorWeb">Brew Fort Homebrew and Winemaking Supply</a>
+  </div>
+  <a href="https://brewfort.com/" id="SponsorImages" target="SponsorWeb" style="position:relative;top:15px">
+   <img id="SponsorImage1" style="position: absolute; top: 0px; width: 154px; height: 118px; opacity: 1; left: 48px; visibility: visible;" alt="Image1" src="Logos/Sponsor/Sponsor_000905.png">
+   <img id="SponsorImage2" style="position: absolute; top: 0px; width: 190px; height: 165px; opacity: 0; visibility: hidden; left: 30px;" alt="Image2" src="Logos/Sponsor/Sponsor_000816.png">
+  </a>
+ </div>
+</div>
+
+<div class="Alert">Competition judging has been completed. See the results at <a href="https://ReggieBeer.com/ReggieWeb.php?Web=1000882">Reggie</a></div>
+<div id="AllSponsors" style="display:none;white-space:nowrap">
+ <br><br><br>
+ <script>
+  var i,j,x,bFirst;
+  var sSponsorLevels=[ "Bronze","Silver","Gold","Platinum","Diamond" ];
+  for(i=sSponsorLevels.length-1;i>=0;i--) {
+   bFirst=1;
+   iColumn=0;
+   for(j=0;j<s_iSPLen;j++) {
+    x=s_xSponsors[j];
+    if(x[0]==i) {
+     if(bFirst) { document.writeln("<div class='CompName'>"+sSponsorLevels[i]+" Sponsors</div>"); bFirst=0; }
+     if(iColumn>=4) { document.writeln("</div>"); iColumn=0; }
+     if(iColumn==0) document.writeln("<div style='white-space:nowrap'>");
+     iColumn++;
+     document.writeln("<div style='display:inline-block;width:250px;text-align:center;vertical-align:top'>"
+      +"<a href='"+x[4]+"' target='SponsorWeb'>"+x[3]
+      +((x[2] & 1)>0 ? "<br><span style='color:red'>PRO/AM</span>" : "")
+      +"<br><img src='"+x[5]+"' width="+x[8]+" height="+x[9]+"></a>"
+      +"</div>");
+    }
+   }
+   if(!bFirst) document.writeln("</div><hr/>");
+  }
+ </script><div class="CompName">Diamond Sponsors</div>
+<div style="white-space:nowrap">
+<div style="display:inline-block;width:250px;text-align:center;vertical-align:top"><a href="http://TheBrewHut.com" target="SponsorWeb">Brew Hut<br><img src="Logos/Sponsor/Sponsor_000001.jpg" width="200" height="200"></a></div>
+</div><hr>
+<div class="CompName">Platinum Sponsors</div>
+<div style="white-space:nowrap">
+<div style="display:inline-block;width:250px;text-align:center;vertical-align:top"><a href="https://www.lukibrew.com/home/" target="SponsorWeb">Luki Brewery<br><span style="color:red">PRO/AM</span><br><img src="Logos/Sponsor/Sponsor_000923.png" width="184" height="100"></a></div>
+</div><hr>
+<div class="CompName">Gold Sponsors</div>
+<div style="white-space:nowrap">
+<div style="display:inline-block;width:250px;text-align:center;vertical-align:top"><a href="https://brewcursion.com/" target="SponsorWeb">Brewcursion<br><img src="Logos/Sponsor/Sponsor_001011.png" width="150" height="30"></a></div>
+</div><hr>
+<div class="CompName">Silver Sponsors</div>
+<div style="white-space:nowrap">
+<div style="display:inline-block;width:250px;text-align:center;vertical-align:top"><a href="https://brewfort.com/" target="SponsorWeb">Brew Fort Homebrew and Winemaking Supply<br><img src="Logos/Sponsor/Sponsor_000905.png" width="154" height="118"></a></div>
+<div style="display:inline-block;width:250px;text-align:center;vertical-align:top"><a href="https://tomsbrewshop.com/" target="SponsorWeb">Tom's Brew Shop<br><img src="Logos/Sponsor/Sponsor_000816.png" width="190" height="165"></a></div>
+<div style="display:inline-block;width:250px;text-align:center;vertical-align:top"><a href="https://www.boulderfermentationsupply.com/" target="SponsorWeb">Boulder Fermentation Supply<br><img src="Logos/Sponsor/Sponsor_000336.jpg" width="180" height="180"></a></div>
+<div style="display:inline-block;width:250px;text-align:center;vertical-align:top"><a href="http://www.altitudebrew.com/" target="SponsorWeb">Altitude Brewing  and  Supply<br><img src="Logos/Sponsor/Sponsor_000286.png" width="198" height="193"></a></div>
+</div>
+<div style="white-space:nowrap">
+<div style="display:inline-block;width:250px;text-align:center;vertical-align:top"><a href="http://shop.oldwestbrew.com/" target="SponsorWeb">Old West Hombrew Supply<br><img src="Logos/Sponsor/Sponsor_000113.jpg" width="200" height="118"></a></div>
+<div style="display:inline-block;width:250px;text-align:center;vertical-align:top"><a href="http://www.QuirkyHomebrew.com" target="SponsorWeb">Quirky Homebrew<br><img src="Logos/Sponsor/Sponsor_000019.jpg" width="191" height="191"></a></div>
+</div><hr>
+
+</div>
+
+<br>For Competition questions: <a href="mailto:ray@kkpsi.org?subject=Reggie_-_Competition_question_for_Rocky_Mountain_Homebrew_Challenge_2024">Email Competition Organizer</a><script type="text/javascript"> setTimeout('SPTimer()',10); </script></body></html>

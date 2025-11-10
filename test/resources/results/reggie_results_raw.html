@@ -1,0 +1,330 @@
+<!DOCTYPE html>
+
+
+<html>
+<head>
+<meta charset="UTF-8">
+
+<!-- tags to explain this website to Facebook and Twitter -->
+<meta property="og:title" content="Reggie Competition Software">
+<meta property="og:type" content="article" />
+<meta property="og:description" content='Results for Rocky Mountain Homebrew Challenge 2024'>
+<meta property="og:image" content="https://reggiebeer.com/Logos/Logo00882.png">
+<meta property="og:url" content='https://reggiebeer.com/ReggieWeb.php?Web=1000882'>
+<meta name="twitter:card" content="summary_large_image">
+
+
+
+
+<script type='text/javascript'>
+// This block of code contains three JavaScript variables:
+//   saReggieGroups is an array of medal group information arrays as strings (use cGroup* constants), in order by the Group ID
+//   aaReggieMedals is an array of arrays of medal data, self documented
+//   sReggieCompName is the name of the competition
+//   sReggieCompDate is the final date (MM/DD/YYYY) of the competition
+//   sReggieCompDate2 is the final date (YYYY-MM-DD) of the competition
+var saReggieGroups=[ ["American Lager","","",10,[] ]
+,["International Lager","","",15,[] ]
+,["German Lager","","",12,[] ]
+,["European Amber Lager","","",13,[] ]
+,["Marzen","","",14,[] ]
+,["Dark Lager","","",13,[] ]
+,["Bock","","",11,[] ]
+,["Light Hybrid Beer","","",17,[] ]
+,["Brown Beer","","",12,[] ]
+,["English Pale Ale","","",14,[] ]
+,["Scottish/Irish Ale","","",15,[] ]
+,["American Ale","","",11,[] ]
+,["Porter","","",8,[] ]
+,["Stout","","",14,[] ]
+,["Hazy IPA","","",11,[] ]
+,["American IPA","","",9,[] ]
+,["Specialty IPA","","",13,[] ]
+,["European Wheat Beer","","",11,[] ]
+,["Belgian and French Ale","","",17,[] ]
+,["Sour Ale","","",13,[] ]
+,["Monastic Ale","","",23,[] ]
+,["Strong Belgian Ale","","",13,[] ]
+,["Strong Ale","","",13,[] ]
+,["Fruit Beer","","",17,[] ]
+,["Spice/Herb/Vegetable Beer","","",17,[] ]
+,["Smoke/Wood-Aged Beer","","",17,[] ]
+,["Specialty Beer","","",13,[] ]
+,["Historical Beer","","",16,[] ]
+,["Traditional Mead","","",12,[] ]
+,["Melomel (Fruit Mead)","","",25,[] ]
+,["Other Mead","","",19,[] ]
+,["Standard Cider/Perry","","",6,[] ]
+,["Specialty Cider/Perry","","",22,[] ]
+,["Pro/Am - ***923`Luki Brewery`14715 West 64th Ave. Unit A  and  B`Arvada`CO`80004`USA`(303) 421-2603``https://www.lukibrew.com/home/`https://ReggieBeer.com/Logos/Sponsor/Sponsor_000923.png`459`250`184`100","","",0,[] ]
+,["Best Of Show - Mead/Cider","","",0,[] ]
+,["Best Of Show - Beer","","",0,[] ]
+,["Heavy Medal - Brewer","","",0,[] ]
+,["Heavy Medal - Club","","",0,[] ]
+];
+// ********** Use these constants below as indices into arrays in case the structure changes in the future **********
+
+// Use these constants as indices into aaReggieMedals:
+var cRegPlace=0,cRegType=1,cRegShow=2,cRegName=3 /* Club Name for Club Heavy Medal; Entrant name for everything else */,cRegGroup=4,cRegStyle=5,cRegBeer=6,cRegClub=7,cCoBrewer=8,cEntrantID=9,cCertificationRank=10,cEntryID=11,cScore=12;
+
+// Use these constants as indices into saReggieGroups:
+var cGroupName=0,cGroupSponsorImage=1 /* discontinued V6.00 */,cGroupSponsorText=2 /* discontinued V6.00 */,cGroupEntriesJudgedCount=3,cGroupSponsors=4;
+// These constants are indices into saReggieGroups[cGroupSponsors]:
+var cSponsorImgURL=0,cSponsorImgWidth=1,cSponsorImgHeight=2,cSponsorName=3,cSponsorWebsite=4;
+var cSponsorImgSmallWidth=5,cSponsorImgSmallHeight=6; // Width and Height adjusted to fit 200x200 pixel box
+
+//  NOTE - in aaReggieMedals for Pro/Am, the ShowLabel contains a Pro/Am sponsor code, as well as Pro/Am contact information and logo separated by `. Use these indices:
+var cProAmID=0,cProAmName=1,cProAmAddress=2,cProAmCity=3,cProAmState=4,cProAmPostalCode=5,cProAmCountry=6,cProAmPhone=7;
+var cProAmEmail=8,cProAmWebsite=9,cProAmLogoFilename=10,cProAmLogoWidth=11,cProAmLogoHeight=12;
+var cProAmLogoSmallWidth=13,cProAmLogoSmallHeight=14; // Width and Height adjusted to fit 200x200 pixel box
+
+var aaReggieMedals=[
+// Regular Medals: MedalPlace,MedalType=0,ShowLabel,BrewerName,Group,Style,BeerName,Club,CoBrewer,EntrantID,CertificationRanks
+// Pro/Am Medals: MedalPlace,MedalType=0,ShowLabel="Pro/Am - ...",BrewerName,Group,Style,BeerName,Club,CoBrewer,EntrantID,CertificationRanks
+// Special Award Medals: MedalPlace,MedalType=0,ShowLabel="Special Award - ...",BrewerName,Group,Style,BeerName,Club,CoBrewer,EntrantID,CertificationRanks
+// BOS Medals: MedalPlace,MedalType=1,ShowLabel,BrewerName,Group,Style,BeerName,Club,CoBrewer,EntrantID,CertificationRanks
+// Heavy Medals - Brewer:  MedalPlace,MedalType=2,ShowLabel,BrewerName,Group,Details,TotalPoints
+// Heavy Medals - Club: MedalPlace,MedalType=3,ShowLabel,ClubName,Group,Details,TotalPoints
+ ["1","0","1","Donald Schneider","American Lager","1A: American Light Lager","Bud Aight","Weizguys Homebrew Club (Loveland, CO)","","19783","<span style='float:right;color:yellow;background-color:black;padding:2px' title='Master Homebrewer Program Grand Master 2'>MHP</span>","1371","38"]
+,["2","0","1","Donald Schneider","American Lager","1B: American Lager","Dad Beer","Weizguys Homebrew Club (Loveland, CO)","","19783","<span style='float:right;color:yellow;background-color:black;padding:2px' title='Master Homebrewer Program Grand Master 2'>MHP</span>","1003","38"]
+,["3","0","1","Bobby Rinehart","American Lager","1A: American Light Lager","Silverer Bullet","Lakewood Fermentation Club (Lakewood, CO)","","20264","<span style='float:right;color:yellow;background-color:black;padding:2px' title='Master Homebrewer Program Master'>MHP</span>","1059","42"]
+,["1","0","1","Ryan Wankel","International Lager","2A: International Pale Lager","Everythings Right","Lakewood Fermentation Club (Lakewood, CO)","","22328","<span style='float:right;color:yellow;background-color:black;padding:2px' title='Master Homebrewer Program Master'>MHP</span>","1316","39"]
+,["2","0","1","Ryan Wankel","International Lager","X5: New Zealand Pilsner","It's Personal 2.0","Lakewood Fermentation Club (Lakewood, CO)","","22328","<span style='float:right;color:yellow;background-color:black;padding:2px' title='Master Homebrewer Program Master'>MHP</span>","1341","39"]
+,["3","0","1","Ryan Wankel","International Lager","3B: Czech Premium Pale Lager","19.09.17 Munich to Prague","Lakewood Fermentation Club (Lakewood, CO)","","22328","<span style='float:right;color:yellow;background-color:black;padding:2px' title='Master Homebrewer Program Master'>MHP</span>","1302","36"]
+,["1","0","1","Paul Dey","German Lager","5A: German Leichtbier","Lederhosen","High Plains Drafters (Cheyenne, WY)","","4250","","1217","37"]
+,["2","0","1","Glenn Saxon","German Lager","5D: German Pils","","Indian Peaks Alers (Longmont, CO)","","22538","","1066","39"]
+,["3","0","1","Geoff Humphrey","German Lager","5C: German Helles Exportbier","Die Eier von Satan","Rock Hoppers Brew Club (Centennial, CO)","","4499","<span style='float:right;color:yellow;background-color:black;padding:2px' title='Master Homebrewer Program Grand Master 1'>MHP</span>","1046","37"]
+,["1","0","1","Terry Fast","European Amber Lager","2B: International Amber Lager","T'Ling","Lakewood Fermentation Club (Lakewood, CO)","","20911","<span style='float:right;color:yellow;background-color:black;padding:2px' title='Master Homebrewer Program Grand Master 3'>MHP</span>","1056","39"]
+,["2","0","1","Victor Matthews","European Amber Lager","2B: International Amber Lager","You Boys Like Mexico!?!?","Lakewood Fermentation Club (Lakewood, CO)","","23683","<span style='float:right;color:yellow;background-color:black;padding:2px' title='Master Homebrewer Program Recognized'>MHP</span>","1067","38"]
+,["3","0","1","Geoff Humphrey","European Amber Lager","7A: Vienna Lager","Ich Komme Zurück","Rock Hoppers Brew Club (Centennial, CO)","","4499","<span style='float:right;color:yellow;background-color:black;padding:2px' title='Master Homebrewer Program Grand Master 1'>MHP</span>","1434","39"]
+,["1","0","1","Matthew Johnsen","Marzen","6A: Marzen","Marvin the Märzen","Rock Hoppers Brew Club (Centennial, CO)","","8832","<span style='float:right;color:yellow;background-color:black;padding:2px' title='Master Homebrewer Program Grand Master 1'>MHP</span>","1018","39"]
+,["2","0","1","Ryan Wankel","Marzen","6A: Marzen","Jerrtoberfest","Lakewood Fermentation Club (Lakewood, CO)","","22328","<span style='float:right;color:yellow;background-color:black;padding:2px' title='Master Homebrewer Program Master'>MHP</span>","1016","37"]
+,["1","0","1","Rob Bauer","Dark Lager","3D: Czech Dark Lager","Long Shot","None","","23842","","1192","40"]
+,["2","0","1","Victor Matthews","Dark Lager","8B: Schwarzbier","Blacklock Lager","Lakewood Fermentation Club (Lakewood, CO)","","23683","<span style='float:right;color:yellow;background-color:black;padding:2px' title='Master Homebrewer Program Recognized'>MHP</span>","1088","37"]
+,["3","0","1","Donald Schneider","Dark Lager","8A: Munich Dunkel","T-T-T-T-T-Toasty, Toasty ","Weizguys Homebrew Club (Loveland, CO)","","19783","<span style='float:right;color:yellow;background-color:black;padding:2px' title='Master Homebrewer Program Grand Master 2'>MHP</span>","1386","38"]
+,["1","0","1","Ryan Wankel","Bock","9A: Doppelbock","Take Me to Your Dealer 1.2","Lakewood Fermentation Club (Lakewood, CO)","","22328","<span style='float:right;color:yellow;background-color:black;padding:2px' title='Master Homebrewer Program Master'>MHP</span>","1029","40"]
+,["2","0","1","Donald Schneider","Bock","4C: Helles Bock","Get Bock, Get Bock, U Dunno Me Leicht That","Weizguys Homebrew Club (Loveland, CO)","","19783","<span style='float:right;color:yellow;background-color:black;padding:2px' title='Master Homebrewer Program Grand Master 2'>MHP</span>","1393","37"]
+,["3","0","1","Bobby Rinehart","Bock","6C: Dunkles Bock","Rejuvenator Lite","Lakewood Fermentation Club (Lakewood, CO)","","20264","<span style='float:right;color:yellow;background-color:black;padding:2px' title='Master Homebrewer Program Master'>MHP</span>","1318","39"]
+,["1","0","1","Donald Schneider","Light Hybrid Beer","5B: Kolsch","Krampus Kolsch ","Weizguys Homebrew Club (Loveland, CO)","","19783","<span style='float:right;color:yellow;background-color:black;padding:2px' title='Master Homebrewer Program Grand Master 2'>MHP</span>","1384","36"]
+,["2","0","1","Nick/Heather Hartley","Light Hybrid Beer","18A: Blonde Ale","KCBM Can Only Handle One Kuecker Girl","Red Earth Brewers (Oklahoma City, OK)","","20945","<span style='float:right;color:yellow;background-color:black;padding:2px' title='Master Homebrewer Program Grand Master 1'>MHP</span>","1011","36"]
+,["3","0","1","Matthew McGavin","Light Hybrid Beer","5B: Kolsch","McGavie Kolsch","None","","22467","","1493","40"]
+,["1","0","1","Josh Moore","Brown Beer","13A: Dark Mild","Alright Mate","None","","9967","","1224","38"]
+,["2","0","1","Patrick Spencer","Brown Beer","13B: British Brown Ale","Brown Town","Pinellas Urban Brewers Guild (Seminole, FL)","","6330","","1495","35"]
+,["3","0","1","Terry Fast","Brown Beer","13A: Dark Mild","5:15","Lakewood Fermentation Club (Lakewood, CO)","","20911","<span style='float:right;color:yellow;background-color:black;padding:2px' title='Master Homebrewer Program Grand Master 3'>MHP</span>","1293","41"]
+,["1","0","1","David Towles","English Pale Ale","11C: Strong Bitter","Still Bitter ","Amarillo High Plains Drafters Brewing Club (Amarillo, TX)","","23912","<span style='float:right;color:yellow;background-color:black;padding:2px' title='Master Homebrewer Program Grand Master 2'>MHP</span>","1163","40"]
+,["2","0","1","Josh Takacs","English Pale Ale","11C: Strong Bitter","Resentful","Aurora City Brew Club (Aurora, CO)","","7232","","1264","37"]
+,["3","0","1","Nelson Crowle","English Pale Ale","12A: British Golden Ale","Golden Mandarina","Indian Peaks Alers (Longmont, CO)","","22","<span style='float:right;color:yellow;background-color:black;padding:2px' title='Master Homebrewer Program Grand Master 6'>MHP</span>","1462","39"]
+,["1","0","1","Matthew Johnsen","Scottish/Irish Ale","14B: Scottish Heavy","Who Wants To Live Forever?","Rock Hoppers Brew Club (Centennial, CO)","","8832","<span style='float:right;color:yellow;background-color:black;padding:2px' title='Master Homebrewer Program Grand Master 1'>MHP</span>","1031","39"]
+,["2","0","1","Fritz Schanz","Scottish/Irish Ale","17C: Wee Heavy","Stearman's Wee Heavy","Denton County Homebrewers Guild (Denton, TX)","","11597","<span style='float:right;color:yellow;background-color:black;padding:2px' title='Master Homebrewer Program Grand Master 5'>MHP</span>","1231","41"]
+,["3","0","1","Cody Collier","Scottish/Irish Ale","14B: Scottish Heavy","Wee Heavy","Aurora City Brew Club (Aurora, CO)","","22689","","1145","39"]
+,["1","0","1","Jess And Ray Finlay-Schultz","American Ale","18B: American Pale Ale","Rucker in the Rye","Foam On The Range (Denver, CO)","","23569","","1116","39"]
+,["2","0","1","Jim Drew","American Ale","18B: American Pale Ale","","Indian Peaks Alers (Longmont, CO)","","4622","<span style='float:right;color:yellow;background-color:black;padding:2px' title='Master Homebrewer Program Distinguished'>MHP</span>","1064","39"]
+,["3","0","1","Matthew Johnsen","American Ale","18B: American Pale Ale","Science is Reckless","Rock Hoppers Brew Club (Centennial, CO)","","8832","<span style='float:right;color:yellow;background-color:black;padding:2px' title='Master Homebrewer Program Grand Master 1'>MHP</span>","1300","37"]
+,["1","0","1","Russell B Willden","Porter","13C: English Porter","Gentalmans Porter","Aurora City Brew Club (Aurora, CO)","","10094","","1172","43"]
+,["2","0","1","Donald Schneider","Porter","9C: Baltic Porter","Baltic Peeper","Weizguys Homebrew Club (Loveland, CO)","","19783","<span style='float:right;color:yellow;background-color:black;padding:2px' title='Master Homebrewer Program Grand Master 2'>MHP</span>","1385","42"]
+,["3","0","1","Ed Moore","Porter","9C: Baltic Porter","Miss Kitty Baltic Porter","Foam On The Range (Denver, CO)","","2469","","1081","34"]
+,["1","0","1","Fritz Schanz","Stout","16B: Oatmeal Stout","Stearman's Oatmeal Stout","Denton County Homebrewers Guild (Denton, TX)","","11597","<span style='float:right;color:yellow;background-color:black;padding:2px' title='Master Homebrewer Program Grand Master 5'>MHP</span>","1235","37"]
+,["2","0","1","Lori Parsons","Stout","16A: Sweet Stout","Home Ranch Milk Stout","Aurora City Brew Club (Aurora, CO)","","21720","","1339","36"]
+,["3","0","1","Steven Artman","Stout","15C: Irish Extra Stout","Dark Horse","Lakewood Fermentation Club (Lakewood, CO)","Steve Artman","23664","","1168","39"]
+,["1","0","1","David Bovitz","Hazy IPA","21C: Hazy IPA","Warp Factor One","None","","12728","","1449","36"]
+,["2","0","1","Bobby Rinehart","Hazy IPA","21C: Hazy IPA","Jasper-esque","Lakewood Fermentation Club (Lakewood, CO)","","20264","<span style='float:right;color:yellow;background-color:black;padding:2px' title='Master Homebrewer Program Master'>MHP</span>","1072","40"]
+,["3","0","1","David Towles","Hazy IPA","21C: Hazy IPA","First Haze","Amarillo High Plains Drafters Brewing Club (Amarillo, TX)","","23912","<span style='float:right;color:yellow;background-color:black;padding:2px' title='Master Homebrewer Program Grand Master 2'>MHP</span>","1171","38"]
+,["1","0","1","Weston Wright","American IPA","21A: American IPA","Cruise","Indian Peaks Alers (Longmont, CO)","","20798","<span style='float:right;color:yellow;background-color:black;padding:2px' title='Master Homebrewer Program Recognized'>MHP</span>","1250","36"]
+,["2","0","1","Christopher Burgess","American IPA","21A: American IPA","Like Falling Off a Bike","Rock Hoppers Brew Club (Centennial, CO)","","7700","<span style='float:right;color:yellow;background-color:black;padding:2px' title='Master Homebrewer Program Proficient'>MHP</span>","1119","36"]
+,["3","0","1","Matthew Johnsen","American IPA","21A: American IPA","Iron Man, Mk II","Rock Hoppers Brew Club (Centennial, CO)","","8832","<span style='float:right;color:yellow;background-color:black;padding:2px' title='Master Homebrewer Program Grand Master 1'>MHP</span>","1297","40"]
+,["1","0","1","Mark Pennick","Specialty IPA","21B: Specialty IPA","Hoppy Fête Nationale van Belge","Foam On The Range (Denver, CO)","Tiago Dantas","5961","<span style='float:right;color:yellow;background-color:black;padding:2px' title='Master Homebrewer Program Grand Master 1'>MHP</span>","1362","37"]
+,["2","0","1","Bobby Rinehart","Specialty IPA","21B: Specialty IPA","Cloudy Day Drinking","Lakewood Fermentation Club (Lakewood, CO)","","20264","<span style='float:right;color:yellow;background-color:black;padding:2px' title='Master Homebrewer Program Master'>MHP</span>","1334","40"]
+,["3","0","1","David Bovitz","Specialty IPA","22A: Double IPA","Feed the Brute","None","","12728","","1453","38"]
+,["1","0","1","Dirk Montgomery","European Wheat Beer","24A: Witbier","Van Overveld","Red Earth Brewers (Oklahoma City, OK)","","23065","<span style='float:right;color:yellow;background-color:black;padding:2px' title='Master Homebrewer Program Master'>MHP</span>","1040","37"]
+,["2","0","1","Ross Stuart","European Wheat Beer","10A: Weissbier","Hefe","Arizona Society of Homebrewers (Tempe, AZ)","Tom Leonard","23591","<span style='float:right;color:yellow;background-color:black;padding:2px' title='Master Homebrewer Program Grand Master 5'>MHP</span>","1093","34"]
+,["3","0","1","Nelson Crowle","European Wheat Beer","24A: Witbier","At Wit's End","Indian Peaks Alers (Longmont, CO)","","22","<span style='float:right;color:yellow;background-color:black;padding:2px' title='Master Homebrewer Program Grand Master 6'>MHP</span>","1314","36"]
+,["1","0","1","William Johnson","Belgian and French Ale","24C: Biere de Garde","L'etudiant","Rock Hoppers Brew Club (Centennial, CO)","Chris Egolf","22718","<span style='float:right;color:yellow;background-color:black;padding:2px' title='Master Homebrewer Program NoRank'>MHP</span>","1138","40"]
+,["2","0","1","Brad Bagby","Belgian and French Ale","25B: Saison","Saison Du Hound","Aurora City Brew Club (Aurora, CO)","","5600","","1129","40"]
+,["3","0","1","Shaun Huggins","Belgian and French Ale","24C: Biere de Garde","Malt-lennium Falcon","San Antonio Cerveceros (San Antonio, TX)","","21017","<span style='float:right;color:yellow;background-color:black;padding:2px' title='Master Homebrewer Program Grand Master 5'>MHP</span>","1188","37"]
+,["1","0","1","Nelson Crowle","Sour Ale","23E: Gueuze","Gueuze","Indian Peaks Alers (Longmont, CO)","","22","<span style='float:right;color:yellow;background-color:black;padding:2px' title='Master Homebrewer Program Grand Master 6'>MHP</span>","1304","39"]
+,["2","0","1","Andy Scherzinger","Sour Ale","23A: Berliner Weisse","Berliner Weisse Weisse Baby","Weizguys Homebrew Club (Loveland, CO)","Fernando Puga","5745","<span style='float:right;color:yellow;background-color:black;padding:2px' title='Master Homebrewer Program Grand Master 7'>MHP</span>","1415","39"]
+,["3","0","1","Andy Scherzinger","Sour Ale","28D: Straight Sour Beer","T-U-R-T-L-E POWER","Weizguys Homebrew Club (Loveland, CO)","Fernando Puga","5745","<span style='float:right;color:yellow;background-color:black;padding:2px' title='Master Homebrewer Program Grand Master 7'>MHP</span>","1411","40"]
+,["1","0","1","Ed Moore","Monastic Ale","26D: Belgian Dark Strong Ale","Miss Kitty Strong Belgian Dark","Foam On The Range (Denver, CO)","","2469","","1086","40"]
+,["2","0","1","Victor Matthews","Monastic Ale","26B: Belgian Dubbel","Dubbel Trubbel","Lakewood Fermentation Club (Lakewood, CO)","","23683","<span style='float:right;color:yellow;background-color:black;padding:2px' title='Master Homebrewer Program Recognized'>MHP</span>","1092","42"]
+,["3","0","1","Michael Koehler","Monastic Ale","26D: Belgian Dark Strong Ale","On the dark side","Rock Hoppers Brew Club (Centennial, CO)","","20245","<span style='float:right;color:yellow;background-color:black;padding:2px' title='Master Homebrewer Program Recognized'>MHP</span>","1245","44"]
+,["1","0","1","Philip LaFleur","Strong Belgian Ale","25C: Belgian Golden Strong Ale","Bière Le Fleur D'or","Weizguys Homebrew Club (Loveland, CO)","","7611","<span style='float:right;color:yellow;background-color:black;padding:2px' title='Master Homebrewer Program Grand Master 3'>MHP</span>","1372","38"]
+,["2","0","1","Mark Pennick","Strong Belgian Ale","25A: Belgian Blond Ale","Esters Win Medals","Foam On The Range (Denver, CO)","","5961","<span style='float:right;color:yellow;background-color:black;padding:2px' title='Master Homebrewer Program Grand Master 1'>MHP</span>","1357","40"]
+,["3","0","1","Mark Pennick","Strong Belgian Ale","25C: Belgian Golden Strong Ale","Golden Standard","Foam On The Range (Denver, CO)","","5961","<span style='float:right;color:yellow;background-color:black;padding:2px' title='Master Homebrewer Program Grand Master 1'>MHP</span>","1352","36"]
+,["1","0","1","Ed Moore","Strong Ale","17B: Old Ale","Rhonda Old Ale","Foam On The Range (Denver, CO)","","2469","","1094","40"]
+,["2","0","1","Jim Drew","Strong Ale","17A: British Strong Ale","","Indian Peaks Alers (Longmont, CO)","Mike Banos","4622","<span style='float:right;color:yellow;background-color:black;padding:2px' title='Master Homebrewer Program Distinguished'>MHP</span>","1077","37"]
+,["3","0","1","Ryan Wankel","Strong Ale","20C: Imperial Stout","Labs R Us 1.2","Lakewood Fermentation Club (Lakewood, CO)","","22328","<span style='float:right;color:yellow;background-color:black;padding:2px' title='Master Homebrewer Program Master'>MHP</span>","1337","39"]
+,["1","0","1","Donald Schneider","Fruit Beer","29D: Grape Ale","He Considers Himself a Tiny Bit Belgian  ","Weizguys Homebrew Club (Loveland, CO)","","19783","<span style='float:right;color:yellow;background-color:black;padding:2px' title='Master Homebrewer Program Grand Master 2'>MHP</span>","1025","43"]
+,["2","0","1","Ed Moore","Fruit Beer","29A: Fruit Beer","Asha Raspberry Foreign extra stout","Foam On The Range (Denver, CO)","","2469","","1335","37"]
+,["3","0","1","Tyrone Johnson","Fruit Beer","29C: Specialty Fruit Beer","Cherry Flo-Rider ","Foam On The Range (Denver, CO)","Foam Club Group Brew","6841","","1363","40"]
+,["1","0","1","Ryan Wankel","Spice/Herb/Vegetable Beer","30D: Specialty Spice Beer","Bourbon Barrel Aged 5 Labs","Lakewood Fermentation Club (Lakewood, CO)","","22328","<span style='float:right;color:yellow;background-color:black;padding:2px' title='Master Homebrewer Program Master'>MHP</span>","1030","42"]
+,["2","0","1","Brett Tibbets","Spice/Herb/Vegetable Beer","30A: Spice/Herb/Vegetable Beer","Inclination","INSTABHility (Oswego, IL)","Brett Tibbets ~ Michael Wulff","24378","","1485","37"]
+,["3","0","1","Bobby Rinehart","Spice/Herb/Vegetable Beer","30A: Spice/Herb/Vegetable Beer","Aprés Dragon Slaying","Lakewood Fermentation Club (Lakewood, CO)","","20264","<span style='float:right;color:yellow;background-color:black;padding:2px' title='Master Homebrewer Program Master'>MHP</span>","1326","40"]
+,["1","0","1","Jess And Ray Finlay-Schultz","Smoke/Wood-Aged Beer","6B: Rauchbier","Ember","Aurora City Brew Club (Aurora, CO)","","23569","","1275","38"]
+,["2","0","1","Marc Wethington","Smoke/Wood-Aged Beer","33A: Wood-Aged Beer","Black LAB","Aurora City Brew Club (Aurora, CO)","","5686","","1347","40"]
+,["3","0","1","Jess And Ray Finlay-Schultz","Smoke/Wood-Aged Beer","33B: Specialty Wood-Aged Beer","BA RIS","Aurora City Brew Club (Aurora, CO)","","23569","","1309","38"]
+,["1","0","1","Mark Pennick","Specialty Beer","34C: Experimental Beer","She Fancies Herself a Little Bit French","Foam On The Range (Denver, CO)","","5961","<span style='float:right;color:yellow;background-color:black;padding:2px' title='Master Homebrewer Program Grand Master 1'>MHP</span>","1122","35"]
+,["2","0","1","Ryan Wankel","Specialty Beer","31B: Alternative Sugar Beer","It’s the simple things, it’s the energy","Lakewood Fermentation Club (Lakewood, CO)","","22328","<span style='float:right;color:yellow;background-color:black;padding:2px' title='Master Homebrewer Program Master'>MHP</span>","1306","33"]
+,["3","0","1","Dan Brake","Specialty Beer","34A: Commercial Specialty Beer","Seefty First","Treasure Coast Brewmasters (Port Saint Lucie, FL)","","9132","","1202","34"]
+,["1","0","1","Shaun Huggins","Historical Beer","27: Historical Beer","Aunt Beru's Smoked Ale","San Antonio Cerveceros (San Antonio, TX)","","21017","<span style='float:right;color:yellow;background-color:black;padding:2px' title='Master Homebrewer Program Grand Master 5'>MHP</span>","1180","37"]
+,["2","0","1","Nelson Crowle","Historical Beer","27: Historical Beer","Ukrainian Golden Ale","Indian Peaks Alers (Longmont, CO)","","22","<span style='float:right;color:yellow;background-color:black;padding:2px' title='Master Homebrewer Program Grand Master 6'>MHP</span>","1348","39"]
+,["3","0","1","Geoff Humphrey","Historical Beer","27: Historical Beer","Bringer of War","Rock Hoppers Brew Club (Centennial, CO)","","4499","<span style='float:right;color:yellow;background-color:black;padding:2px' title='Master Homebrewer Program Grand Master 1'>MHP</span>","1038","35"]
+,["1","0","1","Garrett Freeman","Traditional Mead","M1C: Sweet Mead","Sweet clover traditional ","Red Earth Brewers (Oklahoma City, OK)","","22554","<span style='float:right;color:yellow;background-color:black;padding:2px' title='Master Homebrewer Program Recognized'>MHP</span>","1472","40"]
+,["2","0","1","Ryan Vigne","Traditional Mead","M1A: Dry Mead","When The Dreamer Dies","Pittsburgh Mead Makers And Homebrewers (Pittsburgh, PA)","","23221","<span style='float:right;color:yellow;background-color:black;padding:2px' title='Master Homebrewer Program Grand Master 2'>MHP</span>","1191","42"]
+,["3","0","1","Philip LaFleur","Traditional Mead","M1B: Semi-Sweet Mead","What's Up Doc?","Weizguys Homebrew Club (Loveland, CO)","","7611","<span style='float:right;color:yellow;background-color:black;padding:2px' title='Master Homebrewer Program Grand Master 3'>MHP</span>","1380","37"]
+,["1","0","1","Donald Schneider","Melomel (Fruit Mead)","M2E: Melomel","SubLime","Weizguys Homebrew Club (Loveland, CO)","","19783","<span style='float:right;color:yellow;background-color:black;padding:2px' title='Master Homebrewer Program Grand Master 2'>MHP</span>","1428","40"]
+,["2","0","1","Andy Scherzinger","Melomel (Fruit Mead)","M2D: Stone Fruit Mead","Herrold's Tears","Weizguys Homebrew Club (Loveland, CO)","Fernando Puga","5745","<span style='float:right;color:yellow;background-color:black;padding:2px' title='Master Homebrewer Program Grand Master 7'>MHP</span>","1405","38"]
+,["3","0","1","Rob Mullins","Melomel (Fruit Mead)","M2E: Melomel","Strawberry Space Jam","None","","24068","<span style='float:right;color:yellow;background-color:black;padding:2px' title='Master Homebrewer Program NoRank'>MHP</span>","1500","39"]
+,["1","0","1","Ed Moore","Other Mead","M3B: Spice/Herb/Vegetable Mead","Sparkles Christmas mulling spices mead","Foam On The Range (Denver, CO)","","2469","","1346","43"]
+,["2","0","1","Garrett Freeman","Other Mead","M4B: Historical Mead","My Polish Mead Attempt ","Red Earth Brewers (Oklahoma City, OK)","","22554","<span style='float:right;color:yellow;background-color:black;padding:2px' title='Master Homebrewer Program Recognized'>MHP</span>","1477","38"]
+,["3","0","1","Rob Mullins","Other Mead","M3B: Spice/Herb/Vegetable Mead","Chai Galaxy","None","","24068","<span style='float:right;color:yellow;background-color:black;padding:2px' title='Master Homebrewer Program NoRank'>MHP</span>","1496","38"]
+,["1","0","1","John Booth","Standard Cider/Perry","C1E: Traditional Perry","So Perry","Foam On The Range (Denver, CO)","","2438","","1123","40"]
+,["2","0","1","Terry Fast","Standard Cider/Perry","C1A: New World Cider","The Terrence","Lakewood Fermentation Club (Lakewood, CO)","","20911","<span style='float:right;color:yellow;background-color:black;padding:2px' title='Master Homebrewer Program Grand Master 3'>MHP</span>","1060","39"]
+,["3","0","1","Andy Scherzinger","Standard Cider/Perry","C1A: New World Cider","#betterthanBoyer","Weizguys Homebrew Club (Loveland, CO)","","5745","<span style='float:right;color:yellow;background-color:black;padding:2px' title='Master Homebrewer Program Grand Master 7'>MHP</span>","1070","38"]
+,["1","0","1","Andy Scherzinger","Specialty Cider/Perry","C2E: Cider with Herbs/Spices","Apple Pie-ish","Weizguys Homebrew Club (Loveland, CO)","","5745","<span style='float:right;color:yellow;background-color:black;padding:2px' title='Master Homebrewer Program Grand Master 7'>MHP</span>","1069","41"]
+,["2","0","1","Bobby Rinehart","Specialty Cider/Perry","C2E: Cider with Herbs/Spices","Pink Drink","Lakewood Fermentation Club (Lakewood, CO)","","20264","<span style='float:right;color:yellow;background-color:black;padding:2px' title='Master Homebrewer Program Master'>MHP</span>","1310","37"]
+,["3","0","1","Chris Levesque","Specialty Cider/Perry","C2B: Cider with Other Fruit","","Olde Town Mash Paddlers (Arvada, CO)","","9683","","1103","41"]
+,["1","0","1","Donald Schneider","Pro/Am - ***923","5B: Kolsch","Krampus Kolsch ","Weizguys Homebrew Club (Loveland, CO)","","19783","<span style='float:right;color:yellow;background-color:black;padding:2px' title='Master Homebrewer Program Grand Master 2'>MHP</span>","1384","36"]
+,["1","1","1","Donald Schneider","Best Of Show - Beer","5B: Kolsch","Krampus Kolsch ","Weizguys Homebrew Club (Loveland, CO)","","19783","<span style='float:right;color:yellow;background-color:black;padding:2px' title='Master Homebrewer Program Grand Master 2'>MHP</span>","1384","36"]
+,["2","1","1","Donald Schneider","Best Of Show - Beer","1A: American Light Lager","Bud Aight","Weizguys Homebrew Club (Loveland, CO)","","19783","<span style='float:right;color:yellow;background-color:black;padding:2px' title='Master Homebrewer Program Grand Master 2'>MHP</span>","1371","38"]
+,["3","1","1","Ryan Wankel","Best Of Show - Beer","30D: Specialty Spice Beer","Bourbon Barrel Aged 5 Labs","Lakewood Fermentation Club (Lakewood, CO)","","22328","<span style='float:right;color:yellow;background-color:black;padding:2px' title='Master Homebrewer Program Master'>MHP</span>","1030","42"]
+,["1","1","1","Andy Scherzinger","Best Of Show - Mead/Cider","C2E: Cider with Herbs/Spices","Apple Pie-ish","Weizguys Homebrew Club (Loveland, CO)","","5745","<span style='float:right;color:yellow;background-color:black;padding:2px' title='Master Homebrewer Program Grand Master 7'>MHP</span>","1069","41"]
+,["1","2","0","Donald Schneider","Heavy Medal - Brewer","10 medals: BOSBeer1st:1 BOSBeer2nd:1 1st:4 2nd:3 3rd:1","Total points: 24","","","19783","<span style='float:right;color:yellow;background-color:black;padding:2px' title='Master Homebrewer Program Grand Master 2'>MHP</span>","",""]
+,["2","2","0","Ryan Wankel","Heavy Medal - Brewer","9 medals:  BOSBeer3rd:1 1st:3 2nd:3 3rd:2","Total points: 18","","","22328","<span style='float:right;color:yellow;background-color:black;padding:2px' title='Master Homebrewer Program Master'>MHP</span>","",""]
+,["3","2","0","Ed Moore","Heavy Medal - Brewer","5 medals:  1st:3 2nd:1 3rd:1","Total points: 12","","","2469","","",""]
+,["1","3","0","Lakewood Fermentation Club (Lakewood, CO)","Heavy Medal - Club","22 medals:  BOSBeer3rd:1 1st:4 2nd:10 3rd:7","Total points: 40","","","0","","",""]
+,["2","3","0","Weizguys Homebrew Club (Loveland, CO)","Heavy Medal - Club","18 medals: BOSBeer1st:1 BOSBeer2nd:1 BOSMead/Cider1st:1 1st:6 2nd:5 3rd:4","Total points: 38","","","0","","",""]
+,["3","3","0","Foam On The Range (Denver, CO)","Heavy Medal - Club","12 medals:  1st:7 2nd:2 3rd:3","Total points: 28","","","0","","",""]
+];
+
+var xaParticipantDetail=[
+];
+var sReggieCompName="Rocky Mountain Homebrew Challenge 2024";
+var sReggieCompDate="10/05/2024";
+var sReggieCompDate2="2024-10-05";
+var iCountMedalGroups=33;
+var iCountEntries=466;
+</script>
+
+
+<link rel="stylesheet" href="Reggie.css" />
+<title>Results for Rocky Mountain Homebrew Challenge 2024</title>
+<script type="text/javascript" src="ReggieGlobalJS.js?version=9.53"></script>
+<script>
+function HideShowRegistry(iEntryID) {
+ var x=document.getElementById("Registry"+iEntryID);
+ x.style.display=(x.style.display=="" ? "none" : "");
+}
+
+function HideShow(iEntryID,iForceHide0Show1NoChange2=-1) {
+ var sInitials=document.getElementById("BrewerInitials").value;
+ var x=document.getElementById("Graph"+iEntryID);
+ var bIsShown=(x.style.display=="none" ? 0 : 1),bWillBeShown=bIsShown;
+ if(iForceHide0Show1NoChange2!=2) bWillBeShown=(iForceHide0Show1NoChange2<0 ? (1-bIsShown) : (iForceHide0Show1NoChange2 ? "" : "none"));
+ x.style.display=(bWillBeShown ? "" : "none");
+ x=document.getElementsByClassName("Comments"+iEntryID);
+ for(var i=0;i<x.length;i++)
+  x[i].style.display=(bWillBeShown || x[i].id=="Comments"+iEntryID+sInitials ? "" : "none");
+}
+
+function HideShowAll(iHide0Show1NoChange2) {
+ var x=document.getElementsByClassName("Details");
+ for(var i=0;i<x.length;i++) HideShow(x[i].id.substr(5),iHide0Show1NoChange2); // Graph*
+}
+
+function CopyToClipboard(sElement) {
+ var xElement=document.getElementById(sElement);
+ var xRange;
+ var bSuccess=0;
+ try {
+  if(document.selection) {
+   xRange=document.body.createTextRange(); xRange.moveToElementText(xElement); xRange.select();
+  } else if(window.getSelection) {
+   xRange=document.createRange(); xRange.selectNode(xElement); window.getSelection().removeAllRanges(); window.getSelection().addRange(xRange);
+  }
+  if(document.execCommand("Copy")) bSuccess=1;
+ } catch (e) { }
+ alert("Clipboard copy was "+(bSuccess ? "successful" : "NOT successful - try a different browser"),3);
+}
+
+</script>
+<style>
+ #Competition .GroupHeader { text-align:center;color:blue;font:28px arial;padding-top:25px;border:none }
+ #Competition th { font:bold 14px arial;border:2px solid black }
+ #Competition td { font:12px arial;border:1px solid #C0C0C0 }
+</style>
+</head>
+<body>
+<div style="font:36px arial;text-align:center">
+ Results for Rocky Mountain Homebrew Challenge 2024<br/>10/05/2024</div>
+<div style="text-align:center">
+ <script type="text/javascript">
+  document.writeln(iCountEntries && iCountMedalGroups ?
+   "There were "+iCountEntries+" judged entries in "+iCountMedalGroups+" Medal Groups" : "Results have not been published yet");
+  document.writeln("<br/>For any questions, email "
+   +"<a href=\"mailto:ray@kkpsi.org\">Raymond Schultz</a>");
+ </script>
+</div>
+<br>
+<table border=1 style="border:none; border-collapse:collapse" id="Competition">
+<script>
+ var i,x,x2,x3,sImages,sLabel,sName,sPlace,iAwardIndex,iGroupIndex,iMedalIndex,bIsHeavyMedal,bIsProAm,bIsSpecialAward,bShowEntries,sPrevGroup="";
+ var bFormatCoA=0;
+ if(bFormatCoA)
+  document.writeln("<tr><th>Medal Group Name</th><th>#Entries in Group</th><th>Brewer Name</th><th>Certification</th><th>Medal</th><th>Style</th><th>BrewName</th>"
+   +"<th>Club</th></tr>");
+ for(iAwardIndex=0;iAwardIndex<aaReggieMedals.length;iAwardIndex++) {
+  x=aaReggieMedals[iAwardIndex];
+  bIsHeavyMedal=(x[cRegGroup].substr(0,11)=="Heavy Medal" ? 1 : 0);
+  if(bFormatCoA && bIsHeavyMedal) continue;
+  if(x[cRegGroup]!=sPrevGroup) {
+   for(iGroupIndex=0;iGroupIndex<saReggieGroups.length;iGroupIndex++)
+    if(saReggieGroups[iGroupIndex][cGroupName].split("`")[0]==x[cRegGroup]) break;
+   sPrevGroup=x[cRegGroup];
+   x2=saReggieGroups[iGroupIndex];
+   bIsProAm=(x2[cGroupName].substr(0,8)=="Pro/Am -" ? 1 : 0);
+   bIsSpecialAward=(x2[cGroupName].substr(0,15)=="Special Award -" ? 1 : 0);
+   if(bFormatCoA && (bIsProAm || bIsSpecialAward)) continue;
+   if(bIsProAm) {
+    x3=x2[cGroupName].split("`");
+    sLabel="<a href=\""+(x3[cProAmWebsite].indexOf("//")>0 ? "" : "http://")+x3[cProAmWebsite]+"\" target='_blank'>"
+     +"<img src=\""+x3[cProAmLogoFilename]+"\" width="+x3[cProAmLogoSmallWidth]+" height="+x3[cProAmLogoSmallHeight]+"/></a><br/>"
+     +x3[cProAmID].split("***")[0]+x3[cProAmName];
+   } else {
+    sImages="";
+    if(!bFormatCoA) {
+     for(i=0;i<x2[cGroupSponsors].length;i++) {
+      x3=x2[cGroupSponsors][i];
+      if(x3.length>=7)
+       sImages+="<a href=\""+(x3[cSponsorWebsite].indexOf("//")>0 ? "" : "http://")+x3[cSponsorWebsite]+"\""
+        +" target='_blank' style='display:inline-block"+(i ? ";margin-left:50px" : "")+"'>"
+        +"<img src=\""+x3[cSponsorImgURL]+"\" width="+x3[cSponsorImgSmallWidth]+" height="+x3[cSponsorImgSmallHeight]+"/><br/>"
+        +x3[cSponsorName]+"</a>";
+     }
+    }
+    sLabel=(sImages=="" ? "" : x2[cGroupName].split(" (")[0]+" Sponsors:<br/>"+sImages+"<br/>")+x2[cGroupName];
+   }
+   bShowEntries=(!bIsProAm && !bIsSpecialAward ? 1 : 0);
+   if(!bFormatCoA)
+    document.writeln("<tr><td colspan=5 class='GroupHeader'>"+sLabel
+     +(x[cRegType]==0 && bShowEntries ? " ("+x2[cGroupEntriesJudgedCount]
+     +" entr"+(x2[cGroupEntriesJudgedCount]==1 ? "y" : "ies")+")" : "")+"</td></tr>"
+     +"<tr><th>"+(x[cRegGroup]=="Heavy Medal - Club" ? "Club" : "Brewer")+" Name</th><th>Medal</th>"
+     +(bIsHeavyMedal ? "<th>Total Points</th><th colspan=2>Medal Details</th>" :
+      "<th>Style</th><th>Brew Name</th><th>Club</th>")
+     +"</tr>");
+  }
+  sName=x[cRegName]+(x[cCoBrewer]>" " ? "<br/>CoBrewer: "+x[cCoBrewer] : "");
+  sPlace=GetPlace(x[cRegPlace],0);
+  if(bFormatCoA)
+   document.writeln("<tr><td>"+x[cRegGroup]+"</td><td>"+x2[cGroupEntriesJudgedCount]+"</td><td>"+sName+"</td><td>"+x[cCertificationRank]+"</td>"
+    +"<td>"+sPlace+"</td><td>"+x[cRegStyle]+"</td><td>"+x[cRegBeer]+"</td><td>"+x[cRegClub]+"</td></tr>");
+  else
+   document.writeln("<tr><td><span style='float:left'>"+sName+"</span>"+x[cCertificationRank]+"<div style='clear:both'></div></td><td>"+sPlace+"</td>"
+    +"<td>"+(bIsHeavyMedal ? x[cRegBeer]+"</td><td>"+x[cRegStyle] : x[cRegStyle])+"</td><td>"
+    +x[cRegBeer]+"</td><td>"+x[cRegClub]+"</td></tr>");
+ }
+</script>
+</table>
+<br><br>
+</body>
+</html>

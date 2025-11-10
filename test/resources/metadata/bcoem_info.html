@@ -1,0 +1,925 @@
+<html lang="en"><head>
+    <meta charset="utf-8">
+    <meta http-equiv="Content-type" content="text/html; charset=UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>King of the Mountain 2025 - Brew Competition Online Entry &amp; Management</title>
+    <!-- Load jQuery / http://jquery.com/ -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.2.4/jquery.min.js"></script>
+
+    <!-- Load Bootstrap / http://www.getbootsrap.com -->
+    <link rel="stylesheet" type="text/css" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+
+    <!--[if lt IE 9]>
+      <script src="https://oss.maxcdn.com/html5shiv/3.7.2/html5shiv.min.js"></script>
+      <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
+    <![endif]-->
+
+
+    <!-- Load Fancybox / http://www.fancyapps.com -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/fancybox/3.5.7/jquery.fancybox.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/fancybox/3.5.7/jquery.fancybox.min.css">
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/jquery-easing/1.3/jquery.easing.min.js"></script>
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/jquery-mousewheel/3.1.13/jquery.mousewheel.min.js"></script>
+
+    <!-- Load Moment -->
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.1/moment-with-locales.min.js"></script>
+
+    <!-- Load Bootstrap DateTime Picker / http://eonasdan.github.io/bootstrap-datetimepicker/ -->
+    <link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datetimepicker/4.17.37/css/bootstrap-datetimepicker.min.css">
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datetimepicker/4.17.37/js/bootstrap-datetimepicker.min.js"></script>
+
+
+
+    <!-- Load Bootstrap Form Validator / http://1000hz.github.io/bootstrap-validator -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/1000hz-bootstrap-validator/0.9.0/validator.min.js"></script>
+
+    <!-- Load Bootstrap-Select / https://developer.snapappointments.com/bootstrap-select -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.13.18/css/bootstrap-select.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.13.18/js/bootstrap-select.min.js"></script>
+
+    <!-- Load Font Awesome / https://fortawesome.github.io/Font-Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.2/css/all.min.css" integrity="sha512-HK5fgLBL+xu6dm/Ii3z4xhlSUyZgTT9tuc/hSrtw6uzJOvgRr2a9jyxxT1ely+B+xFAmJKVSTbpM/CuL7qxO8w==" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.2/css/v4-shims.min.css" integrity="sha512-NfhLGuxy6G12XHj7/bvm0RC3jmR25RdpImn8P19aIMmN5pndO0fvIg78ihN2WIJtVRs+AYVrnYF4AipVikGPLg==" crossorigin="anonymous">
+
+    <!-- Load BCOE&M Custom CSS - Contains Bootstrap overrides and custom classes common to all BCOE&M themes -->
+    <link rel="stylesheet" type="text/css" href="https://kotm.lmbrewers.beer/css/common.min.css">
+    <link rel="stylesheet" type="text/css" href="https://kotm.lmbrewers.beer/css/default.min.css">
+
+    <script type="text/javascript">
+        var username_url = "https://kotm.lmbrewers.beer/ajax/username.ajax.php";
+        var email_url="https://kotm.lmbrewers.beer/ajax/valid_email.ajax.php";
+        var user_agent_msg = "Internet Explorer is not supported by BCOE&M - features and functions will not render properly and your experience will not be optimal. Please upgrade to a newer browser.";
+        var setup = 0;
+    </script>
+    
+    <!-- Open Graph Implementation -->
+    <meta property="og:title" content="King of the Mountain 2025">
+    <meta property="og:image" content="https://kotm.lmbrewers.beer/user_images/lmbrewer.jpg">
+    <meta property="og:url" content="https://kotm.lmbrewers.beer/index.php?section=entry">
+</head>
+<body>
+
+<a name="top"></a>
+
+<!-- LOADER -->
+<div id="loader-submit">
+    <div class="center">
+        <span class="fa fa-cog fa-spin fa-5x fa-fw"></span>
+        <p><strong>Working.<br>Please stand by. Press Esc to hide.</strong></p>
+    </div>
+</div>
+<!-- ./LOADER -->
+
+<!-- MAIN NAV -->
+<div class="container hidden-print">
+    <script>
+$(document).ready(function(){
+	$("#login-modal-disable").hide();
+    $("#login-modal-enable").show();
+    $("#admin-disable").hide();
+    $("#admin-enable").show();
+	$("#user-menu-disable").hide();
+    $("#logout-disable").hide();
+    $("#user-menu-enable").show();
+	$("#print-enable").show();
+	$("#help-enable").show();
+	$('#loginModal').on('shown.bs.modal', function() {
+		 $(this).find('#loginUsername').focus();
+	});
+});
+</script>
+<!-- Login Form Modal logincheck.inc.php?section=login -->
+<!-- Modal -->
+<div class="modal fade" id="loginModal" tabindex="-1" role="dialog" aria-labelledby="loginModalLabel">
+	<div class="modal-dialog modal-sm" role="document">
+		<div class="modal-content">
+			<div class="modal-header">
+				<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">×</span></button>
+				<h4 class="modal-title" id="loginModalLabel">Log In</h4>
+			</div>
+			<div class="modal-body">
+				<form class="form-horizontal" data-toggle="validator" role="form" action="https://kotm.lmbrewers.beer/includes/process.inc.php?section=login&amp;action=login" method="POST" name="form1" id="form1" novalidate="true">
+					<div class="form-group">
+						<div class="col-md-12">
+							<div class="input-group has-warning">
+								<span class="input-group-addon" id="login-addon1"><span class="fa fa-envelope"></span></span>
+								<!-- Input Here -->
+								<input id="loginUsername" class="form-control" name="loginUsername" type="email" required="" placeholder="Email Address" data-error="Your user name (email address) is required.">
+								<span class="input-group-addon" id="login-addon2" data-tooltip="true" title="This field is required."><span class="fa fa-star"></span></span>
+							</div>
+							<span class="help-block with-errors"></span>
+						</div>
+					</div><!-- Form Group -->
+					<div class="form-group">
+						<div class="col-md-12">
+							<div class="input-group has-warning">
+								<span class="input-group-addon" id="login-addon3"><span class="fa fa-key"></span></span>
+								<!-- Input Here -->
+								<input class="form-control" name="loginPassword" type="password" required="" placeholder="Password" data-error="Your password is required.">
+								<span class="input-group-addon" id="login-addon4" data-tooltip="true" title="This field is required."><span class="fa fa-star"></span></span>
+							</div>
+							<span class="help-block with-errors"></span>
+						</div>
+					</div>
+					<div class="form-group">
+						<div class="col-md-12">
+							<!-- Input Here -->
+							<button name="submit" type="submit" class="btn btn-primary btn-block">Log In <span class="fa fa-sign-in" aria-hidden="true"></span> </button>
+						</div>
+					</div><!-- Form Group -->
+				</form>
+			</div>
+			<div class="modal-footer">
+				<p align="center"><span class="fa fa-lg fa-exlamation-circle"></span> Forgot your password? <a href="https://kotm.lmbrewers.beer/index.php?section=login&amp;go=password&amp;action=forgot">Reset it</a>.</p>
+							</div>
+		</div>
+	</div>
+</div>
+	<!-- Fixed navbar -->
+    <div class="navbar navbar-default navbar-fixed-top">
+      <div class="container">
+        <div class="navbar-header">
+          <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#bcoem-navbar-collapse" aria-expanded="false">
+            <span class="sr-only">Toggle navigation</span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+          </button>
+        </div>
+        <div class="collapse navbar-collapse" id="bcoem-navbar-collapse">
+              <ul class="nav navbar-nav">
+                <li><a class="hide-loader" href="https://kotm.lmbrewers.beer/">Home</a></li>
+                <li class="active"><a class="hide-loader" href="#">Info</a></li>
+                <li><a class="hide-loader" href="https://kotm.lmbrewers.beer/index.php?section=volunteers">Volunteers</a></li>
+                                <li><a class="hide-loader" href="https://kotm.lmbrewers.beer/index.php?section=sponsors">Sponsors</a></li>
+                                <li><a class="hide-loader" href="https://kotm.lmbrewers.beer/index.php?section=contact">Contact</a></li>
+                                              </ul>
+          <ul class="nav navbar-nav navbar-right">
+          	          	          	<li id="print-enable" style="display: list-item;"><a class="hide-loader hidden-xs hidden-sm hidden-md" href="#" onclick="window.print()" role="button"><span class="fa fa-print"></span></a></li>
+                      	            <li id="login-modal-enable" style="display: list-item;"><a href="#" role="button" data-toggle="modal" data-target="#loginModal">Log In</a></li>
+            <li id="login-modal-disable" style="display: none;"><a href="https://kotm.lmbrewers.beer/index.php?section=login">Log In</a></li>
+                        <li class="small visible-xs"><a href="https://brewingcompetitions.com" target="_blank">v 2.7.2</a></li>
+            </ul>
+
+          </div>
+        </div><!--/.nav-collapse -->
+      </div>
+    </div>
+    <!-- container -->
+<!-- ./MAIN NAV -->
+
+<!-- ALERTS -->
+<div class="container bcoem-warning-container">
+    
+
+
+
+
+    
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+    
+  
+  
+
+    <div id="no-js-alert" class="alert alert-danger" style="display: none;">
+        <i class="fa fa-lg fa-exclamation-circle"></i> <strong>For an optimal experience and so that all features and functions execute properly, please enable JavaScript to continue using this site. Otherwise, unexpected behavior will occur.</strong>
+    </div>
+
+
+
+
+
+</div><!-- ./container -->
+<!-- ./ALERTS -->
+
+<!-- Top line JS -->
+<script>
+    $("#no-js-alert").hide();
+    try {
+        var ua = window.navigator.userAgent;
+        var msie = ua.indexOf("MSIE ");
+        if (msie > 0 || !!navigator.userAgent.match(/Trident.*rv\:11\./)) {
+            alert(user_agent_msg)
+        }
+    } catch (error) {
+        console.error('Error checking user agent.', error)
+    }
+</script>
+
+<!-- DEBUG -->
+<div class="container hidden-print">
+</div>
+<!-- ./DEBUG -->
+
+<!-- Public Pages (Fixed Layout with Sidebar) -->
+<div id="main-content" class="container">
+    <div class="row">
+        <div class="col col-lg-9 col-md-8 col-sm-12 col-xs-12">
+                <div class="page-header">
+            <h1>King of the Mountain 2025 Info</h1>
+        </div>
+        <p class="hidden-print"><a class="anchor-offset" name="top-page"></a></p><p></p><ul class="nav nav-pills small"><li role="presentation" class="dropdown"><a class="hidden-print btn btn-default dropdown-toggle" data-toggle="dropdown" href="#" role="button" aria-haspopup="true" aria-expanded="false">Jump to... <span class="fa fa-caret-down"></span></a><ul class="dropdown-menu"><li role="presentation"><a href="#account-registration">Account Registration</a></li><li role="presentation"><a href="#awards">Awards</a></li><li role="presentation"><a href="#awards-ceremony">Awards Ceremony</a></li><li role="presentation"><a href="#best-of-show">Best of Show</a></li><li role="presentation"><a href="#entry-acceptance-rules">Entry Acceptance Rules</a></li><li role="presentation"><a href="#entry-registration">Entry Registration</a></li><li role="presentation"><a href="#judging-sessions">Judging Sessions</a></li><li role="presentation"><a href="#judging-styles">Judging Styles</a></li><li role="presentation"><a href="#rules">Rules</a></li></ul></li></ul><p></p><a name="reg_window"></a><h2>Account Registration</h2><p>Registration is <strong class="text-danger">closed</strong>.</p><a class="anchor-offset" name="entry-registration"></a><h2>Entry Registration</h2><p>Entry registration is <strong class="text-danger">closed</strong>.</p><p class="hidden-print"><a href="#top-page">Top <span class="fa fa-arrow-circle-up"></span></a></p><a class="anchor-offset" name="rules"></a><h2>Rules</h2><p><strong>ABOUT THE COMPETITION</strong></p>
+<p>Categories are reduced so that more beers will be judged head to head against similar beers, judges palates will be less by certain styles, and so that most brewers can enter most categories. See the list of accepted styles for included styles.</p>
+<p>You only need to register your information once and can return to this site to enter more brews or edit the brews you've entered. You can even pay your entry fees online if you wish. <strong>Please note that when using PayPal, select the "Friends and family option" to avoid the extra transaction fees.</strong></p>
+<p><strong>Note:</strong> New this year, we will purge any entries that are not paid for by 8/30/2025. If you are unable to submit entries because the limit has been reached, please check backafter this date to see if additional openings are available.</p>
+<p><strong>&nbsp;************&nbsp; &nbsp; RULES&nbsp; &nbsp; ****************</strong></p>
+<p>This competition is AHA sanctioned and open to any amateur homebrewer age 21 or older.</p>
+<p>All mailed entries must received by 9/16/2025 - please allow for shipping time.</p>
+<p>All entries must be handcrafted products, containing ingredients available to the general public, and made using private equipment by hobbyist brewers (i.e., no use of commercial facilities or Brew on Premises operations, supplies, etc.).</p>
+<p>The competition organizers are not responsible for mis-categorized entries, mailed entries that are not received by the entry deadline, or entries that arrived damaged.</p>
+<p>The competition organizers reserve the right to combine styles for judging and to restructure awards as needed depending upon the quantity and quality of entries.</p>
+<p>We will strive to provide the best possible judging of all entries. Two or more judges will evaluate and score each entry. Judges will determine final overall score and rankings based on consensus. Each flight will have at least one BJCP judge.</p>
+<p>Brewers may only enter each *sub*category once. Example: participant can enter a Belgian Pale (16B) and Belgian Saison (16C), but may not enter two Saisons.</p>
+<p>The cost per entry is $12.00.The total number of entries will be limited to 175. Maximum entries for each entrant including collaborative entries will be 5. Entries submitted but not paid for by 8/30/2024 will be subject to removal from the competition.</p>
+<p>Categories may be combined by organizer based on number of entries. All possible effort will be made to combine similar styles. All entries will be judged according to the style they were originally entered in.</p>
+<p>The Best of Show judging will be determined by a Best of Show panel based on a second judging of the top winners.</p>
+<p>&nbsp;</p>
+<p>&nbsp;</p><p class="hidden-print"><a href="#top-page">Top <span class="fa fa-arrow-circle-up"></span></a></p><a class="anchor-offset" name="judging-styles"></a><h2>BJCP 2021 Judging Styles</h2><p>If a style's name is hyperlinked, it has specific entry requirements. Select or tap on the name to view the subcategory's requirements.</p><table class="table table-striped table-bordered table-responsive"><tbody><tr><td width="33%">1A American Light Lager</td><td width="33%">1B American Lager</td><td width="33%">1C Cream Ale</td></tr><tr><td width="33%">1D American Wheat Beer</td><td width="33%">2A International Pale Lager</td><td width="33%">2B International Amber Lager</td></tr><tr><td width="33%">2C International Dark Lager</td><td width="33%">3A Czech Pale Lager</td><td width="33%">3B Czech Premium Pale Lager</td></tr><tr><td width="33%">3C Czech Amber Lager</td><td width="33%">3D Czech Dark Lager</td><td width="33%">4A Munich Helles</td></tr><tr><td width="33%">4B Festbier</td><td width="33%">4C Helles Bock</td><td width="33%">5B Kölsch</td></tr><tr><td width="33%">5D German Pils</td><td width="33%">6A Märzen</td><td width="33%">6B Rauchbier</td></tr><tr><td width="33%">6C Dunkels Bock</td><td width="33%">7A Vienna Lager</td><td width="33%">7B Altbier</td></tr><tr><td width="33%">8A Munich Dunkel</td><td width="33%">8B Schwarzbier</td><td width="33%"><a href="#" data-toggle="modal" data-target="#custom-modal-837" title="Select/Tap for Required Entry Info">9A Doppelbock</a> <span class="fa fa-check-circle text-orange" data-toggle="tooltip" data-placement="top" title="To ensure proper judging, the entrant must provide additional information about the beverage."></span></td></tr><tr><td width="33%">9C Baltic Porter</td><td width="33%">10A Weissbier</td><td width="33%">10B Dunkels Weissbier</td></tr><tr><td width="33%"><a href="#" data-toggle="modal" data-target="#custom-modal-842" title="Select/Tap for Required Entry Info">10C Weizenbock</a> <span class="fa fa-check-circle text-orange" data-toggle="tooltip" data-placement="top" title="To ensure proper judging, the entrant must provide additional information about the beverage."></span></td><td width="33%">11A Ordinary Bitter</td><td width="33%">11B Best Bitter</td></tr><tr><td width="33%">11C Strong Bitter</td><td width="33%">12A British Golden Ale</td><td width="33%">12C English IPA</td></tr><tr><td width="33%">13A Dark Mild</td><td width="33%">13B British Brown Ale</td><td width="33%">13C English Porter</td></tr><tr><td width="33%">14A Scottish Light</td><td width="33%">14B Scottish Heavy</td><td width="33%">14C Scottish Export</td></tr><tr><td width="33%">15A Irish Red Ale</td><td width="33%">15B Irish Stout</td><td width="33%">15C Irish Extra Stout</td></tr><tr><td width="33%">16A Sweet Stout</td><td width="33%">16B Oatmeal Stout</td><td width="33%">16C Tropical Stout</td></tr><tr><td width="33%">16D Foreign Extra Stout</td><td width="33%">17A British Strong Ale</td><td width="33%">17C Wee Heavy</td></tr><tr><td width="33%">17D English Barley Wine</td><td width="33%">18A Blonde Ale</td><td width="33%">18B American Pale Ale</td></tr><tr><td width="33%">19A American Amber Ale</td><td width="33%">19B California Common</td><td width="33%">19C American Brown Ale</td></tr><tr><td width="33%">20A American Porter</td><td width="33%">20B American Stout</td><td width="33%">20C Imperial Stout</td></tr><tr><td width="33%">21A American IPA</td><td width="33%"><a href="#" data-toggle="modal" data-target="#custom-modal-876" title="Select/Tap for Required Entry Info">21B Specialty IPA</a> <span class="fa fa-check-circle text-orange" data-toggle="tooltip" data-placement="top" title="To ensure proper judging, the entrant must provide additional information about the beverage."></span></td><td width="33%"><a href="#" data-toggle="modal" data-target="#custom-modal-877" title="Select/Tap for Required Entry Info">21B1 Belgian IPA</a> <span class="fa fa-check-circle text-orange" data-toggle="tooltip" data-placement="top" title="To ensure proper judging, the entrant must provide additional information about the beverage."></span></td></tr><tr><td width="33%"><a href="#" data-toggle="modal" data-target="#custom-modal-878" title="Select/Tap for Required Entry Info">21B2 Black IPA</a> <span class="fa fa-check-circle text-orange" data-toggle="tooltip" data-placement="top" title="To ensure proper judging, the entrant must provide additional information about the beverage."></span></td><td width="33%"><a href="#" data-toggle="modal" data-target="#custom-modal-879" title="Select/Tap for Required Entry Info">21B3 Brown IPA</a> <span class="fa fa-check-circle text-orange" data-toggle="tooltip" data-placement="top" title="To ensure proper judging, the entrant must provide additional information about the beverage."></span></td><td width="33%"><a href="#" data-toggle="modal" data-target="#custom-modal-880" title="Select/Tap for Required Entry Info">21B4 Red IPA</a> <span class="fa fa-check-circle text-orange" data-toggle="tooltip" data-placement="top" title="To ensure proper judging, the entrant must provide additional information about the beverage."></span></td></tr><tr><td width="33%"><a href="#" data-toggle="modal" data-target="#custom-modal-881" title="Select/Tap for Required Entry Info">21B5 Rye IPA</a> <span class="fa fa-check-circle text-orange" data-toggle="tooltip" data-placement="top" title="To ensure proper judging, the entrant must provide additional information about the beverage."></span></td><td width="33%"><a href="#" data-toggle="modal" data-target="#custom-modal-882" title="Select/Tap for Required Entry Info">21B6 White IPA</a> <span class="fa fa-check-circle text-orange" data-toggle="tooltip" data-placement="top" title="To ensure proper judging, the entrant must provide additional information about the beverage."></span></td><td width="33%">21C Hazy IPA</td></tr><tr><td width="33%">22A Double IPA</td><td width="33%">22B American Strong Ale</td><td width="33%">22C American Barleywine</td></tr><tr><td width="33%">23A Berliner Weisse</td><td width="33%">23B Flanders Red Ale</td><td width="33%">23C Oud Bruin</td></tr><tr><td width="33%">23D Lambic</td><td width="33%"><a href="#" data-toggle="modal" data-target="#custom-modal-894" title="Select/Tap for Required Entry Info">23F Fruit Lambic</a> <span class="fa fa-check-circle text-orange" data-toggle="tooltip" data-placement="top" title="To ensure proper judging, the entrant must provide additional information about the beverage."></span></td><td width="33%">24A Witbier</td></tr><tr><td width="33%">24B Belgian Pale Ale</td><td width="33%"><a href="#" data-toggle="modal" data-target="#custom-modal-898" title="Select/Tap for Required Entry Info">24C Bière de Garde</a> <span class="fa fa-check-circle text-orange" data-toggle="tooltip" data-placement="top" title="To ensure proper judging, the entrant must provide additional information about the beverage."></span></td><td width="33%">25A Belgian Blond Ale</td></tr><tr><td width="33%"><a href="#" data-toggle="modal" data-target="#custom-modal-900" title="Select/Tap for Required Entry Info">25B Saison</a> <span class="fa fa-check-circle text-orange" data-toggle="tooltip" data-placement="top" title="To ensure proper judging, the entrant must provide additional information about the beverage."></span></td><td width="33%">25C Belgian Golden Strong Ale</td><td width="33%">26A Belgian Single</td></tr><tr><td width="33%">26B Belgian Dubbel</td><td width="33%">26C Belgian Tripel</td><td width="33%">26D Belgian Dark Strong Ale</td></tr><tr><td width="33%"><a href="#" data-toggle="modal" data-target="#custom-modal-906" title="Select/Tap for Required Entry Info">27A Historical Beer</a> <span class="fa fa-check-circle text-orange" data-toggle="tooltip" data-placement="top" title="To ensure proper judging, the entrant must provide additional information about the beverage."></span></td><td width="33%"><a href="#" data-toggle="modal" data-target="#custom-modal-907" title="Select/Tap for Required Entry Info">27A1 Kellerbier</a> <span class="fa fa-check-circle text-orange" data-toggle="tooltip" data-placement="top" title="To ensure proper judging, the entrant must provide additional information about the beverage."></span></td><td width="33%">27A2 Kentucky Common</td></tr><tr><td width="33%">27A4 London Brown Ale</td><td width="33%">27A5 Piwo Grodziskie</td><td width="33%">27A6 Pre-Prohibition Lager</td></tr><tr><td width="33%">27A7 Pre-Prohibition Porter</td><td width="33%"><a href="#" data-toggle="modal" data-target="#custom-modal-920" title="Select/Tap for Required Entry Info">29A Fruit Beer</a> <span class="fa fa-check-circle text-orange" data-toggle="tooltip" data-placement="top" title="To ensure proper judging, the entrant must provide additional information about the beverage."></span></td><td width="33%"><a href="#" data-toggle="modal" data-target="#custom-modal-921" title="Select/Tap for Required Entry Info">29B Fruit and Spice Beer</a> <span class="fa fa-check-circle text-orange" data-toggle="tooltip" data-placement="top" title="To ensure proper judging, the entrant must provide additional information about the beverage."></span></td></tr><tr><td width="33%"><a href="#" data-toggle="modal" data-target="#custom-modal-924" title="Select/Tap for Required Entry Info">30A Spice, Herb, or Vegetable Beer</a> <span class="fa fa-check-circle text-orange" data-toggle="tooltip" data-placement="top" title="To ensure proper judging, the entrant must provide additional information about the beverage."></span></td><td width="33%"><a href="#" data-toggle="modal" data-target="#custom-modal-930" title="Select/Tap for Required Entry Info">32A Classic Style Smoked Beer</a> <span class="fa fa-check-circle text-orange" data-toggle="tooltip" data-placement="top" title="To ensure proper judging, the entrant must provide additional information about the beverage."></span></td><td width="33%"><a href="#" data-toggle="modal" data-target="#custom-modal-931" title="Select/Tap for Required Entry Info">32B Specialty Smoked Beer</a> <span class="fa fa-check-circle text-orange" data-toggle="tooltip" data-placement="top" title="To ensure proper judging, the entrant must provide additional information about the beverage."></span></td></tr><tr><td width="33%"><a href="#" data-toggle="modal" data-target="#custom-modal-932" title="Select/Tap for Required Entry Info">33A Wood-Aged Beer</a> <span class="fa fa-check-circle text-orange" data-toggle="tooltip" data-placement="top" title="To ensure proper judging, the entrant must provide additional information about the beverage."></span></td><td width="33%">LSX5 New Zealand Pilsner</td><td width="33%">C1A New World Cider <span class="fa fa-check-circle text-teal" data-toggle="tooltip" data-placement="top" title="To ensure proper judging, the entrant must provide the carbonation level of the beverage."></span> <span class="fa fa-check-circle text-gold" data-toggle="tooltip" data-placement="top" title="To ensure proper judging, the entrant must provide the sweetness level of the beverage."></span></td></tr><tr><td width="33%">C1B English Cider <span class="fa fa-check-circle text-teal" data-toggle="tooltip" data-placement="top" title="To ensure proper judging, the entrant must provide the carbonation level of the beverage."></span> <span class="fa fa-check-circle text-gold" data-toggle="tooltip" data-placement="top" title="To ensure proper judging, the entrant must provide the sweetness level of the beverage."></span></td><td width="33%">C1C French Cider <span class="fa fa-check-circle text-teal" data-toggle="tooltip" data-placement="top" title="To ensure proper judging, the entrant must provide the carbonation level of the beverage."></span> <span class="fa fa-check-circle text-gold" data-toggle="tooltip" data-placement="top" title="To ensure proper judging, the entrant must provide the sweetness level of the beverage."></span></td><td width="33%">C1D New World Perry <span class="fa fa-check-circle text-teal" data-toggle="tooltip" data-placement="top" title="To ensure proper judging, the entrant must provide the carbonation level of the beverage."></span> <span class="fa fa-check-circle text-gold" data-toggle="tooltip" data-placement="top" title="To ensure proper judging, the entrant must provide the sweetness level of the beverage."></span></td></tr><tr><td width="33%"><a href="#" data-toggle="modal" data-target="#custom-modal-946" title="Select/Tap for Required Entry Info">C1E Traditional Perry</a> <span class="fa fa-check-circle text-orange" data-toggle="tooltip" data-placement="top" title="To ensure proper judging, the entrant must provide additional information about the beverage."></span> <span class="fa fa-check-circle text-teal" data-toggle="tooltip" data-placement="top" title="To ensure proper judging, the entrant must provide the carbonation level of the beverage."></span> <span class="fa fa-check-circle text-gold" data-toggle="tooltip" data-placement="top" title="To ensure proper judging, the entrant must provide the sweetness level of the beverage."></span></td><td width="33%"><a href="#" data-toggle="modal" data-target="#custom-modal-947" title="Select/Tap for Required Entry Info">C2A New England Cider</a> <span class="fa fa-check-circle text-orange" data-toggle="tooltip" data-placement="top" title="To ensure proper judging, the entrant must provide additional information about the beverage."></span> <span class="fa fa-check-circle text-teal" data-toggle="tooltip" data-placement="top" title="To ensure proper judging, the entrant must provide the carbonation level of the beverage."></span> <span class="fa fa-check-circle text-gold" data-toggle="tooltip" data-placement="top" title="To ensure proper judging, the entrant must provide the sweetness level of the beverage."></span></td><td width="33%"><a href="#" data-toggle="modal" data-target="#custom-modal-948" title="Select/Tap for Required Entry Info">C2B Cider with Other Fruit</a> <span class="fa fa-check-circle text-orange" data-toggle="tooltip" data-placement="top" title="To ensure proper judging, the entrant must provide additional information about the beverage."></span> <span class="fa fa-check-circle text-teal" data-toggle="tooltip" data-placement="top" title="To ensure proper judging, the entrant must provide the carbonation level of the beverage."></span> <span class="fa fa-check-circle text-gold" data-toggle="tooltip" data-placement="top" title="To ensure proper judging, the entrant must provide the sweetness level of the beverage."></span></td></tr><tr><td width="33%"><a href="#" data-toggle="modal" data-target="#custom-modal-949" title="Select/Tap for Required Entry Info">C2C Applewine</a> <span class="fa fa-check-circle text-teal" data-toggle="tooltip" data-placement="top" title="To ensure proper judging, the entrant must provide the carbonation level of the beverage."></span> <span class="fa fa-check-circle text-gold" data-toggle="tooltip" data-placement="top" title="To ensure proper judging, the entrant must provide the sweetness level of the beverage."></span></td><td width="33%"><a href="#" data-toggle="modal" data-target="#custom-modal-950" title="Select/Tap for Required Entry Info">C2D Ice Cider</a> <span class="fa fa-check-circle text-orange" data-toggle="tooltip" data-placement="top" title="To ensure proper judging, the entrant must provide additional information about the beverage."></span> <span class="fa fa-check-circle text-teal" data-toggle="tooltip" data-placement="top" title="To ensure proper judging, the entrant must provide the carbonation level of the beverage."></span></td><td width="33%"><a href="#" data-toggle="modal" data-target="#custom-modal-951" title="Select/Tap for Required Entry Info">C2E Cider with Herbs/Spices</a> <span class="fa fa-check-circle text-orange" data-toggle="tooltip" data-placement="top" title="To ensure proper judging, the entrant must provide additional information about the beverage."></span> <span class="fa fa-check-circle text-teal" data-toggle="tooltip" data-placement="top" title="To ensure proper judging, the entrant must provide the carbonation level of the beverage."></span> <span class="fa fa-check-circle text-gold" data-toggle="tooltip" data-placement="top" title="To ensure proper judging, the entrant must provide the sweetness level of the beverage."></span></td></tr><tr><td width="33%"><a href="#" data-toggle="modal" data-target="#custom-modal-952" title="Select/Tap for Required Entry Info">C2F Specialty Cider/Perry</a> <span class="fa fa-check-circle text-orange" data-toggle="tooltip" data-placement="top" title="To ensure proper judging, the entrant must provide additional information about the beverage."></span> <span class="fa fa-check-circle text-teal" data-toggle="tooltip" data-placement="top" title="To ensure proper judging, the entrant must provide the carbonation level of the beverage."></span> <span class="fa fa-check-circle text-gold" data-toggle="tooltip" data-placement="top" title="To ensure proper judging, the entrant must provide the sweetness level of the beverage."></span></td><td width="33%"><a href="#" data-toggle="modal" data-target="#custom-modal-953" title="Select/Tap for Required Entry Info">M1A Dry Mead</a> <span class="fa fa-check-circle text-purple" data-toggle="tooltip" data-placement="top" title="To ensure proper judging, the entrant must provide the strength level of the beverage."></span> <span class="fa fa-check-circle text-teal" data-toggle="tooltip" data-placement="top" title="To ensure proper judging, the entrant must provide the carbonation level of the beverage."></span></td><td width="33%"><a href="#" data-toggle="modal" data-target="#custom-modal-954" title="Select/Tap for Required Entry Info">M1B Semi-Sweet Mead</a> <span class="fa fa-check-circle text-purple" data-toggle="tooltip" data-placement="top" title="To ensure proper judging, the entrant must provide the strength level of the beverage."></span> <span class="fa fa-check-circle text-teal" data-toggle="tooltip" data-placement="top" title="To ensure proper judging, the entrant must provide the carbonation level of the beverage."></span></td></tr><tr><td width="33%"><a href="#" data-toggle="modal" data-target="#custom-modal-955" title="Select/Tap for Required Entry Info">M1C Sweet Mead</a> <span class="fa fa-check-circle text-purple" data-toggle="tooltip" data-placement="top" title="To ensure proper judging, the entrant must provide the strength level of the beverage."></span> <span class="fa fa-check-circle text-teal" data-toggle="tooltip" data-placement="top" title="To ensure proper judging, the entrant must provide the carbonation level of the beverage."></span></td><td width="33%"><a href="#" data-toggle="modal" data-target="#custom-modal-956" title="Select/Tap for Required Entry Info">M2A Cyser</a> <span class="fa fa-check-circle text-purple" data-toggle="tooltip" data-placement="top" title="To ensure proper judging, the entrant must provide the strength level of the beverage."></span> <span class="fa fa-check-circle text-teal" data-toggle="tooltip" data-placement="top" title="To ensure proper judging, the entrant must provide the carbonation level of the beverage."></span> <span class="fa fa-check-circle text-gold" data-toggle="tooltip" data-placement="top" title="To ensure proper judging, the entrant must provide the sweetness level of the beverage."></span></td><td width="33%"><a href="#" data-toggle="modal" data-target="#custom-modal-957" title="Select/Tap for Required Entry Info">M2B Pyment</a> <span class="fa fa-check-circle text-purple" data-toggle="tooltip" data-placement="top" title="To ensure proper judging, the entrant must provide the strength level of the beverage."></span> <span class="fa fa-check-circle text-teal" data-toggle="tooltip" data-placement="top" title="To ensure proper judging, the entrant must provide the carbonation level of the beverage."></span> <span class="fa fa-check-circle text-gold" data-toggle="tooltip" data-placement="top" title="To ensure proper judging, the entrant must provide the sweetness level of the beverage."></span></td></tr><tr><td width="33%"><a href="#" data-toggle="modal" data-target="#custom-modal-958" title="Select/Tap for Required Entry Info">M2C Berry Mead</a> <span class="fa fa-check-circle text-orange" data-toggle="tooltip" data-placement="top" title="To ensure proper judging, the entrant must provide additional information about the beverage."></span> <span class="fa fa-check-circle text-purple" data-toggle="tooltip" data-placement="top" title="To ensure proper judging, the entrant must provide the strength level of the beverage."></span> <span class="fa fa-check-circle text-teal" data-toggle="tooltip" data-placement="top" title="To ensure proper judging, the entrant must provide the carbonation level of the beverage."></span> <span class="fa fa-check-circle text-gold" data-toggle="tooltip" data-placement="top" title="To ensure proper judging, the entrant must provide the sweetness level of the beverage."></span></td><td width="33%"><a href="#" data-toggle="modal" data-target="#custom-modal-959" title="Select/Tap for Required Entry Info">M2D Stone Fruit Mead</a> <span class="fa fa-check-circle text-orange" data-toggle="tooltip" data-placement="top" title="To ensure proper judging, the entrant must provide additional information about the beverage."></span> <span class="fa fa-check-circle text-purple" data-toggle="tooltip" data-placement="top" title="To ensure proper judging, the entrant must provide the strength level of the beverage."></span> <span class="fa fa-check-circle text-teal" data-toggle="tooltip" data-placement="top" title="To ensure proper judging, the entrant must provide the carbonation level of the beverage."></span> <span class="fa fa-check-circle text-gold" data-toggle="tooltip" data-placement="top" title="To ensure proper judging, the entrant must provide the sweetness level of the beverage."></span></td><td width="33%"><a href="#" data-toggle="modal" data-target="#custom-modal-960" title="Select/Tap for Required Entry Info">M2E Melomel</a> <span class="fa fa-check-circle text-orange" data-toggle="tooltip" data-placement="top" title="To ensure proper judging, the entrant must provide additional information about the beverage."></span> <span class="fa fa-check-circle text-purple" data-toggle="tooltip" data-placement="top" title="To ensure proper judging, the entrant must provide the strength level of the beverage."></span> <span class="fa fa-check-circle text-teal" data-toggle="tooltip" data-placement="top" title="To ensure proper judging, the entrant must provide the carbonation level of the beverage."></span> <span class="fa fa-check-circle text-gold" data-toggle="tooltip" data-placement="top" title="To ensure proper judging, the entrant must provide the sweetness level of the beverage."></span></td></tr><tr><td width="33%"><a href="#" data-toggle="modal" data-target="#custom-modal-961" title="Select/Tap for Required Entry Info">M3A Fruit and Spice Mead</a> <span class="fa fa-check-circle text-orange" data-toggle="tooltip" data-placement="top" title="To ensure proper judging, the entrant must provide additional information about the beverage."></span> <span class="fa fa-check-circle text-purple" data-toggle="tooltip" data-placement="top" title="To ensure proper judging, the entrant must provide the strength level of the beverage."></span> <span class="fa fa-check-circle text-teal" data-toggle="tooltip" data-placement="top" title="To ensure proper judging, the entrant must provide the carbonation level of the beverage."></span> <span class="fa fa-check-circle text-gold" data-toggle="tooltip" data-placement="top" title="To ensure proper judging, the entrant must provide the sweetness level of the beverage."></span></td><td width="33%"><a href="#" data-toggle="modal" data-target="#custom-modal-962" title="Select/Tap for Required Entry Info">M3B Spice, Herb, or Vegetable Mead</a> <span class="fa fa-check-circle text-orange" data-toggle="tooltip" data-placement="top" title="To ensure proper judging, the entrant must provide additional information about the beverage."></span> <span class="fa fa-check-circle text-purple" data-toggle="tooltip" data-placement="top" title="To ensure proper judging, the entrant must provide the strength level of the beverage."></span> <span class="fa fa-check-circle text-teal" data-toggle="tooltip" data-placement="top" title="To ensure proper judging, the entrant must provide the carbonation level of the beverage."></span> <span class="fa fa-check-circle text-gold" data-toggle="tooltip" data-placement="top" title="To ensure proper judging, the entrant must provide the sweetness level of the beverage."></span></td><td width="33%"><a href="#" data-toggle="modal" data-target="#custom-modal-963" title="Select/Tap for Required Entry Info">M4A Braggot</a> <span class="fa fa-check-circle text-purple" data-toggle="tooltip" data-placement="top" title="To ensure proper judging, the entrant must provide the strength level of the beverage."></span> <span class="fa fa-check-circle text-teal" data-toggle="tooltip" data-placement="top" title="To ensure proper judging, the entrant must provide the carbonation level of the beverage."></span> <span class="fa fa-check-circle text-gold" data-toggle="tooltip" data-placement="top" title="To ensure proper judging, the entrant must provide the sweetness level of the beverage."></span></td></tr><tr><td width="33%"><a href="#" data-toggle="modal" data-target="#custom-modal-964" title="Select/Tap for Required Entry Info">M4B Historical Mead</a> <span class="fa fa-check-circle text-orange" data-toggle="tooltip" data-placement="top" title="To ensure proper judging, the entrant must provide additional information about the beverage."></span> <span class="fa fa-check-circle text-purple" data-toggle="tooltip" data-placement="top" title="To ensure proper judging, the entrant must provide the strength level of the beverage."></span> <span class="fa fa-check-circle text-teal" data-toggle="tooltip" data-placement="top" title="To ensure proper judging, the entrant must provide the carbonation level of the beverage."></span> <span class="fa fa-check-circle text-gold" data-toggle="tooltip" data-placement="top" title="To ensure proper judging, the entrant must provide the sweetness level of the beverage."></span></td><td width="33%"><a href="#" data-toggle="modal" data-target="#custom-modal-965" title="Select/Tap for Required Entry Info">M4C Experimental Mead</a> <span class="fa fa-check-circle text-orange" data-toggle="tooltip" data-placement="top" title="To ensure proper judging, the entrant must provide additional information about the beverage."></span> <span class="fa fa-check-circle text-purple" data-toggle="tooltip" data-placement="top" title="To ensure proper judging, the entrant must provide the strength level of the beverage."></span> <span class="fa fa-check-circle text-teal" data-toggle="tooltip" data-placement="top" title="To ensure proper judging, the entrant must provide the carbonation level of the beverage."></span> <span class="fa fa-check-circle text-gold" data-toggle="tooltip" data-placement="top" title="To ensure proper judging, the entrant must provide the sweetness level of the beverage."></span></td><td>&nbsp;</td></tr></tbody></table><p class="hidden-print"><a href="#top-page">Top <span class="fa fa-arrow-circle-up"></span></a></p><p><strong>Number of Bottles Required Per Entry: 2</strong></p><a class="anchor-offset" name="judging-sessions"></a><h2>Judging Sessions</h2><p><strong>KoTM 2025Morning Session</strong> <a href="#" target="_blank" data-toggle="tooltip" data-placement="top" title="Log in to view the KoTM 2025Morning Session location"><span class="fa fa-lg fa-map-marker"></span></a><br>Saturday, September 20, 2025 9:00 AM, EDT</p><p><strong>KoTM 2025 Afternoon Session</strong> <a href="#" target="_blank" data-toggle="tooltip" data-placement="top" title="Log in to view the KoTM 2025 Afternoon Session location"><span class="fa fa-lg fa-map-marker"></span></a><br>Saturday, September 20, 2025 1:00 PM, EDT</p><p class="hidden-print"><a href="#top-page">Top <span class="fa fa-arrow-circle-up"></span></a></p><a class="anchor-offset" name="best-of-show"></a><h2>Best of Show</h2><p>The best of show winner will receive a plaque and special prizes.</p><p class="hidden-print"><a href="#top-page">Top <span class="fa fa-arrow-circle-up"></span></a></p><a class="anchor-offset" name="awards"></a><h2>Awards</h2><p>The competition awards will take place once judging is completed (4pm+)</p>
+<p>Entiries in each catetory receiving a consensus scores of 30 or greater (in style) will ranked to receive medals for for 1st, 2nd, and 3rd place.</p>
+<p>For beers, the 1st place entry in each category will advance to the Best of Show (BOS) round with a single, overall Best of Show beer selected.</p>
+<p>Separate Best of Show (BOS) awards will be madebased on points for the high score in the combined mead categories and the combined cider categories.</p>
+<p>Additional prizes will be awarded to those winners present at the awards ceremony at the discretion of the competition organizers. &nbsp;Prizes awarded to those not present at the awards ceremony can be picked up at a Little Mountain Brewers September meeting, 9/22/2025. &nbsp;You must let us know in advance to bring your prize(s) to the meeting.</p>
+<p>Score sheets will be available for pick up during Best of Show judging. Best effort will be made to post or mail all scoresheets within 10 days.&nbsp;</p>
+<p>Medals not picked up will be mailed to participants at no additional cost. Entrants will be required to pay postage to shipping addresses outside the U.S.</p>
+<p>Placement for all categories will be posted to the competition web site within 72 hours.</p><p class="hidden-print"><a href="#top-page">Top <span class="fa fa-arrow-circle-up"></span></a></p><a class="anchor-offset" name="awards-ceremony"></a><h2>Awards Ceremony</h2><p><strong>Collision Bend Brewing Company - Euclid</strong><br>1261 Babbitt Rd, Euclid, OH 44132 <a class="hide-loader" href="http://maps.google.com/maps?f=q&amp;source=s_q&amp;hl=en&amp;q=1261+Babbitt+Rd,+Euclid,+OH+44132" data-toggle="tooltip" data-placement="top" title="Map to Collision Bend Brewing Company - Euclid " target="_blank"><span class="fa fa-lg fa-map-marker"></span></a><br>Saturday, September 20, 2025 4:30 PM, EDT</p><p class="hidden-print"><a href="#top-page">Top <span class="fa fa-arrow-circle-up"></span></a></p><div class="modal fade" id="custom-modal-837" tabindex="-1" role="dialog" aria-labelledby="assignment-modal-label-A">
+	<div class="modal-dialog modal-lg" role="document">
+		<div class="modal-content">
+			<div class="modal-header bcoem-admin-modal">
+				<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">×</span></button>
+				<h4 class="modal-title" id="assignment-modal-label-9A">Info for Doppelbock</h4>
+			</div><!-- ./modal-header -->
+			<div class="modal-body">
+				<p>A strong, rich, and very malty German lager that can have both pale and dark variants. The darker versions have more richly-developed, deeper malt flavors, while the paler versions have slightly more hops and dryness.</p><p><strong class="text-primary">Entry Info:</strong> The entrant select specify whether the entry is a pale or a dark variant.</p>
+			</div><!-- ./modal-body -->
+			<div class="modal-footer">
+				<button type="button" class="btn btn-danger" data-dismiss="modal">Close</button>
+			</div><!-- ./modal-footer -->
+		</div><!-- ./modal-content -->
+	</div><!-- ./modal-dialog -->
+</div><!-- ./modal -->
+<div class="modal fade" id="custom-modal-842" tabindex="-1" role="dialog" aria-labelledby="assignment-modal-label-C">
+	<div class="modal-dialog modal-lg" role="document">
+		<div class="modal-content">
+			<div class="modal-header bcoem-admin-modal">
+				<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">×</span></button>
+				<h4 class="modal-title" id="assignment-modal-label-10C">Info for Weizenbock</h4>
+			</div><!-- ./modal-header -->
+			<div class="modal-body">
+				<p>A strong and malty German wheat beer combining the best wheat and yeast flavors of a Weissbier with the rich maltiness, strength, and body of a Bock. The style range includes Bock and Doppelbock strength, with variations for pale and dark color.</p><p><strong class="text-primary">Entry Info:</strong> The entrant MUST specify whether the entry is a pale or a dark variant.</p>
+			</div><!-- ./modal-body -->
+			<div class="modal-footer">
+				<button type="button" class="btn btn-danger" data-dismiss="modal">Close</button>
+			</div><!-- ./modal-footer -->
+		</div><!-- ./modal-content -->
+	</div><!-- ./modal-dialog -->
+</div><!-- ./modal -->
+<div class="modal fade" id="custom-modal-876" tabindex="-1" role="dialog" aria-labelledby="assignment-modal-label-B">
+	<div class="modal-dialog modal-lg" role="document">
+		<div class="modal-content">
+			<div class="modal-header bcoem-admin-modal">
+				<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">×</span></button>
+				<h4 class="modal-title" id="assignment-modal-label-21B">Info for Specialty IPA</h4>
+			</div><!-- ./modal-header -->
+			<div class="modal-body">
+				<p>Recognizable as an IPA by balance </p><p><strong class="text-primary">Entry Info:</strong> Entrant MUST specify a strength (session, standard, double); if no strength is specified, standard will be assumed. Entrant MUST specify specific type of Specialty IPA from the list of Currently Defined Types identified in the Style Guidelines, or as amended by Provisional Styles on the BJCP website; OR the entrant MUST describe the type of Specialty IPA and its key characteristics in comment form so judges will know what to expect. Entrants MAY specify specific hop varieties used, if entrants feel that judges may not recognize the varietal characteristics of newer hops. Entrants MAY specify a combination of defined IPA types (e.g., Black Rye IPA) without providing additional descriptions. </p>
+			</div><!-- ./modal-body -->
+			<div class="modal-footer">
+				<button type="button" class="btn btn-danger" data-dismiss="modal">Close</button>
+			</div><!-- ./modal-footer -->
+		</div><!-- ./modal-content -->
+	</div><!-- ./modal-dialog -->
+</div><!-- ./modal -->
+<div class="modal fade" id="custom-modal-877" tabindex="-1" role="dialog" aria-labelledby="assignment-modal-label-B1">
+	<div class="modal-dialog modal-lg" role="document">
+		<div class="modal-content">
+			<div class="modal-header bcoem-admin-modal">
+				<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">×</span></button>
+				<h4 class="modal-title" id="assignment-modal-label-21B1">Info for Belgian IPA</h4>
+			</div><!-- ./modal-header -->
+			<div class="modal-body">
+				<p>A dry, hoppy IPA with fruitiness and spiciness of Belgian yeast. Often lighter in color and more attenuated, similar to a Belgian Tripel that has been brewed with more hops.</p><p><strong class="text-primary">Entry Info:</strong> Entrant MUST specify a strength (session, standard, double); if no strength is specified, standard will be assumed.</p>
+			</div><!-- ./modal-body -->
+			<div class="modal-footer">
+				<button type="button" class="btn btn-danger" data-dismiss="modal">Close</button>
+			</div><!-- ./modal-footer -->
+		</div><!-- ./modal-content -->
+	</div><!-- ./modal-dialog -->
+</div><!-- ./modal -->
+<div class="modal fade" id="custom-modal-878" tabindex="-1" role="dialog" aria-labelledby="assignment-modal-label-B2">
+	<div class="modal-dialog modal-lg" role="document">
+		<div class="modal-content">
+			<div class="modal-header bcoem-admin-modal">
+				<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">×</span></button>
+				<h4 class="modal-title" id="assignment-modal-label-21B2">Info for Black IPA</h4>
+			</div><!-- ./modal-header -->
+			<div class="modal-body">
+				<p>A beer with the dryness, hop-forward balance, and flavor characteristics of an American IPA, but darker in color. Darker malts add a gentle and supportive flavor, not a strongly roasted or burnt character.</p><p><strong class="text-primary">Entry Info:</strong> Entrant MUST specify a strength (session, standard, double); if no strength is specified, standard will be assumed.</p>
+			</div><!-- ./modal-body -->
+			<div class="modal-footer">
+				<button type="button" class="btn btn-danger" data-dismiss="modal">Close</button>
+			</div><!-- ./modal-footer -->
+		</div><!-- ./modal-content -->
+	</div><!-- ./modal-dialog -->
+</div><!-- ./modal -->
+<div class="modal fade" id="custom-modal-879" tabindex="-1" role="dialog" aria-labelledby="assignment-modal-label-B3">
+	<div class="modal-dialog modal-lg" role="document">
+		<div class="modal-content">
+			<div class="modal-header bcoem-admin-modal">
+				<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">×</span></button>
+				<h4 class="modal-title" id="assignment-modal-label-21B3">Info for Brown IPA</h4>
+			</div><!-- ./modal-header -->
+			<div class="modal-body">
+				<p>Hoppy, bitter, and moderately strong like an American IPA, but with dark caramel, chocolate, toffee, or dark fruit character as in an American Brown Ale. Retaining the dryish finish and lean body that makes IPAs so drinkable, a Brown IPA is a little more flavorful and malty than an American IPA without being sweet or heavy.</p><p><strong class="text-primary">Entry Info:</strong> Entrant MUST specify a strength (session, standard, double); if no strength is specified, standard will be assumed.</p>
+			</div><!-- ./modal-body -->
+			<div class="modal-footer">
+				<button type="button" class="btn btn-danger" data-dismiss="modal">Close</button>
+			</div><!-- ./modal-footer -->
+		</div><!-- ./modal-content -->
+	</div><!-- ./modal-dialog -->
+</div><!-- ./modal -->
+<div class="modal fade" id="custom-modal-880" tabindex="-1" role="dialog" aria-labelledby="assignment-modal-label-B4">
+	<div class="modal-dialog modal-lg" role="document">
+		<div class="modal-content">
+			<div class="modal-header bcoem-admin-modal">
+				<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">×</span></button>
+				<h4 class="modal-title" id="assignment-modal-label-21B4">Info for Red IPA</h4>
+			</div><!-- ./modal-header -->
+			<div class="modal-body">
+				<p>Hoppy, bitter, and moderately strong like an American IPA, but with some caramel, toffee, or fruit character as in an American Amber Ale. Retaining the dryish finish and lean body that makes IPAs so drinkable, a Red IPA is a little more flavorful and malty than an American IPA without being sweet or heavy.</p><p><strong class="text-primary">Entry Info:</strong> Entrant MUST specify a strength (session, standard, double); if no strength is specified, standard will be assumed.</p>
+			</div><!-- ./modal-body -->
+			<div class="modal-footer">
+				<button type="button" class="btn btn-danger" data-dismiss="modal">Close</button>
+			</div><!-- ./modal-footer -->
+		</div><!-- ./modal-content -->
+	</div><!-- ./modal-dialog -->
+</div><!-- ./modal -->
+<div class="modal fade" id="custom-modal-881" tabindex="-1" role="dialog" aria-labelledby="assignment-modal-label-B5">
+	<div class="modal-dialog modal-lg" role="document">
+		<div class="modal-content">
+			<div class="modal-header bcoem-admin-modal">
+				<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">×</span></button>
+				<h4 class="modal-title" id="assignment-modal-label-21B5">Info for Rye IPA</h4>
+			</div><!-- ./modal-header -->
+			<div class="modal-body">
+				<p>An American IPA with spicy, grainy rye malt. The rye gives a bready and peppery flavor, a creamier body, and a dry, grainy finish.</p><p><strong class="text-primary">Entry Info:</strong> Entrant MUST specify a strength (session, standard, double); if no strength is specified, standard will be assumed.</p>
+			</div><!-- ./modal-body -->
+			<div class="modal-footer">
+				<button type="button" class="btn btn-danger" data-dismiss="modal">Close</button>
+			</div><!-- ./modal-footer -->
+		</div><!-- ./modal-content -->
+	</div><!-- ./modal-dialog -->
+</div><!-- ./modal -->
+<div class="modal fade" id="custom-modal-882" tabindex="-1" role="dialog" aria-labelledby="assignment-modal-label-B6">
+	<div class="modal-dialog modal-lg" role="document">
+		<div class="modal-content">
+			<div class="modal-header bcoem-admin-modal">
+				<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">×</span></button>
+				<h4 class="modal-title" id="assignment-modal-label-21B6">Info for White IPA</h4>
+			</div><!-- ./modal-header -->
+			<div class="modal-body">
+				<p>A fruity, spicy, refreshing version of an American IPA, but with a lighter color, less body, and featuring the distinctive yeast or spice additions typical of a Witbier.</p><p><strong class="text-primary">Entry Info:</strong> Entrant MUST specify a strength (session, standard, double); if no strength is specified, standard will be assumed.</p>
+			</div><!-- ./modal-body -->
+			<div class="modal-footer">
+				<button type="button" class="btn btn-danger" data-dismiss="modal">Close</button>
+			</div><!-- ./modal-footer -->
+		</div><!-- ./modal-content -->
+	</div><!-- ./modal-dialog -->
+</div><!-- ./modal -->
+<div class="modal fade" id="custom-modal-894" tabindex="-1" role="dialog" aria-labelledby="assignment-modal-label-F">
+	<div class="modal-dialog modal-lg" role="document">
+		<div class="modal-content">
+			<div class="modal-header bcoem-admin-modal">
+				<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">×</span></button>
+				<h4 class="modal-title" id="assignment-modal-label-23F">Info for Fruit Lambic</h4>
+			</div><!-- ./modal-header -->
+			<div class="modal-body">
+				<p>A complex, refreshing, pleasantly sour Belgian wheat beer blending a complementary fermented fruit character with a sour, funky Gueuze. </p><p><strong class="text-primary">Entry Info:</strong> The type of fruit used MUST be specified. The brewer must declare a carbonation level (low, medium, high) and a sweetness level (low/none, medium, high).</p>
+			</div><!-- ./modal-body -->
+			<div class="modal-footer">
+				<button type="button" class="btn btn-danger" data-dismiss="modal">Close</button>
+			</div><!-- ./modal-footer -->
+		</div><!-- ./modal-content -->
+	</div><!-- ./modal-dialog -->
+</div><!-- ./modal -->
+<div class="modal fade" id="custom-modal-898" tabindex="-1" role="dialog" aria-labelledby="assignment-modal-label-C">
+	<div class="modal-dialog modal-lg" role="document">
+		<div class="modal-content">
+			<div class="modal-header bcoem-admin-modal">
+				<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">×</span></button>
+				<h4 class="modal-title" id="assignment-modal-label-24C">Info for Bière de Garde</h4>
+			</div><!-- ./modal-header -->
+			<div class="modal-body">
+				<p>A family of smooth, fairly strong, malty, lagered artisanal French beer with a range of malt flavors appropriate for the blond, amber, or brown color. All are malty yet dry, with clean flavors. Darker versions have more malt character, while paler versions can have more hops while still remaining malt-focused beers.</p><p><strong class="text-primary">Entry Info:</strong> Entrant MUST specify blond, amber, or brown Bière de Garde.</p>
+			</div><!-- ./modal-body -->
+			<div class="modal-footer">
+				<button type="button" class="btn btn-danger" data-dismiss="modal">Close</button>
+			</div><!-- ./modal-footer -->
+		</div><!-- ./modal-content -->
+	</div><!-- ./modal-dialog -->
+</div><!-- ./modal -->
+<div class="modal fade" id="custom-modal-900" tabindex="-1" role="dialog" aria-labelledby="assignment-modal-label-B">
+	<div class="modal-dialog modal-lg" role="document">
+		<div class="modal-content">
+			<div class="modal-header bcoem-admin-modal">
+				<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">×</span></button>
+				<h4 class="modal-title" id="assignment-modal-label-25B">Info for Saison</h4>
+			</div><!-- ./modal-header -->
+			<div class="modal-body">
+				<p>A family of refreshing, highly attenuated, hoppy, and fairly bitter Belgian ales with a very dry finish and high carbonation. Characterized by a fruity, spicy, sometimes phenolic fermentation profile, and the use of cereal grains and sometimes spices for complexity. Several variations in strength and color exist.</p><p><strong class="text-primary">Entry Info:</strong> The entrant MUST specify the strength (table, standard, super) and the color (pale, dark). The entrant MAY identify character grains used. </p>
+			</div><!-- ./modal-body -->
+			<div class="modal-footer">
+				<button type="button" class="btn btn-danger" data-dismiss="modal">Close</button>
+			</div><!-- ./modal-footer -->
+		</div><!-- ./modal-content -->
+	</div><!-- ./modal-dialog -->
+</div><!-- ./modal -->
+<div class="modal fade" id="custom-modal-906" tabindex="-1" role="dialog" aria-labelledby="assignment-modal-label-A">
+	<div class="modal-dialog modal-lg" role="document">
+		<div class="modal-content">
+			<div class="modal-header bcoem-admin-modal">
+				<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">×</span></button>
+				<h4 class="modal-title" id="assignment-modal-label-27A">Info for Historical Beer</h4>
+			</div><!-- ./modal-header -->
+			<div class="modal-body">
+				<p>The Historical Beer category contains styles that either have all but died out in modern times, or that were much more popular in past times and are now known only through recreations. This category can also be used for traditional or indigenous beers of cultural importance within certain countries. Placing a beer in the historical category does not imply that it is not currently being produced, just that it is a very minor style or perhaps is in the process of rediscovery by craft brewers.</p><p><strong class="text-primary">Entry Info:</strong> Catch-all category for other historical beers that have NOT been defined by the BJCP. The entrant MUST provide a description for the judges of the historical style that is NOT one of the currently defined historical style examples provided by the BJCP. Currently defined examples: Kellerbier, Kentucky Common, Lichtenhainer, London Brown Ale, Piwo Grodziskie, Pre-Prohibition Lager, Pre-Prohibition Porter, Roggenbier, Sahti. If a beer is entered with just a style name and no description, it is very unlikely that judges will understand how to judge it.</p>
+			</div><!-- ./modal-body -->
+			<div class="modal-footer">
+				<button type="button" class="btn btn-danger" data-dismiss="modal">Close</button>
+			</div><!-- ./modal-footer -->
+		</div><!-- ./modal-content -->
+	</div><!-- ./modal-dialog -->
+</div><!-- ./modal -->
+<div class="modal fade" id="custom-modal-907" tabindex="-1" role="dialog" aria-labelledby="assignment-modal-label-A1">
+	<div class="modal-dialog modal-lg" role="document">
+		<div class="modal-content">
+			<div class="modal-header bcoem-admin-modal">
+				<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">×</span></button>
+				<h4 class="modal-title" id="assignment-modal-label-27A1">Info for Kellerbier</h4>
+			</div><!-- ./modal-header -->
+			<div class="modal-body">
+				<p>An unfiltered, unpasteurized, fully-attenuated German lager traditionally served from lagering vessels. May be a little richer, more robust, and rustic than the base styles. A fresh beer without fermentation defects associated with young, green (unfinished) beer.</p><p><strong class="text-primary">Entry Info:</strong> The entrant MUST specify the base style: German Pils, Munich Helles, Märzen, or Munich Dunkel.</p>
+			</div><!-- ./modal-body -->
+			<div class="modal-footer">
+				<button type="button" class="btn btn-danger" data-dismiss="modal">Close</button>
+			</div><!-- ./modal-footer -->
+		</div><!-- ./modal-content -->
+	</div><!-- ./modal-dialog -->
+</div><!-- ./modal -->
+<div class="modal fade" id="custom-modal-920" tabindex="-1" role="dialog" aria-labelledby="assignment-modal-label-A">
+	<div class="modal-dialog modal-lg" role="document">
+		<div class="modal-content">
+			<div class="modal-header bcoem-admin-modal">
+				<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">×</span></button>
+				<h4 class="modal-title" id="assignment-modal-label-29A">Info for Fruit Beer</h4>
+			</div><!-- ./modal-header -->
+			<div class="modal-body">
+				<p>A pleasant integration of fruit with beer, but still recognizable as beer. The fruit character should be evident but in balance with the beer, not so forward as to suggest an artificial product.</p><p><strong class="text-primary">Entry Info:</strong> The entrant MUST specify the type(s) of fruit used. Entrant MUST specify a description of the beer, identifying either a Base Style or the ingredients, specs, or target character of the beer. A general description of the special nature of the beer can cover all the required items.  Fruit Beers based on a Classic Style should be entered in this style, except Lambic </p>
+			</div><!-- ./modal-body -->
+			<div class="modal-footer">
+				<button type="button" class="btn btn-danger" data-dismiss="modal">Close</button>
+			</div><!-- ./modal-footer -->
+		</div><!-- ./modal-content -->
+	</div><!-- ./modal-dialog -->
+</div><!-- ./modal -->
+<div class="modal fade" id="custom-modal-921" tabindex="-1" role="dialog" aria-labelledby="assignment-modal-label-B">
+	<div class="modal-dialog modal-lg" role="document">
+		<div class="modal-content">
+			<div class="modal-header bcoem-admin-modal">
+				<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">×</span></button>
+				<h4 class="modal-title" id="assignment-modal-label-29B">Info for Fruit and Spice Beer</h4>
+			</div><!-- ./modal-header -->
+			<div class="modal-body">
+				<p>A tasteful union of fruit, spice, and beer, but still recognizable as beer. The fruit and spice character should each be evident but in balance with the beer, not so forward as to suggest an artificial product. Use the definitions of Fruit in the preamble to Category 29 and Spice in the preamble to Category 30; any combination of ingredients valid in Styles 29A and 30A are allowable in this category. For this style, the word </p><p><strong class="text-primary">Entry Info:</strong> The entrant MUST specify the type of fruit, and the type of SHV used; individual SHV ingredients do not need to be specified if a well-known blend of spices is used (e.g., apple pie spice). Entrant MUST specify a description of the beer, either a Base Style or the ingredients, specs, or target character of the beer. A general description of the special nature of the beer can cover all the required items.</p>
+			</div><!-- ./modal-body -->
+			<div class="modal-footer">
+				<button type="button" class="btn btn-danger" data-dismiss="modal">Close</button>
+			</div><!-- ./modal-footer -->
+		</div><!-- ./modal-content -->
+	</div><!-- ./modal-dialog -->
+</div><!-- ./modal -->
+<div class="modal fade" id="custom-modal-924" tabindex="-1" role="dialog" aria-labelledby="assignment-modal-label-A">
+	<div class="modal-dialog modal-lg" role="document">
+		<div class="modal-content">
+			<div class="modal-header bcoem-admin-modal">
+				<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">×</span></button>
+				<h4 class="modal-title" id="assignment-modal-label-30A">Info for Spice, Herb, or Vegetable Beer</h4>
+			</div><!-- ./modal-header -->
+			<div class="modal-body">
+				<p>An appealing fusion of spices, herbs, or vegetables (SHVs) and beer, but still recognizable as beer. The SHV character should be evident but in balance with the beer, not so forward as to suggest an artificial product. Often called Spice Beer, regardless of whether spices, herbs, or vegetables are used.</p><p><strong class="text-primary">Entry Info:</strong> The entrant MUST specify the type of spices, herbs, or vegetables used, but individual ingredients do not need to be specified if a well-known spice blend is used (e.g., apple pie spice, curry powder, chili powder). Entrant MUST specify a description of the beer, identifying either a Base Style or the ingredients, specs, or target character of the beer. A general description of the special nature of the beer can cover all the required items.</p>
+			</div><!-- ./modal-body -->
+			<div class="modal-footer">
+				<button type="button" class="btn btn-danger" data-dismiss="modal">Close</button>
+			</div><!-- ./modal-footer -->
+		</div><!-- ./modal-content -->
+	</div><!-- ./modal-dialog -->
+</div><!-- ./modal -->
+<div class="modal fade" id="custom-modal-930" tabindex="-1" role="dialog" aria-labelledby="assignment-modal-label-A">
+	<div class="modal-dialog modal-lg" role="document">
+		<div class="modal-content">
+			<div class="modal-header bcoem-admin-modal">
+				<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">×</span></button>
+				<h4 class="modal-title" id="assignment-modal-label-32A">Info for Classic Style Smoked Beer</h4>
+			</div><!-- ./modal-header -->
+			<div class="modal-body">
+				<p>A well-balanced fusion of the malt and hops of the base beer style with a pleasant and agreeable smoke character. Intended for smoked versions of Classic Style beers, except if the Classic Style beer has smoke as an inherent part of its definition (of course, that beer should be entered in its base style, such as Rauchbier).</p><p><strong class="text-primary">Entry Info:</strong> The entrant MUST specify a Base Style. The entrant MUST specify the type of wood or smoke if a varietal smoke character is noticeable.</p>
+			</div><!-- ./modal-body -->
+			<div class="modal-footer">
+				<button type="button" class="btn btn-danger" data-dismiss="modal">Close</button>
+			</div><!-- ./modal-footer -->
+		</div><!-- ./modal-content -->
+	</div><!-- ./modal-dialog -->
+</div><!-- ./modal -->
+<div class="modal fade" id="custom-modal-931" tabindex="-1" role="dialog" aria-labelledby="assignment-modal-label-B">
+	<div class="modal-dialog modal-lg" role="document">
+		<div class="modal-content">
+			<div class="modal-header bcoem-admin-modal">
+				<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">×</span></button>
+				<h4 class="modal-title" id="assignment-modal-label-32B">Info for Specialty Smoked Beer</h4>
+			</div><!-- ./modal-header -->
+			<div class="modal-body">
+				<p>A well-balanced fusion of the malt and hops of the base specialty beer style with a pleasant and agreeable smoke character. A Specialty Smoked Beer is either a smoked beer based on something other than a Classic Style (a Specialty-Type style, or a broad style family such as Porter rather than a specific style), OR any type of smoked beer with additional specialty ingredients (fruits, vegetables, spices) or processes employed that transform the beer into something more unique.</p><p><strong class="text-primary">Entry Info:</strong> The entrant MUST specify the type of wood or smoke if a varietal smoke character is noticeable. The entrant MUST specify the additional ingredients or processes that make this a specialty smoked beer. Entrant MUST specify a description of the beer, identifying either a base style or the ingredients, specs, or target character of the beer. A general description of the special nature of the beer can cover all the required items.</p>
+			</div><!-- ./modal-body -->
+			<div class="modal-footer">
+				<button type="button" class="btn btn-danger" data-dismiss="modal">Close</button>
+			</div><!-- ./modal-footer -->
+		</div><!-- ./modal-content -->
+	</div><!-- ./modal-dialog -->
+</div><!-- ./modal -->
+<div class="modal fade" id="custom-modal-932" tabindex="-1" role="dialog" aria-labelledby="assignment-modal-label-A">
+	<div class="modal-dialog modal-lg" role="document">
+		<div class="modal-content">
+			<div class="modal-header bcoem-admin-modal">
+				<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">×</span></button>
+				<h4 class="modal-title" id="assignment-modal-label-33A">Info for Wood-Aged Beer</h4>
+			</div><!-- ./modal-header -->
+			<div class="modal-body">
+				<p>A pleasant enhancement of the base beer style with the characteristics from aging in contact with wood. The best examples will be smooth, flavorful, well-balanced, and well-aged. This style is intended for beer aged in wood without added alcohol character from previous use of the barrel. Bourbon-barrel or other beers with an added alcohol character should be entered as 33B Specialty Wood-Aged Beer. This category should not be used for base styles where wood-aging is a fundamental requirement for the style (e.g., Flanders Red, Lambic). Beers made using either limited wood aging or products that only provide a subtle background character may be entered in the base beer style categories as long as the wood character isn</p><p><strong class="text-primary">Entry Info:</strong> The entrant MUST specify the type of wood used and the toast or char level (if used). If an unusual varietal wood is used, the entrant MUST supply a brief description of the sensory aspects the wood adds to beer. Entrant MUST specify a description of the beer, identifying either a Base Style or the ingredients, specs, or target character of the beer. A general description of the special nature of the beer can cover all the required items.</p>
+			</div><!-- ./modal-body -->
+			<div class="modal-footer">
+				<button type="button" class="btn btn-danger" data-dismiss="modal">Close</button>
+			</div><!-- ./modal-footer -->
+		</div><!-- ./modal-content -->
+	</div><!-- ./modal-dialog -->
+</div><!-- ./modal -->
+<div class="modal fade" id="custom-modal-946" tabindex="-1" role="dialog" aria-labelledby="assignment-modal-label-E">
+	<div class="modal-dialog modal-lg" role="document">
+		<div class="modal-content">
+			<div class="modal-header bcoem-admin-modal">
+				<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">×</span></button>
+				<h4 class="modal-title" id="assignment-modal-label-C1E">Info for Traditional Perry</h4>
+			</div><!-- ./modal-header -->
+			<div class="modal-body">
+				<p>Tannic. Medium to medium-sweet. Still to lightly sparkling. Only very slight acetification is acceptable. Mousiness and ropy/oily characters are serious faults.</p><p><strong class="text-primary">Entry Info:</strong> Entrants MUST specify carbonation level (3 levels). Entrants MUST specify sweetness (5 categories). Entrants MUST state variety of pear(s) used.</p>
+			</div><!-- ./modal-body -->
+			<div class="modal-footer">
+				<button type="button" class="btn btn-danger" data-dismiss="modal">Close</button>
+			</div><!-- ./modal-footer -->
+		</div><!-- ./modal-content -->
+	</div><!-- ./modal-dialog -->
+</div><!-- ./modal -->
+<div class="modal fade" id="custom-modal-947" tabindex="-1" role="dialog" aria-labelledby="assignment-modal-label-A">
+	<div class="modal-dialog modal-lg" role="document">
+		<div class="modal-content">
+			<div class="modal-header bcoem-admin-modal">
+				<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">×</span></button>
+				<h4 class="modal-title" id="assignment-modal-label-C2A">Info for New England Cider</h4>
+			</div><!-- ./modal-header -->
+			<div class="modal-body">
+				<p>Substantial body and character. Typically relatively dry, but can be somewhat sweet if in balance and not containing hot alcohol.</p><p><strong class="text-primary">Entry Info:</strong> Entrants MUST specify if the cider was barrel-fermented or aged. Entrants MUST specify carbonation level (3 levels). Entrants MUST specify sweetness (5 levels).</p>
+			</div><!-- ./modal-body -->
+			<div class="modal-footer">
+				<button type="button" class="btn btn-danger" data-dismiss="modal">Close</button>
+			</div><!-- ./modal-footer -->
+		</div><!-- ./modal-content -->
+	</div><!-- ./modal-dialog -->
+</div><!-- ./modal -->
+<div class="modal fade" id="custom-modal-948" tabindex="-1" role="dialog" aria-labelledby="assignment-modal-label-B">
+	<div class="modal-dialog modal-lg" role="document">
+		<div class="modal-content">
+			<div class="modal-header bcoem-admin-modal">
+				<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">×</span></button>
+				<h4 class="modal-title" id="assignment-modal-label-C2B">Info for Cider with Other Fruit</h4>
+			</div><!-- ./modal-header -->
+			<div class="modal-body">
+				<p>Substantial. May be significantly tannic, depending on fruit added.</p><p><strong class="text-primary">Entry Info:</strong> Entrants MUST specify carbonation level (3 levels). Entrants MUST specify sweetness (5 categories). Entrants MUST specify all fruit(s) and/or fruit juice(s) added.</p>
+			</div><!-- ./modal-body -->
+			<div class="modal-footer">
+				<button type="button" class="btn btn-danger" data-dismiss="modal">Close</button>
+			</div><!-- ./modal-footer -->
+		</div><!-- ./modal-content -->
+	</div><!-- ./modal-dialog -->
+</div><!-- ./modal -->
+<div class="modal fade" id="custom-modal-949" tabindex="-1" role="dialog" aria-labelledby="assignment-modal-label-C">
+	<div class="modal-dialog modal-lg" role="document">
+		<div class="modal-content">
+			<div class="modal-header bcoem-admin-modal">
+				<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">×</span></button>
+				<h4 class="modal-title" id="assignment-modal-label-C2C">Info for Applewine</h4>
+			</div><!-- ./modal-header -->
+			<div class="modal-body">
+				<p>Typically like a dry white wine, balanced, and with low astringency and bitterness. </p><p><strong class="text-primary">Entry Info:</strong> Entrants MUST specify carbonation level (3 levels). Entrants MUST specify sweetness (5 levels).</p>
+			</div><!-- ./modal-body -->
+			<div class="modal-footer">
+				<button type="button" class="btn btn-danger" data-dismiss="modal">Close</button>
+			</div><!-- ./modal-footer -->
+		</div><!-- ./modal-content -->
+	</div><!-- ./modal-dialog -->
+</div><!-- ./modal -->
+<div class="modal fade" id="custom-modal-950" tabindex="-1" role="dialog" aria-labelledby="assignment-modal-label-D">
+	<div class="modal-dialog modal-lg" role="document">
+		<div class="modal-content">
+			<div class="modal-header bcoem-admin-modal">
+				<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">×</span></button>
+				<h4 class="modal-title" id="assignment-modal-label-C2D">Info for Ice Cider</h4>
+			</div><!-- ./modal-header -->
+			<div class="modal-body">
+				<p>This is a cider style in which the juice is concentrated before fermentation either by freezing fruit before pressing or freezing juice and removing water.</p><p><strong class="text-primary">Entry Info:</strong> Entrants MUST specify starting gravity, final gravity or residual sugar, and alcohol level. Entrants MUST specify carbonation level (3 levels).</p>
+			</div><!-- ./modal-body -->
+			<div class="modal-footer">
+				<button type="button" class="btn btn-danger" data-dismiss="modal">Close</button>
+			</div><!-- ./modal-footer -->
+		</div><!-- ./modal-content -->
+	</div><!-- ./modal-dialog -->
+</div><!-- ./modal -->
+<div class="modal fade" id="custom-modal-951" tabindex="-1" role="dialog" aria-labelledby="assignment-modal-label-E">
+	<div class="modal-dialog modal-lg" role="document">
+		<div class="modal-content">
+			<div class="modal-header bcoem-admin-modal">
+				<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">×</span></button>
+				<h4 class="modal-title" id="assignment-modal-label-C2E">Info for Cider with Herbs/Spices</h4>
+			</div><!-- ./modal-header -->
+			<div class="modal-body">
+				<p>Like a white wine with complex flavors. The apple character MUST marry with the botanicals and give a balanced result.</p><p><strong class="text-primary">Entry Info:</strong> Entrants MUST specify carbonation level (3 levels). Entrants MUST specify sweetness (5 categories). Entrants MUST specify all botanicals added. If hops are used, entrant MUST specify variety/varieties used.</p>
+			</div><!-- ./modal-body -->
+			<div class="modal-footer">
+				<button type="button" class="btn btn-danger" data-dismiss="modal">Close</button>
+			</div><!-- ./modal-footer -->
+		</div><!-- ./modal-content -->
+	</div><!-- ./modal-dialog -->
+</div><!-- ./modal -->
+<div class="modal fade" id="custom-modal-952" tabindex="-1" role="dialog" aria-labelledby="assignment-modal-label-F">
+	<div class="modal-dialog modal-lg" role="document">
+		<div class="modal-content">
+			<div class="modal-header bcoem-admin-modal">
+				<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">×</span></button>
+				<h4 class="modal-title" id="assignment-modal-label-C2F">Info for Specialty Cider/Perry</h4>
+			</div><!-- ./modal-header -->
+			<div class="modal-body">
+				<p>This is an open-ended category for cider or perry with other ingredients such that it does not fit any of the other BJCP categories.</p><p><strong class="text-primary">Entry Info:</strong> Entrants MUST specify all ingredients. Entrants MUST specify carbonation level (3 levels). Entrants MUST specify sweetness (5 categories).</p>
+			</div><!-- ./modal-body -->
+			<div class="modal-footer">
+				<button type="button" class="btn btn-danger" data-dismiss="modal">Close</button>
+			</div><!-- ./modal-footer -->
+		</div><!-- ./modal-content -->
+	</div><!-- ./modal-dialog -->
+</div><!-- ./modal -->
+<div class="modal fade" id="custom-modal-953" tabindex="-1" role="dialog" aria-labelledby="assignment-modal-label-A">
+	<div class="modal-dialog modal-lg" role="document">
+		<div class="modal-content">
+			<div class="modal-header bcoem-admin-modal">
+				<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">×</span></button>
+				<h4 class="modal-title" id="assignment-modal-label-M1A">Info for Dry Mead</h4>
+			</div><!-- ./modal-header -->
+			<div class="modal-body">
+				<p>Similar in balance, body, finish and flavor intensity to a dry white wine, with a pleasant mixture of subtle honey character, soft fruity esters, and clean alcohol. Complexity, harmony, and balance of sensory elements are most desirable, with no inconsistencies in color, aroma, flavor or aftertaste. The proper balance of sweetness, acidity, alcohol, and honey character is the essential final measure of any mead.</p><p><strong class="text-primary">Entry Info:</strong> Entry Instructions: Entrants MUST specify carbonation level and strength. Sweetness is assumed to be DRY in this category. Entrants MAY specify honey varieties.</p>
+			</div><!-- ./modal-body -->
+			<div class="modal-footer">
+				<button type="button" class="btn btn-danger" data-dismiss="modal">Close</button>
+			</div><!-- ./modal-footer -->
+		</div><!-- ./modal-content -->
+	</div><!-- ./modal-dialog -->
+</div><!-- ./modal -->
+<div class="modal fade" id="custom-modal-954" tabindex="-1" role="dialog" aria-labelledby="assignment-modal-label-B">
+	<div class="modal-dialog modal-lg" role="document">
+		<div class="modal-content">
+			<div class="modal-header bcoem-admin-modal">
+				<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">×</span></button>
+				<h4 class="modal-title" id="assignment-modal-label-M1B">Info for Semi-Sweet Mead</h4>
+			</div><!-- ./modal-header -->
+			<div class="modal-body">
+				<p>Similar in balance, body, finish and flavor intensity to a semisweet (or medium-dry) white wine, with a pleasant mixture of honey character, light sweetness, soft fruity esters, and clean alcohol. Complexity, harmony, and balance of sensory elements are most desirable, with no inconsistencies in color, aroma, flavor or aftertaste. The proper balance of sweetness, acidity, alcohol, and honey character is the essential final measure of any mead.</p><p><strong class="text-primary">Entry Info:</strong> Entrants MUST specify carbonation level and strength. Sweetness is assumed to be SEMI-SWEET in this category. Entrants MAY specify honey varieties.</p>
+			</div><!-- ./modal-body -->
+			<div class="modal-footer">
+				<button type="button" class="btn btn-danger" data-dismiss="modal">Close</button>
+			</div><!-- ./modal-footer -->
+		</div><!-- ./modal-content -->
+	</div><!-- ./modal-dialog -->
+</div><!-- ./modal -->
+<div class="modal fade" id="custom-modal-955" tabindex="-1" role="dialog" aria-labelledby="assignment-modal-label-C">
+	<div class="modal-dialog modal-lg" role="document">
+		<div class="modal-content">
+			<div class="modal-header bcoem-admin-modal">
+				<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">×</span></button>
+				<h4 class="modal-title" id="assignment-modal-label-M1C">Info for Sweet Mead</h4>
+			</div><!-- ./modal-header -->
+			<div class="modal-body">
+				<p>Similar in balance, body, finish and flavor intensity to a well-made dessert wine (such as Sauternes), with a pleasant mixture of honey character, residual sweetness, soft fruity esters, and clean alcohol. Complexity, harmony, and balance of sensory elements are most desirable, with no inconsistencies in color, aroma, flavor or aftertaste. The proper balance of sweetness, acidity, alcohol, and honey character is the essential final measure of any mead.</p><p><strong class="text-primary">Entry Info:</strong> Entrants MUST specify carbonation level and strength. Sweetness is assumed to be SWEET in this category. Entrants MAY specify honey varieties.</p>
+			</div><!-- ./modal-body -->
+			<div class="modal-footer">
+				<button type="button" class="btn btn-danger" data-dismiss="modal">Close</button>
+			</div><!-- ./modal-footer -->
+		</div><!-- ./modal-content -->
+	</div><!-- ./modal-dialog -->
+</div><!-- ./modal -->
+<div class="modal fade" id="custom-modal-956" tabindex="-1" role="dialog" aria-labelledby="assignment-modal-label-A">
+	<div class="modal-dialog modal-lg" role="document">
+		<div class="modal-content">
+			<div class="modal-header bcoem-admin-modal">
+				<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">×</span></button>
+				<h4 class="modal-title" id="assignment-modal-label-M2A">Info for Cyser</h4>
+			</div><!-- ./modal-header -->
+			<div class="modal-body">
+				<p>In well-made examples of the style, the fruit is both distinctive and well-incorporated into the honey-sweet-acid-tannin-alcohol balance of the mead. Some of the best strong examples have the taste and aroma of an aged Calvados (apple brandy from northern France), while subtle, dry versions can taste similar to many fine white wines. There should be an appealing blend of the fruit and honey character but not necessarily an even balance. Generally a good tannin-sweetness balance is desired, though very dry and very sweet examples do exist.</p><p><strong class="text-primary">Entry Info:</strong> Entrants MUST specify carbonation level, strength, and sweetness. Entrants MAY specify honey varieties. Entrants MAY specify the varieties of apple used; if specified, a varietal character will be expected. Products with a relatively low proportion of honey are better entered as a Specialty Cider. A spiced cyser should be entered as a Fruit and Spice Mead. A cyser with other fruit should be entered as a Melomel. A cyser with additional ingredients should be entered as an Experimental mead.</p>
+			</div><!-- ./modal-body -->
+			<div class="modal-footer">
+				<button type="button" class="btn btn-danger" data-dismiss="modal">Close</button>
+			</div><!-- ./modal-footer -->
+		</div><!-- ./modal-content -->
+	</div><!-- ./modal-dialog -->
+</div><!-- ./modal -->
+<div class="modal fade" id="custom-modal-957" tabindex="-1" role="dialog" aria-labelledby="assignment-modal-label-B">
+	<div class="modal-dialog modal-lg" role="document">
+		<div class="modal-content">
+			<div class="modal-header bcoem-admin-modal">
+				<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">×</span></button>
+				<h4 class="modal-title" id="assignment-modal-label-M2B">Info for Pyment</h4>
+			</div><!-- ./modal-header -->
+			<div class="modal-body">
+				<p>In well-made examples of the style, the grape is both distinctively vinous and well-incorporated into the honey-sweet-acid-tannin-alcohol balance of the mead. White and red versions can be quite different, and the overall impression should be characteristic of the type of grapes used and suggestive of a similar variety wine. There should be an appealing blend of the fruit and honey character but not necessarily an even balance. Generally a good tannin-sweetness balance is desired, though very dry and very sweet examples do exist.</p><p><strong class="text-primary">Entry Info:</strong> Entrants MUST specify carbonation level, strength, and sweetness. Entrants MAY specify honey varieties. Entrants MAY specify the varieties of grape used; if specified, a varietal character will be expected. A spiced pyment (hippocras) should be entered as a Fruit and Spice Mead. A pyment made with other fruit should be entered as a Melomel. A pyment with other ingredients should be entered as an Experimental Mead. </p>
+			</div><!-- ./modal-body -->
+			<div class="modal-footer">
+				<button type="button" class="btn btn-danger" data-dismiss="modal">Close</button>
+			</div><!-- ./modal-footer -->
+		</div><!-- ./modal-content -->
+	</div><!-- ./modal-dialog -->
+</div><!-- ./modal -->
+<div class="modal fade" id="custom-modal-958" tabindex="-1" role="dialog" aria-labelledby="assignment-modal-label-C">
+	<div class="modal-dialog modal-lg" role="document">
+		<div class="modal-content">
+			<div class="modal-header bcoem-admin-modal">
+				<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">×</span></button>
+				<h4 class="modal-title" id="assignment-modal-label-M2C">Info for Berry Mead</h4>
+			</div><!-- ./modal-header -->
+			<div class="modal-body">
+				<p>In well-made examples of the style, the fruit is both distinctive and well-incorporated into the honey-sweet-acid-tannin-alcohol balance of the mead. Different types of fruit can result in widely different characteristics; allow for a variation in the final product.</p><p><strong class="text-primary">Entry Info:</strong> Entrants MUST specify carbonation level, strength, and sweetness. Entrants MAY specify honey varieties. Entrants MUST specify the varieties of fruit used. A mead made with both berries and non-berry fruit (including apples and grapes) should be entered as a Melomel. A berry mead that is spiced should be entered as a Fruit and Spice Mead. A berry mead containing other ingredients should be entered as an Experimental Mead.</p>
+			</div><!-- ./modal-body -->
+			<div class="modal-footer">
+				<button type="button" class="btn btn-danger" data-dismiss="modal">Close</button>
+			</div><!-- ./modal-footer -->
+		</div><!-- ./modal-content -->
+	</div><!-- ./modal-dialog -->
+</div><!-- ./modal -->
+<div class="modal fade" id="custom-modal-959" tabindex="-1" role="dialog" aria-labelledby="assignment-modal-label-D">
+	<div class="modal-dialog modal-lg" role="document">
+		<div class="modal-content">
+			<div class="modal-header bcoem-admin-modal">
+				<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">×</span></button>
+				<h4 class="modal-title" id="assignment-modal-label-M2D">Info for Stone Fruit Mead</h4>
+			</div><!-- ./modal-header -->
+			<div class="modal-body">
+				<p>In well-made examples of the style, the fruit is both distinctive and well-incorporated into the honey-sweet-acid-tannin-alcohol balance of the mead. Different types of fruit can result in widely different characteristics; allow for a variation in the final product.</p><p><strong class="text-primary">Entry Info:</strong> Entrants MUST specify carbonation level, strength, and sweetness. Entrants MAY specify honey varieties. Entrants MUST specify the varieties of fruit used. A stone fruit mead that is spiced should be entered as a Fruit and Spice Mead. A stone fruit mead that contains non-stone fruit should be entered as a Melomel. A stone fruit mead that contains other ingredients should be entered as an Experimental Mead.</p>
+			</div><!-- ./modal-body -->
+			<div class="modal-footer">
+				<button type="button" class="btn btn-danger" data-dismiss="modal">Close</button>
+			</div><!-- ./modal-footer -->
+		</div><!-- ./modal-content -->
+	</div><!-- ./modal-dialog -->
+</div><!-- ./modal -->
+<div class="modal fade" id="custom-modal-960" tabindex="-1" role="dialog" aria-labelledby="assignment-modal-label-E">
+	<div class="modal-dialog modal-lg" role="document">
+		<div class="modal-content">
+			<div class="modal-header bcoem-admin-modal">
+				<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">×</span></button>
+				<h4 class="modal-title" id="assignment-modal-label-M2E">Info for Melomel</h4>
+			</div><!-- ./modal-header -->
+			<div class="modal-body">
+				<p>In well-made examples of the style, the fruit is both distinctive and well-incorporated into the honey-sweet-acid-tannin-alcohol balance of the mead. Different types of fruit can result in widely different characteristics; allow for a variation in the final product.</p><p><strong class="text-primary">Entry Info:</strong> Entrants MUST specify carbonation level, strength, and sweetness. Entrants MAY specify honey varieties. Entrants MUST specify the varieties of fruit used. A melomel that is spiced should be entered as a Fruit and Spice Mead. A melomel containing other ingredients should be entered as an Experimental Mead. Melomels made with either apples or grapes as the only fruit source should be entered as Cysers and Pyments, respectively. Melomels with apples or grapes, plus other fruit should be entered in this category, not Experimental.</p>
+			</div><!-- ./modal-body -->
+			<div class="modal-footer">
+				<button type="button" class="btn btn-danger" data-dismiss="modal">Close</button>
+			</div><!-- ./modal-footer -->
+		</div><!-- ./modal-content -->
+	</div><!-- ./modal-dialog -->
+</div><!-- ./modal -->
+<div class="modal fade" id="custom-modal-961" tabindex="-1" role="dialog" aria-labelledby="assignment-modal-label-A">
+	<div class="modal-dialog modal-lg" role="document">
+		<div class="modal-content">
+			<div class="modal-header bcoem-admin-modal">
+				<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">×</span></button>
+				<h4 class="modal-title" id="assignment-modal-label-M3A">Info for Fruit and Spice Mead</h4>
+			</div><!-- ./modal-header -->
+			<div class="modal-body">
+				<p>In well-made examples of the style, the fruits and spices are both distinctive and well-incorporated into the honey-sweet-acid-tannin-alcohol balance of the mead. Different types of fruits and spices can result in widely different characteristics; allow for significant variation in the final product.</p><p><strong class="text-primary">Entry Info:</strong> Entrants MUST specify carbonation level, strength, and sweetness. Entrants MAY specify honey varieties. Entrants MUST specify the types of spices used, (although well-known spice blends may be referred to by common name, such as apple pie spices). Entrants MUST specify the types of fruits used. If only combinations of spices are used, enter as a Spice, Herb, or Vegetable Mead. If only combinations of fruits are used, enter as a Melomel. If other types of ingredients are used, enter as an Experimental Mead.</p>
+			</div><!-- ./modal-body -->
+			<div class="modal-footer">
+				<button type="button" class="btn btn-danger" data-dismiss="modal">Close</button>
+			</div><!-- ./modal-footer -->
+		</div><!-- ./modal-content -->
+	</div><!-- ./modal-dialog -->
+</div><!-- ./modal -->
+<div class="modal fade" id="custom-modal-962" tabindex="-1" role="dialog" aria-labelledby="assignment-modal-label-B">
+	<div class="modal-dialog modal-lg" role="document">
+		<div class="modal-content">
+			<div class="modal-header bcoem-admin-modal">
+				<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">×</span></button>
+				<h4 class="modal-title" id="assignment-modal-label-M3B">Info for Spice, Herb, or Vegetable Mead</h4>
+			</div><!-- ./modal-header -->
+			<div class="modal-body">
+				<p>In well-made examples of the style, the spices are both distinctive and well-incorporated into the honey-sweet-acid-tannin-alcohol balance of the mead. Different types of spices can result in widely different characteristics; allow for a variation in the final product. </p><p><strong class="text-primary">Entry Info:</strong> Entrants MUST specify carbonation level, strength, and sweetness. Entrants MAY specify honey varieties. Entrants MUST specify the types of spices used (although well-known spice blends may be referred to by common name, such as apple pie spices)</p>
+			</div><!-- ./modal-body -->
+			<div class="modal-footer">
+				<button type="button" class="btn btn-danger" data-dismiss="modal">Close</button>
+			</div><!-- ./modal-footer -->
+		</div><!-- ./modal-content -->
+	</div><!-- ./modal-dialog -->
+</div><!-- ./modal -->
+<div class="modal fade" id="custom-modal-963" tabindex="-1" role="dialog" aria-labelledby="assignment-modal-label-A">
+	<div class="modal-dialog modal-lg" role="document">
+		<div class="modal-content">
+			<div class="modal-header bcoem-admin-modal">
+				<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">×</span></button>
+				<h4 class="modal-title" id="assignment-modal-label-M4A">Info for Braggot</h4>
+			</div><!-- ./modal-header -->
+			<div class="modal-body">
+				<p>A harmonious blend of mead and beer, with the distinctive characteristics of both. A wide range of results are possible, depending on the base style of beer, variety of honey and overall sweetness and strength. Beer flavors tend to somewhat mask typical honey flavors found in other meads. and honey, although the specific balance is open to creative interpretation by brewers.</p><p><strong class="text-primary">Entry Info:</strong> Entrants MUST specify carbonation level, strength, and sweetness. Entrants MAY specify honey varieties. Entrants MAY specify the base style or beer or types of malt used. Products with a relatively low proportion of honey should be entered in the Spiced Beer category as a Honey Beer.</p>
+			</div><!-- ./modal-body -->
+			<div class="modal-footer">
+				<button type="button" class="btn btn-danger" data-dismiss="modal">Close</button>
+			</div><!-- ./modal-footer -->
+		</div><!-- ./modal-content -->
+	</div><!-- ./modal-dialog -->
+</div><!-- ./modal -->
+<div class="modal fade" id="custom-modal-964" tabindex="-1" role="dialog" aria-labelledby="assignment-modal-label-B">
+	<div class="modal-dialog modal-lg" role="document">
+		<div class="modal-content">
+			<div class="modal-header bcoem-admin-modal">
+				<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">×</span></button>
+				<h4 class="modal-title" id="assignment-modal-label-M4B">Info for Historical Mead</h4>
+			</div><!-- ./modal-header -->
+			<div class="modal-body">
+				<p>This mead should exhibit the character of all of the ingredients in varying degrees, and should show a good blending or balance between the various flavor elements. Whatever ingredients are included, the result should be identifiable as a honey-based fermented beverage.</p><p><strong class="text-primary">Entry Info:</strong> Entrants MUST specify carbonation level, strength, and sweetness. Entrants MAY specify honey varieties. Entrants MUST specify the special nature of the mead, providing a description of the mead for judges if no such description is available from the BJCP.</p>
+			</div><!-- ./modal-body -->
+			<div class="modal-footer">
+				<button type="button" class="btn btn-danger" data-dismiss="modal">Close</button>
+			</div><!-- ./modal-footer -->
+		</div><!-- ./modal-content -->
+	</div><!-- ./modal-dialog -->
+</div><!-- ./modal -->
+<div class="modal fade" id="custom-modal-965" tabindex="-1" role="dialog" aria-labelledby="assignment-modal-label-C">
+	<div class="modal-dialog modal-lg" role="document">
+		<div class="modal-content">
+			<div class="modal-header bcoem-admin-modal">
+				<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">×</span></button>
+				<h4 class="modal-title" id="assignment-modal-label-M4C">Info for Experimental Mead</h4>
+			</div><!-- ./modal-header -->
+			<div class="modal-body">
+				<p>This mead should exhibit the character of all of the ingredients in varying degrees, and should show a good blending or balance between the various flavor elements. Whatever ingredients are included, the result should be identifiable as a honey-based fermented beverage.</p><p><strong class="text-primary">Entry Info:</strong> Entrants MUST specify carbonation level, strength, and sweetness. Entrants MAY specify honey varieties. Entrants MUST specify the special nature of the mead, whether it is a combination of existing styles, an experimental mead, or some other creation. Any special ingredients that impart an identifiable character MAY be declared.</p>
+			</div><!-- ./modal-body -->
+			<div class="modal-footer">
+				<button type="button" class="btn btn-danger" data-dismiss="modal">Close</button>
+			</div><!-- ./modal-footer -->
+		</div><!-- ./modal-content -->
+	</div><!-- ./modal-dialog -->
+</div><!-- ./modal -->
+        </div><!-- ./left column -->
+        <div class="sidebar col col-lg-3 col-md-4 col-sm-12 col-xs-12">
+            <img src="https://kotm.lmbrewers.beer/user_images/lmbrewer.jpg" class="bcoem-comp-logo img-responsive hidden-print center-block" alt="Competition Logo" title="Competition Logo"><div class="bcoem-admin-element hidden-print"><a class="btn btn-primary btn-block btn-sm" href="https://kotm.lmbrewers.beer/awards.php" target="_blank">Launch Awards Presentation <span class="fa fa-award"></span></a></div><div class="hidden-print panel panel-info"><div class="panel-heading"><h4 class="panel-title">Past Winners</h4></div><div class="panel-body"><ul class="list-unstyled"><li><i class="fa fa-fw fa-trophy text-silver"></i> <a href="https://kotm.lmbrewers.beer/index.php?section=past-winners&amp;go=2018">2018</a></li><li><i class="fa fa-fw fa-trophy text-silver"></i> <a href="https://kotm.lmbrewers.beer/index.php?section=past-winners&amp;go=KoTM2019">KoTM2019</a></li><li><i class="fa fa-fw fa-trophy text-silver"></i> <a href="https://kotm.lmbrewers.beer/index.php?section=past-winners&amp;go=KOTM2021">KOTM2021</a></li><li><i class="fa fa-fw fa-trophy text-silver"></i> <a href="https://kotm.lmbrewers.beer/index.php?section=past-winners&amp;go=KoTM2022Archive">KoTM2022Archive</a></li><li><i class="fa fa-fw fa-trophy text-silver"></i> <a href="https://kotm.lmbrewers.beer/index.php?section=past-winners&amp;go=KOTM2023">KOTM2023</a></li><li><i class="fa fa-fw fa-trophy text-silver"></i> <a href="https://kotm.lmbrewers.beer/index.php?section=past-winners&amp;go=KOTM2024Archive">KOTM2024Archive</a></li></ul></div></div><div class="hidden-print panel panel-info"><div class="panel-heading"><h4 class="panel-title">Judging Sessions</h4></div><div class="panel-body"><p><strong>KoTM 2025Morning Session</strong> <a class="hide-loader" href="#" target="_self" data-toggle="tooltip" data-placement="top" title="Log in to view the KoTM 2025Morning Session location."> <span class="fa fa-lg fa-map-marker"></span></a><br>09/20/2025 9:00 AM, EDT.</p><p><strong>KoTM 2025 Afternoon Session</strong> <a class="hide-loader" href="#" target="_self" data-toggle="tooltip" data-placement="top" title="Log in to view the KoTM 2025 Afternoon Session location."> <span class="fa fa-lg fa-map-marker"></span></a><br>09/20/2025 1:00 PM, EDT.</p></div></div><div class="panel panel-danger"><div class="panel-heading"><h4 class="panel-title">Account Registration Closed</h4></div><div class="panel-body"><p>Account registrations accepted 06/01/2025 8:00 AM, EDT through 09/20/2025 9:00 AM, EDT.</p><p>Registrations for judges or stewards accepted 06/01/2025 8:00 AM, EDT through 09/15/2025 11:59 PM, EDT.</p></div></div><div class="hidden-print panel panel-danger"><div class="panel-heading"><h4 class="panel-title">Entry Registration Closed</h4></div><div class="panel-body">Entry registrations accepted 09/02/2025 8:00 AM, EDT through 09/20/2025 9:00 AM, EDT.</div></div><div class="hidden-print panel panel-danger"><div class="panel-heading"><h4 class="panel-title">Entry Drop-Off Closed</h4></div><div class="panel-body">Entry bottles accepted at <a href="https://kotm.lmbrewers.beer/index.php?section=entry#entry-delivery">drop-off locations</a> 09/02/2025 4:00 AM, EDT — 09/16/2025 11:59 PM, EDT.<p></p><p><small>Please pay attention to the notes provided for each drop-off location. There could be earlier deadlines for some drop-off locations listed, particular hours when entries are accepted, certain individuals to leave your entries with, etc. <strong class="text-danger">All entrants are responsible for reading the information provided by the organizers for each drop-off location.</strong></small></p></div></div><div class="hidden-print panel panel-danger"><div class="panel-heading"><h4 class="panel-title">Entry Shipping Closed</h4></div><div class="panel-body">Entry bottles accepted at <a href="https://kotm.lmbrewers.beer/index.php?section=entry#shipping-info">the shipping location</a> 09/01/2025 8:00 AM, EDT — 09/12/2025 10:59 PM, EDT.<p></p></div></div>        </div><!-- ./sidebar -->
+    </div><!-- ./row -->
+    <!-- ./Public Pages -->
+</div><!-- ./container -->
+<!-- ./Public Pages -->
+
+
+<!-- Footer -->
+<footer class="footer hidden-xs">
+    <div class="navbar navbar-default navbar-fixed-bottom">
+        <div class="container text-center">
+            <p class="navbar-text col-md-12 col-sm-12 col-xs-12 text-muted small bcoem-footer"><span class="hidden-sm hidden-md">King of the Mountain 2025 – </span><a href="http://www.brewingcompetitions.com" target="_blank">BCOE&amp;M</a> 2.7.2 – Amateur Competition Edition <span class="far fa-copyright fa-xs"></span>2009-2025</p>
+        </div>
+    </div>
+</footer><!-- ./footer -->
+<!-- ./ Footer -->
+
+<script type="text/javascript">
+    var section = "entry";
+    var action = "default";
+    var go = "default";
+    var edit_style = "default";
+    var user_level = "2";
+</script>
+
+
+
+</body></html>

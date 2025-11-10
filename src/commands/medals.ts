@@ -3,7 +3,7 @@ import axios from 'axios';
 import fs from 'node:fs';
 import path from 'node:path';
 
-import { parseResults } from '../bcoem.js';
+import { getParser } from '../parsers/index.js';
 
 interface Config {
   brewers: string[];
@@ -90,9 +90,10 @@ export default class Medals extends Command {
   private async fetchMedals(url: string, output: string, filters : { brewers: string | undefined, club: string | undefined }) {
     const response = await axios.get(url);
     const htmlString = response.data;
-    const tableSelector = '.bcoem-winner-table';
-
-    const result = await parseResults(htmlString, tableSelector, filters);
+    
+    const parser = getParser(url);
+    const result = await parser.parseResults(htmlString, filters, url);
+    
     if (result) {
       if (output.toLowerCase() === 'json') {
         const jsonData = csvToJson(result, '|');
@@ -105,14 +106,14 @@ export default class Medals extends Command {
   }
 }
 
-function removeEmptyLists(obj: Record< string, Record<string, unknown>[]>) {
+function removeEmptyLists(obj: Record<string, Record<string, number | string>[]>) {
   return Object.fromEntries(
     Object.entries(obj).filter(([, value]) => value.length > 0)
   );
 }
 
 function csvToJson(result: { data: string; header: string; }, delimiter: string = ',' ) {
-  const jsonData: Record<string, Record<string, string>[]> = {};
+  const jsonData: Record<string, Record<string, number | string>[]> = {};
 
   for (const row of result.data.split('\n')) {
     const rowData = row.split(delimiter);
@@ -123,12 +124,16 @@ function csvToJson(result: { data: string; header: string; }, delimiter: string 
       jsonData[tableKey] = [];
     }
 
-    const rowObject: Record<string, string> = {};
+    const rowObject: Record<string, number | string> = {};
     for (const [index, value] of rowData.entries()) {
       const columnName = result.header.split(delimiter)[index+1];
-      // if (columnName !== "Table / Category") {
-      rowObject[columnName] = value;
-      // }
+      // Convert "Entry Count" to integer, trim all values
+      if (columnName === 'Entry Count') {
+        const trimmedValue = value.trim();
+        rowObject[columnName] = trimmedValue ? Number.parseInt(trimmedValue, 10) : 0;
+      } else {
+        rowObject[columnName] = value.trim();
+      }
     }
 
     if (tableKey) {

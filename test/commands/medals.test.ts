@@ -2,16 +2,21 @@ import {expect, test} from '@oclif/test'
 
 describe('medals', () => {
   test
-  .stdout()
   .command(['medals'])
-  .it('runs hello', ctx => {
-    expect(ctx.stdout).to.contain('hello world')
+  .catch(error => {
+    expect(error.message).to.contain('url is required')
   })
+  .it('requires url argument when no config file provided')
 
   test
-  .stdout()
-  .command(['medals', '--name', 'jeff'])
-  .it('runs hello --name jeff', ctx => {
-    expect(ctx.stdout).to.contain('hello jeff')
+  .command(['medals', '--help'])
+  .exit(0)
+  .it('shows help')
+
+  test
+  .command(['medals', 'https://example.com', '--output', 'invalid'])
+  .catch(error => {
+    expect(error.message).to.contain('Expected --output')
   })
+  .it('validates output format')
 })
