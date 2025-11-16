@@ -17,6 +17,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Pre-commit git hook to run tests before commits
 - `npm run install-hooks` script to install git hooks for contributors
+- `npm run release` script for automated releases with better commit messages
+- `scripts/release.sh` - Interactive release script with validation
 
 ### Changed
 

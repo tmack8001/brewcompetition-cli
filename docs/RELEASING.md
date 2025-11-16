@@ -130,27 +130,56 @@ For testing before official release:
 
 ## Release Steps
 
-### 1. Update Version Number
+### Quick Release (Recommended)
 
-Choose the appropriate version bump:
+Use the automated release script:
 
 ```bash
 # For a patch release (bug fixes)
-npm version patch
+npm run release patch
 
 # For a minor release (new features)
-npm version minor
+npm run release minor
 
 # For a major release (breaking changes)
-npm version major
+npm run release major
+```
+
+This script will:
+- Check for uncommitted changes
+- Run tests
+- Build the project
+- Bump the version with a descriptive commit message
+- Prompt you to push to GitHub
+
+### Manual Release
+
+If you prefer manual control:
+
+### 1. Update Version Number
+
+Choose the appropriate version bump with a descriptive commit message:
+
+```bash
+# For a patch release (bug fixes)
+npm version patch -m "prepare release %s"
+
+# For a minor release (new features)
+npm version minor -m "prepare release %s"
+
+# For a major release (breaking changes)
+npm version major -m "prepare release %s"
 
 # For a pre-release
-npm version prerelease --preid=beta
+npm version prerelease --preid=beta -m "prepare release %s"
 ```
+
+The `-m` flag customizes the commit message. `%s` is replaced with the new version number.
+This follows Maven's convention for release commits.
 
 This command will:
 - Update `package.json` version
-- Create a git commit
+- Create a git commit with your custom message
 - Create a git tag
 - Run the `version` script (updates README.md and CHANGELOG.md)
 

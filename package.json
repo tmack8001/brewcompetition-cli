@@ -41,9 +41,11 @@
     "prepack": "yarn build && oclif manifest && oclif readme",
     "postpack": "shx rm -f oclif.manifest.json",
     "prepare": "yarn build",
+    "release": "sh scripts/release.sh",
     "test": "mocha --forbid-only \"test/**/*.test.ts\"",
     "posttest": "yarn lint",
-    "version": "oclif readme && git add README.md CHANGELOG.md"
+    "version": "oclif readme && git add README.md CHANGELOG.md",
+    "postversion": "echo 'Version updated. Push with: git push origin main --tags'"
   },
   "oclif": {
     "bin": "brewcompetition",
