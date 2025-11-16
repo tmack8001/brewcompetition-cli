@@ -1,6 +1,6 @@
 {
   "name": "brewcompetition-cli",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Brew Competition - CLI to fetch medal earners and various homebrew competition metadata.",
   "keywords": [
     "homebrew",
