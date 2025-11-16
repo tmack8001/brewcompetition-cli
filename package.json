@@ -36,6 +36,7 @@
   ],
   "scripts": {
     "build": "shx rm -rf dist && tsc -b",
+    "install-hooks": "sh scripts/install-hooks.sh",
     "lint": "eslint . --ext .ts",
     "prepack": "yarn build && oclif manifest && oclif readme",
     "postpack": "shx rm -f oclif.manifest.json",
@@ -59,9 +60,9 @@
     }
   },
   "dependencies": {
-    "@oclif/core": "^3",
+    "@oclif/core": "^4",
     "@oclif/plugin-help": "^6",
-    "@oclif/plugin-plugins": "^4",
+    "@oclif/plugin-plugins": "^5",
     "axios": "^1.6.8",
     "cheerio": "^1.0.0-rc.12",
     "moment-timezone": "^0.5.45",
@@ -69,7 +70,7 @@
   },
   "devDependencies": {
     "@oclif/prettier-config": "^0.2.1",
-    "@oclif/test": "^3",
+    "@oclif/test": "^4",
     "@types/chai": "^4",
     "@types/json2csv": "^5.0.7",
     "@types/mocha": "^10",

@@ -28,17 +28,23 @@ Be respectful, inclusive, and constructive in all interactions. We're all here t
    npm install
    ```
 
-4. Build the project:
+4. Install git hooks (recommended):
+   ```bash
+   npm run install-hooks
+   ```
+   This installs a pre-commit hook that runs tests before each commit.
+
+5. Build the project:
    ```bash
    npm run build
    ```
 
-5. Run tests:
+6. Run tests:
    ```bash
    npm test
    ```
 
-6. Link for local testing:
+7. Link for local testing:
    ```bash
    npm link
    ```
