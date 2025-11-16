@@ -137,20 +137,110 @@ Table / Category|Place|Brewer|Entry Name|Style|Club
 }
 ```
 
+## Unit Testing
+
+Run the test suite:
+
+```bash
+npm test
+```
+
+Run specific test files:
+
+```bash
+npm test -- test/parsers/platform-detector.test.ts
+```
+
+Run tests with coverage:
+
+```bash
+npm test -- --coverage
+```
+
+## Integration Testing
+
+Test with real competition URLs:
+
+```bash
+# Test each platform
+brewcompetition medals https://example-bcoem.com/results --output json
+brewcompetition medals https://reggiebeer.com/ReggieWeb.php?Web=1000882 --output json
+brewcompetition medals https://beerawardsplatform.com/competition/results --output json
+```
+
 ## Troubleshooting
 
 ### "Table not found" error
-- The parser couldn't find results tables
-- Check the HTML structure and update selectors
+- The parser couldn't find results tables in the HTML
+- Check the HTML structure and update selectors in the parser
+- Verify the URL is correct and results are published
 
 ### Empty results
 - Filters might be too restrictive
 - Try without `--brewers` or `--club` flags first
+- Check if the competition has published results
+- Verify brewer/club names match exactly (case-insensitive)
 
 ### Wrong platform detected
-- Verify the URL hostname
+- Verify the URL hostname matches expected patterns
 - Check `src/parsers/platform-detector.ts` logic
+- BCOEM is the default for unknown hostnames
 
 ### Build errors
 - Run `npm run build` to see TypeScript errors
 - Check imports use `.js` extension (required for ES modules)
+- Verify all dependencies are installed: `npm install`
+
+### Network errors
+- Check internet connectivity
+- Verify the competition URL is accessible
+- Some competitions may have rate limiting
+
+### Parsing errors
+- HTML structure may differ from expected
+- Save the HTML locally and inspect: `curl <url> > test.html`
+- Check for JavaScript-rendered content (may need different approach)
+- Open an issue with the URL for investigation
+
+## Performance Testing
+
+Test with large competitions:
+
+```bash
+# Time the execution
+time brewcompetition medals <url> --output json
+
+# Test with multiple competitions
+time brewcompetition medals --file config.json
+```
+
+## Debugging Tips
+
+### Enable verbose logging
+
+Add console.log statements in parsers:
+
+```typescript
+console.log('Found tables:', tables.length);
+console.log('Category:', categoryName);
+```
+
+### Inspect parsed data
+
+Use the example scripts:
+
+```bash
+npm run build
+node examples/test-reggie-output.js
+node examples/test-json-output.js
+```
+
+### Test with saved HTML
+
+Save HTML locally to avoid repeated network requests:
+
+```bash
+curl "https://reggiebeer.com/ReggieWeb.php?Web=1000882" > test.html
+```
+
+Then modify the parser to read from file during development.

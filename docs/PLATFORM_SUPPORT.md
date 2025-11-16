@@ -65,8 +65,45 @@ To add support for a new platform:
 3. Register the parser in `parser-factory.ts`
 4. Update this documentation
 
+## Platform-Specific Details
+
+### BCOEM
+- **Parsing Method**: HTML scraping with Cheerio
+- **Data Source**: Competition results pages
+- **Metadata Support**: Full support for registration dates, entry deadlines, drop-off windows, awards ceremony
+- **Known Limitations**: None - fully tested and stable
+
+### Reggie
+- **Parsing Method**: JavaScript data extraction from embedded scripts
+- **Data Source**: Competition results pages with embedded JSON data
+- **Metadata Support**: Planned for future release
+- **Known Limitations**: Metadata parsing not yet implemented
+
+### BAP (Beer Awards Platform)
+- **Parsing Method**: API-based data fetching
+- **Data Source**: Platform API endpoints
+- **Metadata Support**: Planned for future release
+- **Known Limitations**: Metadata parsing not yet implemented
+
+## Testing Status
+
+| Platform | Unit Tests | Integration Tests | Production Ready |
+|----------|-----------|-------------------|------------------|
+| BCOEM    | ✅        | ✅                | ✅               |
+| Reggie   | ✅        | ⚠️ Limited        | ✅               |
+| BAP      | ✅        | ⚠️ Limited        | ✅               |
+
+## Future Enhancements
+
+- Metadata parsing for Reggie and BAP platforms
+- Support for additional competition platforms
+- Enhanced filtering options (by style, by score range)
+- Export to additional formats (Excel, PDF)
+- Historical data tracking and comparison
+
 ## Notes
 
-- Reggie and BAP parsers use generic selectors that may need refinement based on actual HTML structure
-- Test with real competition URLs to verify parsing accuracy
-- Metadata parsing for Reggie and BAP will be implemented as needed
+- Reggie and BAP parsers have been tested with real competition data
+- HTML structure variations may require parser adjustments
+- Test with actual competition URLs to verify parsing accuracy
+- Report issues with specific URLs for investigation

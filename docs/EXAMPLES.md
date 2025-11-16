@@ -1,5 +1,7 @@
 # Usage Examples
 
+This guide provides comprehensive examples for using the Brew Competition CLI tool across all supported platforms.
+
 ## Basic Usage
 
 ### Fetch medals from a BCOEM competition
@@ -16,6 +18,8 @@ brewcompetition medals https://reggiebeer.com/ReggieWeb.php?Web=1000882
 ```bash
 brewcompetition medals https://beerawardsplatform.com/2025-ash-copper-state-cup/results
 ```
+
+The platform is automatically detected based on the URL hostname - no need to specify which platform you're using.
 
 ## Filtering Results
 
@@ -164,7 +168,7 @@ The tool automatically detects the platform based on the URL hostname:
 - `beerawardsplatform.com` → BAP parser
 - Everything else → BCOEM parser (default)
 
-## Real-World Workflow
+## Real-World Workflows
 
 ### Track your club's performance across multiple competitions
 
@@ -192,6 +196,38 @@ cat club-results.json | jq '[.[] | .[]] | length'
 
 # List all gold medals
 cat club-results.json | jq '.[] | .[] | select(.Place | contains("1st") or contains("Gold"))'
+
+# Find most competitive categories
+cat club-results.json | jq '.[] | .[] | select(.["Entry Count"] > 30)'
+```
+
+### Track individual brewer performance
+
+```bash
+# Create a personal config
+cat > my-results.json << EOF
+{
+  "brewers": ["Your Name"],
+  "competitions": [
+    "https://competition1.com/results",
+    "https://competition2.com/results"
+  ]
+}
+EOF
+
+# Fetch and save results
+brewcompetition medals --file my-results.json --output csv > my-medals.csv
+
+# Import into spreadsheet for analysis
+```
+
+### Monitor competition registration deadlines
+
+```bash
+# Get competition metadata (BCOEM only)
+brewcompetition competitions https://example-bcoem.com/competition
+
+# Output includes registration dates, entry deadlines, and awards ceremony info
 ```
 
 ## Troubleshooting

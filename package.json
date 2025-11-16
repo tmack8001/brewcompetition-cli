@@ -1,8 +1,20 @@
 {
   "name": "brewcompetition-cli",
-  "version": "0.0.0",
+  "version": "1.0.0",
   "description": "Brew Competition - CLI to fetch medal earners and various homebrew competition metadata.",
   "keywords": [
+    "homebrew",
+    "beer",
+    "competition",
+    "medals",
+    "brewing",
+    "bjcp",
+    "bcoem",
+    "reggie",
+    "bap",
+    "cli",
+    "results",
+    "awards",
     "oclif"
   ],
   "homepage": "https://github.com/tmack8001/brewcompetition-cli",
@@ -15,7 +27,7 @@
   "main": "",
   "types": "dist/index.d.ts",
   "bin": {
-    "rivian": "./bin/run.js"
+    "brewcompetition": "./bin/run.js"
   },
   "files": [
     "/bin",
@@ -30,7 +42,7 @@
     "prepare": "yarn build",
     "test": "mocha --forbid-only \"test/**/*.test.ts\"",
     "posttest": "yarn lint",
-    "version": "oclif readme && git add README.md"
+    "version": "oclif readme && git add README.md CHANGELOG.md"
   },
   "oclif": {
     "bin": "brewcompetition",

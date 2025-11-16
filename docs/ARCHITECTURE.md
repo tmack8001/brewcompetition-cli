@@ -174,20 +174,44 @@ export enum Platform {
 
 ### Why Factory Pattern?
 - Single entry point for parser creation
-- Easy to add new platforms
+- Easy to add new platforms without modifying existing code
 - Encapsulates platform detection logic
+- Follows Open/Closed Principle (open for extension, closed for modification)
 
 ### Why Interface-Based?
 - Ensures all parsers have consistent API
-- Makes testing easier
-- Allows for future parser variations
+- Makes testing easier with mock implementations
+- Allows for future parser variations (e.g., API-based vs HTML scraping)
+- Enables polymorphism - commands don't need to know which parser they're using
 
 ### Why Hostname Detection?
-- Simple and reliable
-- No need for API calls or complex heuristics
+- Simple and reliable - no complex heuristics needed
+- Works immediately without fetching page content
+- No API calls required for detection
 - Works with any URL structure from known platforms
+- Easy to extend with new platform patterns
 
 ### Why Keep Old bcoem.ts?
-- Backward compatibility during transition
-- Can be removed after verification
-- Serves as reference for BCOEM implementation
+- Backward compatibility during transition period
+- Can be removed after thorough verification
+- Serves as reference implementation for BCOEM parser
+- Allows gradual migration without breaking existing functionality
+
+## Performance Considerations
+
+### Caching
+The tool uses `node-persist` for caching competition data, reducing redundant network requests.
+
+### Parallel Processing
+When using config files with multiple competitions, requests are processed in parallel using `Promise.all()`.
+
+### Memory Efficiency
+Results are streamed and processed incrementally rather than loading entire datasets into memory.
+
+## Security Considerations
+
+- All URLs are validated before making requests
+- HTML parsing uses Cheerio (safe DOM manipulation)
+- No eval() or dynamic code execution
+- Input sanitization for brewer names and club filters
+- HTTPS preferred for all network requests

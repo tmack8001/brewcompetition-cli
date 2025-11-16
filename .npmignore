@@ -1,0 +1,45 @@
+# Source files
+src/
+test/
+examples/
+
+# Config files
+.eslintrc.json
+.prettierrc.json
+.mocharc.json
+tsconfig.json
+.gitattributes
+.gitignore
+
+# Documentation (keep only essential docs in package)
+docs/
+
+# Development files
+*.log
+*.tgz
+.DS_Store
+.idea/
+.vscode/
+coverage/
+.nyc_output/
+
+# GitHub specific
+.github/
+
+# Build artifacts (keep dist/)
+lib/
+
+# Lock files
+yarn.lock
+package-lock.json
+
+# Temporary files
+tmp/
+*.tmp
+*.swp
+*~
+
+# Keep these in the package:
+!README.md
+!LICENSE
+!CHANGELOG.md

@@ -15,11 +15,11 @@ export class ReggieParser implements CompetitionParser {
     // Try to parse JavaScript data first (live Reggie pages)
     const jsDataMatch = html.match(/var aaReggieMedals=\[([\S\s]*?)];/);
     const jsGroupsMatch = html.match(/var saReggieGroups=\[([\S\s]*?)];/);
-    
+
     if (jsDataMatch && jsGroupsMatch) {
       data = this.parseJavaScriptData(jsDataMatch[1], jsGroupsMatch[1], filters);
     }
-    
+
     // Fall back to HTML parsing (for saved/rendered pages)
     if (data.length === 0) {
       data = this.parseHtmlData(html, filters);
@@ -102,11 +102,11 @@ export class ReggieParser implements CompetitionParser {
     const data: string[][] = [];
     let currentCategory = '';
     let currentEntryCount = '';
-    
+
     // Reggie renders results in tbody with GroupHeader rows followed by data rows
     $('tbody tr').each((_index, row) => {
       const $row = $(row);
-      
+
       // Check if this is a category header row
       const groupHeader = $row.find('td.GroupHeader');
       if (groupHeader.length > 0) {
@@ -116,12 +116,12 @@ export class ReggieParser implements CompetitionParser {
         currentEntryCount = extracted.entryCount;
         return;
       }
-      
+
       // Skip header rows (th elements)
       if ($row.find('th').length > 0) {
         return;
       }
-      
+
       const cells = $row.find('td');
       if (cells.length < 5) return;
 
@@ -156,13 +156,13 @@ export class ReggieParser implements CompetitionParser {
 
   private parseJavaScriptData(medalsData: string, groupsData: string, filters: { brewers: string | undefined, club: string | undefined }): string[][] {
     const data: string[][] = [];
-    
+
     try {
       // Parse groups to get entry counts
       // Format: ["Category Name","","",entryCount,[]]
       const groupRegex = /\["([^"]+)(?:","[^"]*){2}",(\d+),/g;
       const entryCountMap: { [key: string]: string } = {};
-      
+
       let groupMatch;
       while ((groupMatch = groupRegex.exec(groupsData)) !== null) {
         const categoryName = groupMatch[1].trim();
@@ -173,7 +173,7 @@ export class ReggieParser implements CompetitionParser {
       // Parse each medal entry using regex to extract the string values
       // Format: ["Place","Type","ShowLabel","BrewerName","Group","Style","BeerName","Club",...]
       const medalRegex = /\["(\d+)","(\d+)","([^"]+)","([^"]+)","([^"]+)","([^"]+)","([^"]+)","([^"]+)"/g;
-      
+
       let match;
       while ((match = medalRegex.exec(medalsData)) !== null) {
         const place = match[1].trim();
@@ -183,7 +183,7 @@ export class ReggieParser implements CompetitionParser {
         const beerName = match[7].trim();
         const clubRaw = match[8].trim();
         const club = this.extractClubName(clubRaw);
-        
+
         // Get entry count for this category
         const entryCount = entryCountMap[category] || '';
 

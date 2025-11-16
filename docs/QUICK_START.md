@@ -1,90 +1,138 @@
 # Quick Start Guide
 
-## What Changed?
+Get up and running with Brew Competition CLI in minutes.
 
-Your CLI now supports **three platforms** instead of just BCOEM:
-- ✅ BCOEM (existing - fully working)
-- 🆕 Reggie (new - ready for testing)
-- 🆕 BAP (new - ready for testing)
+## Installation
 
-The CLI automatically detects which platform to use based on the URL.
+### From npm (recommended)
 
-## Try It Now
-
-### 1. Build the project
 ```bash
+npm install -g brewcompetition-cli
+```
+
+### From source
+
+```bash
+git clone https://github.com/tmack8001/brewcompetition-cli.git
+cd brewcompetition-cli
+npm install
 npm run build
+npm link
 ```
 
-### 2. Test with your existing BCOEM URLs
+## Your First Command
+
+Fetch all medal winners from a competition:
+
 ```bash
-# This should work exactly as before
-brewcompetition medals <your-bcoem-url> --brewers "Your Name"
+brewcompetition medals https://reggiebeer.com/ReggieWeb.php?Web=1000882
 ```
 
-### 3. Test with Reggie
+That's it! The tool automatically detects the platform and fetches the results.
+
+## Supported Platforms
+
+The CLI supports three major homebrew competition platforms:
+
+- ✅ **BCOEM** - Full support (results + metadata)
+- ✅ **Reggie** - Results parsing
+- ✅ **BAP** - Results parsing via API
+
+The platform is automatically detected based on the URL - no configuration needed.
+
+## Common Use Cases
+
+### Find your medals
+
 ```bash
-brewcompetition medals https://reggiebeer.com/ReggieWeb.php?Web=1000882 --output csv
+brewcompetition medals <competition-url> --brewers "Your Name"
 ```
 
-### 4. Test with BAP
+### Track your club's performance
+
 ```bash
-brewcompetition medals https://beerawardsplatform.com/2025-ash-copper-state-cup/results --output csv
+brewcompetition medals <competition-url> --club "Your Homebrew Club"
 ```
 
-## What to Expect
+### Export to CSV for spreadsheet analysis
 
-### BCOEM URLs
-Should work perfectly - no changes to existing functionality.
-
-### Reggie & BAP URLs
-May need selector adjustments based on actual HTML structure. If you get:
-- "Table not found" error → Selectors need updating
-- Empty results → Try without filters first
-- Parsing errors → HTML structure differs from expected
-
-## Refining Parsers
-
-If Reggie or BAP don't work perfectly:
-
-1. **Save the HTML**:
 ```bash
-curl "https://reggiebeer.com/ReggieWeb.php?Web=1000882" > reggie.html
+brewcompetition medals <competition-url> --output csv > results.csv
 ```
 
-2. **Inspect the structure** - look for:
-   - Table class names
-   - Header tags (h2, h3, h4)
-   - Cell order (place, brewer, entry, style, club)
+### Check multiple competitions at once
 
-3. **Update the parser**:
-   - Edit `src/parsers/reggie-parser.ts` or `src/parsers/bap-parser.ts`
-   - Adjust the selectors to match actual HTML
-   - Rebuild: `npm run build`
+Create a config file `my-competitions.json`:
 
-4. **Test again**:
+```json
+{
+  "brewers": ["Your Name"],
+  "competitions": [
+    "https://competition1.com/results",
+    "https://competition2.com/results"
+  ]
+}
+```
+
+Then run:
+
 ```bash
-brewcompetition medals <url> --output csv
+brewcompetition medals --file my-competitions.json
 ```
 
-## Common Selector Patterns
+## Understanding the Output
 
-### If tables have a specific class:
-```typescript
-$('.results-table').each(...)
+### JSON Format (default)
+
+Results are grouped by category:
+
+```json
+{
+  "01: Light Lager": [
+    {
+      "Place": "1st",
+      "Entry Count": 12,
+      "Brewer": "John Doe",
+      "Entry Name": "Crisp Lager",
+      "Style": "1A American Light Lager",
+      "Club": "Homebrew Club"
+    }
+  ]
+}
 ```
 
-### If category names are in headers:
-```typescript
-const tableName = $(element).prev('h3').text()
+### CSV Format
+
+Pipe-delimited for easy import into spreadsheets:
+
+```
+Table / Category|Place|Entry Count|Brewer|Entry Name|Style|Club
+01: Light Lager|1st|12|John Doe|Crisp Lager|1A American Light Lager|Homebrew Club
 ```
 
-### If cells are in different order:
-```typescript
-const place = $(cells[0]).text();    // adjust index
-const brewer = $(cells[1]).text();   // adjust index
-// etc.
-```
+The **Entry Count** column shows how many entries were in each category, helping you understand competitiveness.
+
+## Troubleshooting
+
+### No results returned
+
+- Verify the URL is correct and accessible
+- Try without filters first: `brewcompetition medals <url>`
+- Check if results have been published
+
+### Wrong platform detected
+
+The tool detects platforms by URL hostname:
+- `reggiebeer.com` → Reggie
+- `beerawardsplatform.com` → BAP  
+- Everything else → BCOEM (default)
+
+### Parser errors
+
+If you encounter parsing issues:
+1. Check the [TESTING_GUIDE.md](TESTING_GUIDE.md) for debugging steps
+2. Open an issue with the competition URL
+3. The HTML structure may differ from expected
 
 ## Need Help?
 
