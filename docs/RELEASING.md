@@ -132,7 +132,28 @@ For testing before official release:
 
 ### Quick Release (Recommended)
 
-Use the automated release script:
+#### Step 1: Prepare CHANGELOG
+
+First, prepare the CHANGELOG.md for the new version:
+
+```bash
+# Interactive - prompts for version type
+npm run changelog
+
+# Or specify version directly
+npm run changelog 1.0.2
+```
+
+This will:
+- Calculate the next version number
+- Add a new version section to CHANGELOG.md with today's date
+- Open CHANGELOG.md for editing
+
+Fill in the changes under the appropriate sections (Added/Changed/Fixed).
+
+#### Step 2: Release
+
+Once CHANGELOG.md is updated, run the release script:
 
 ```bash
 # For a patch release (bug fixes)
@@ -143,14 +164,19 @@ npm run release minor
 
 # For a major release (breaking changes)
 npm run release major
+
+# Release and publish to npm in one step
+npm run release patch --publish
 ```
 
 This script will:
 - Check for uncommitted changes
+- Verify CHANGELOG.md has an entry for the new version
 - Run tests
 - Build the project
 - Bump the version with a descriptive commit message
 - Prompt you to push to GitHub
+- Optionally publish to npm (with `--publish` flag)
 
 ### Manual Release
 
