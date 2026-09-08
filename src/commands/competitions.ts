@@ -73,11 +73,27 @@ export default class Competitions extends Command {
   }
 
   private async fetchCompetitionMetadata(url: string, output: string) {
-    const htmlString = await fetchHtml(url);
-    
     const parser = getParser(url);
-    const result = await parser.parseMetadata(htmlString);
-    
+    const candidates = parser.metadataUrls?.(url) ?? [url];
+
+    let result;
+    for (const candidate of candidates) {
+      // eslint-disable-next-line no-await-in-loop
+      const htmlString = await fetchHtml(candidate);
+      // eslint-disable-next-line no-await-in-loop
+      result = await parser.parseMetadata(htmlString);
+
+      if (hasMetadata(result)) break;
+    }
+
+    if (!result || !hasMetadata(result)) {
+      // A finished competition often gates or drops its entry-info page - BCOEM
+      // redirects it to a login form once the windows have closed - so there is
+      // genuinely nothing to report rather than something we failed to read.
+      console.error(`No competition metadata published at ${url} (tried: ${candidates.join(', ')})`);
+      return;
+    }
+
     if (result) {
       if (output.toLowerCase() === 'json') {
         const jsonData = csvToJson(result, '|');
@@ -88,6 +104,17 @@ export default class Competitions extends Command {
       }
     }
   }
+}
+
+/**
+ * Reports whether a parse found anything at all, so the caller knows to try the
+ * next candidate page rather than printing a row of empty columns.
+ *
+ * @param result the parsed metadata
+ * @returns `true` when at least one field has a value
+ */
+function hasMetadata(result: { data: string }): boolean {
+  return result.data.split('|').some(value => value.trim() !== '');
 }
 
 function csvToJson(result: { data: string; header: string; }, delimiter: string = ',' ) {

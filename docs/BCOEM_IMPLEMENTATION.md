@@ -46,21 +46,72 @@ BCOEM uses a consistent, well-structured HTML format:
 
 ### Metadata Sections
 
-BCOEM includes detailed competition metadata with named anchors:
+Metadata lives on the entry-info page, `index.php?section=entry`, not on the URL
+a user typically has to hand. `BCOEMParser.metadataUrls()` returns both so the
+`competitions` command can try the given URL and then its entry-info variant.
+
+BCOEM is open source and self-hosted, so more than one generation of the
+software is live at any time. Two are common.
+
+**Anchor build.** Each section is introduced by an empty named anchor:
 
 ```html
 <a name="reg_window"></a>
+<h2>Account Registration</h2>
 <p>Registration opens Monday, March 1, 2025 12:00 AM, MST and closes Friday, March 15, 2025 11:59 PM, MST.</p>
 
-<a name="entry-registration"></a>
+<a class="anchor-offset" name="entry-registration"></a>
+<h2>Entry Registration</h2>
 <p>Entry registration opens...</p>
-
-<a name="drop-off-locations"></a>
-<p>Drop off entries between...</p>
-
-<a name="awards-ceremony"></a>
-<p>Awards ceremony on Saturday, April 15, 2025...</p>
 ```
+
+The anchor is the heading lowercased with spaces hyphenated, built in
+`sections/entry_info.sec.php`:
+
+```php
+$anchor_name = str_replace(" ", "-", $label_entry_registration);
+sprintf("<a class=\"anchor-offset\" name=\"%s\"></a><h2>%s</h2>", strtolower($anchor_name), $label_entry_registration);
+```
+
+Since the label is translated, a non-English install produces entirely different
+anchors. `reg_window` is the one BCOEM hardcodes. Drop-off has two spellings even
+in English: `Entry Delivery` for a single location, `Drop-Off Locations` for
+several.
+
+**Landing-page build.** Content is grouped into
+`<section class="landing-page-section">` blocks with each subsection in a
+`<div class="reveal-element">`, and the page opens with an "At a Glance" card
+grid stating every window as an explicit timestamp pair:
+
+```html
+<div class="card-body glance-card-body">
+  <h5 class="card-title glance-header">Entry Registration</h5>
+  <p><small><ul class="list-unstyled">
+    <li><strong>Open</strong> &ndash; 07/04/2026 10:00 AM, EDT</li>
+    <li><strong>Close</strong> &ndash; 09/18/2026 5:00 PM, EDT</li>
+  </ul></small></p>
+</div>
+```
+
+Anchors are present on this build but unusable: the same
+`name="judging-sessions"` precedes Drop-Off Locations, Shipping Info *and*
+Awards Ceremony, because `$anchor_name` is not reset between sections. Headings
+also carry an inline status - `<h2>Entry Registration is <span>Open</span></h2>`.
+
+### Conditional sections
+
+`entry_info.sec.php` gates several sections on competition state, so a closed
+competition legitimately renders fewer than an open one:
+
+| Section | Rendered when |
+| --- | --- |
+| Entry Acceptance Rules | drop-off or shipping window not yet closed |
+| Shipping Info | shipping enabled and its window not yet closed |
+| Drop-off | at least one location configured |
+
+The bottle count is emitted into the Entry Acceptance Rules body but *outside*
+the guard that renders its heading, so on a closed competition it detaches and
+trails whichever section came before.
 
 ## Parsing Strategy
 
@@ -99,28 +150,47 @@ $('.bcoem-winner-table').each((index, element) => {
 
 ### Metadata Parsing
 
-Metadata is extracted using named anchors and adjacent paragraph elements:
+`src/parsers/bcoem-sections.ts` splits the page into `<h2>` sections, then each
+field is resolved by three strategies, most reliable first:
 
-```typescript
-const accountRegWindow = $('a[name="reg_window"]').nextAll('p').eq(0).text();
-const entryRegWindow = $('a[name="entry-registration"]').nextAll('p').eq(0).text();
-const dropOffWindow = $('a[name="drop-off-locations"]').nextAll('p').eq(0).text();
-const awardsCeremony = $('a[name="awards-ceremony"]').nextAll('p').eq(0).text();
-```
+1. **At a Glance card** (`extractGlanceWindows`) - an explicit timestamp pair.
+   Only the newer build has these, and they are worth preferring: the prose on
+   that build omits the account window entirely and states the entry window only
+   as descriptive rules text.
+2. **Heading match** (`findSection`) - the `<h2>` text, matched
+   case-insensitively against its start so an inline status does not break it.
+   This is the only thing dependable across both builds.
+3. **Anchor match** - the original `a[name="..."]` lookup, retained for
+   self-hosted installs running older releases.
+
+Paragraphs are collected with `nextUntil('h2')` rather than `nextAll('p')`, so a
+section stops at the next heading. The old walk ran past the end of a section and
+pulled the following one's paragraphs in whenever a section was shorter than
+expected - which is routine, since a closed competition renders one paragraph
+where an open one renders two.
 
 ### Date Extraction
 
-BCOEM uses a consistent date format that the parser extracts:
+Prose windows use a long-form date; glance cards use a numeric one:
 
 ```typescript
-// Format: "Monday, March 1, 2025 12:00 AM, MST"
-const dateRegex = /(today)|(?:(Sunday|Monday|...), ([A-Za-z]+) (\d{1,2}), (\d{4}) (\d{1,2}:\d{2} [AP]M), ([A-Za-z]+)\.)/g;
+// Prose:  "Friday, August 14, 2026 12:00 AM, EDT — Friday, September 18, 2026 5:00 PM, EDT."
+// Cards:  "08/14/2026 12:00 AM, EDT"
 ```
 
-The parser extracts:
-- Start date (first date in text)
-- End date (second date in text)
-- Timezone information
+Two things about the prose form are easy to get wrong. The full stop terminates
+the *pair*, so requiring one matches the closing date but never the opening one.
+And the parts are full names on a 12-hour clock, so the moment format has to be
+`dddd, DD MMMM YYYY hh:mm A` - parsing `12:00 AM` with `HH` silently yields
+midday, putting every midnight window twelve hours late.
+
+Timezone abbreviations map to IANA zones, standard and daylight alike: a window
+that opens in October and closes in November is quoted in CDT and CST
+respectively.
+
+A section that states no dates is normal, not exceptional - a closed competition
+renders "Registration is closed." and nothing more - so extraction returns
+`undefined` bounds rather than throwing.
 
 ## Special Handling
 
@@ -276,20 +346,32 @@ Falls back to system timezone if abbreviation not found.
 
 The parser gracefully handles:
 - Missing tables (returns undefined)
-- Missing metadata sections (throws error with context)
-- Invalid date formats (throws error with date string)
+- Missing metadata sections (leaves the column empty)
+- Sections that state no dates (leaves the date columns empty)
 - Empty results (logs error message)
+
+A competition whose entry-info page is gated behind a login - which BCOEM does
+once the windows have closed - yields no metadata from any candidate URL. The
+`competitions` command reports that explicitly rather than printing a row of
+empty columns.
 
 ## Testing
 
 Test fixtures include:
 - `test/resources/results/bcoem_results.html` - Full results page
-- `test/resources/metadata/bcoem_info.html` - Competition info page
+- `test/resources/metadata/bcoem_info.html` - Competition info page, anchor build, closed
+- `test/resources/metadata/bcoem_info_closed.html` - Anchor build, closed
+- `test/resources/metadata/bcoem_info_landing.html` - Landing-page build, open
+
+See `test/resources/metadata/README.md` for what each fixture pins and how to
+capture another.
 
 Tests verify:
 - Results parsing with filters
-- Metadata extraction
-- Date parsing
+- Metadata extraction on both builds
+- Date parsing, including midnight and open-ended windows
+- Section scoping (a short section does not absorb the next one)
+- Metadata URL discovery
 - MHP badge removal
 - Comma handling
 

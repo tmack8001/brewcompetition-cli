@@ -1,25 +1,50 @@
 import cheerio from 'cheerio';
 import moment from 'moment-timezone';
 
+import { BcoemField, extractGlanceWindows, extractSections, findBottleRequirement, findGlanceWindow, sectionParagraph } from './bcoem-sections.js';
 import { CompetitionParser, ParsedMetadata, ParsedResults } from './types.js';
 
 function getFullTimezoneName(abbreviation: string): string {
+    // Standard-time abbreviations matter as much as daylight ones: a competition
+    // whose entry window opens in October and closes in November is quoted in
+    // CDT and CST respectively. The IANA zone handles the offset either way.
     const timezoneMap: { [key: string]: string } = {
         'AEST': 'Australia/Sydney',
+        'AKDT': 'America/Anchorage',
+        'AKST': 'America/Anchorage',
         'BST': 'Europe/London',
         'CDT': 'America/Chicago',
         'CET': 'Europe/Paris',
+        'CST': 'America/Chicago',
         'EDT': 'America/New_York',
+        'EST': 'America/New_York',
+        'GMT': 'Etc/GMT',
+        'HST': 'Pacific/Honolulu',
         'JST': 'Asia/Tokyo',
         'MDT': 'America/Denver',
-        'PDT': 'America/Los_Angeles'
+        'MST': 'America/Denver',
+        'PDT': 'America/Los_Angeles',
+        'PST': 'America/Los_Angeles',
+        'UTC': 'Etc/UTC'
     };
 
     return timezoneMap[abbreviation] || moment.tz.guess();
 }
 
+/**
+ * Pulls the start and end of a window out of a BCOEM sentence.
+ *
+ * BCOEM renders a window as two timestamps joined by an em dash and terminated
+ * with a full stop - "... accepted at our drop-off locations Friday, August 14,
+ * 2026 12:00 AM, EDT - Friday, September 18, 2026 5:00 PM, EDT." The trailing
+ * stop is therefore on the closing date only, which is why it is optional here;
+ * requiring it matched the end of a window but never its start.
+ *
+ * @param dateString the sentence to read
+ * @returns the window, with either field left `undefined` when it is not stated
+ */
 function extractDateWindow(dateString: string): { endDate: Date | undefined, startDate: Date | undefined } {
-    const dateRegex = /(today)|(?:(Sunday|Monday|Tuesday|Wednesday|Thursday|Friday|Saturday), ([A-Za-z]+) (\d{1,2}), (\d{4}) (\d{1,2}:\d{2} [AP]M), ([A-Za-z]+)\.)/g;
+    const dateRegex = /(today)|(?:(Sunday|Monday|Tuesday|Wednesday|Thursday|Friday|Saturday), ([A-Za-z]+) (\d{1,2}), (\d{4}) (\d{1,2}:\d{2} [AP]M), ([A-Za-z]+))/g;
     const dates = [];
 
     const matches = dateString.matchAll(dateRegex);
@@ -30,31 +55,67 @@ function extractDateWindow(dateString: string): { endDate: Date | undefined, sta
             // eslint-disable-next-line @typescript-eslint/no-unused-vars
             const [_, __, dayOfWeek, month, day, year, time, timeZone] = match;
             const dateStr = `${dayOfWeek}, ${day} ${month} ${year} ${time}`;
-            const date = moment.tz(dateStr, 'ddd, DD MMM YYYY HH:mm:ss', getFullTimezoneName(timeZone));
-            dates.push(date.toDate());
+            // The parts are full names and a 12-hour clock, so the format has to
+            // say so. Parsing "12:00 AM" with HH:mm:ss silently yields midday.
+            const date = moment.tz(dateStr, 'dddd, DD MMMM YYYY hh:mm A', getFullTimezoneName(timeZone));
+            if (date.isValid()) dates.push(date.toDate());
         }
     }
 
-    if (dates.length > 0) {
-        const startDate = dates[0];
-        const endDate = dates.length > 1 ? dates[1] : undefined;
-
-        return { endDate, startDate };
-    }
-
-    throw new Error(`No date ranges found in ${dateString}`);
+    // A section with no dates is normal, not exceptional: a closed competition
+    // renders "Registration is closed." and nothing more. Throwing here aborted
+    // the whole page for one absent window.
+    return { endDate: dates[1], startDate: dates[0] };
 }
 
 export class BCOEMParser implements CompetitionParser {
+    /**
+     * BCOEM serves competition metadata from `index.php?section=entry`. The URL a
+     * user has to hand is usually the bare site root or `index.php`, which on a
+     * finished competition shows the winners instead, so try the entry-info page
+     * as well.
+     *
+     * @param url the URL the user supplied
+     * @returns the supplied URL, then its entry-info variant
+     */
+    metadataUrls(url: string): string[] {
+        const parsed = new URL(url);
+        if (parsed.searchParams.get('section')) return [url];
+
+        const entryInfo = new URL(url);
+        entryInfo.searchParams.set('section', 'entry');
+
+        return [url, entryInfo.toString()];
+    }
+
     async parseMetadata(html: string): Promise<ParsedMetadata> {
-        const $ = cheerio.load(html)
-        const accountRegWindow = $('a[name="reg_window"]').nextAll('p').eq(0).text();
-        const volunteerRegWindow = $('a[name="reg_window"]').nextAll('p').eq(1).text();
-        const entryRegWindow = $('a[name="entry-registration"]').nextAll('p').eq(0).text();
-        const numRequired = $('a[name="entry-acceptance-rules"]').nextAll('p').eq(0).text();
-        const dropOffWindow = $('a[name="drop-off-locations"]').nextAll('p').eq(0).text();
-        const shippingWindow = $('a[name="shipping-info"]').nextAll('p').eq(0).text();
-        const awardsCeremony = $('a[name="awards-ceremony"]').nextAll('p').eq(0).text();
+        const sections = extractSections(html);
+        const glance = extractGlanceWindows(html);
+
+        // Three strategies, most reliable first. The "At a Glance" cards on newer
+        // builds state each window as an explicit timestamp pair. Failing that,
+        // the window is read out of the prose under its <h2>. Failing that, the
+        // original anchor lookup, which still serves the self-hosted installs
+        // running older BCOEM releases.
+        const windowFor = (field: BcoemField, text: string) => {
+            const card = findGlanceWindow(glance, field);
+            if (card) return [card.summary || text, card.open ?? '', card.close ?? ''];
+
+            const { endDate, startDate } = extractDateWindow(text);
+            return [text, startDate ?? '', endDate ?? ''];
+        };
+
+        const accountRegWindow = sectionParagraph(sections, 'accountRegistration');
+        // Older builds have no volunteer heading - judge and steward registration
+        // is the second paragraph of the Account Registration section. Newer ones
+        // give it a heading of its own, so prefer that and fall back.
+        const volunteerRegWindow = sectionParagraph(sections, 'volunteerRegistration')
+            || sectionParagraph(sections, 'accountRegistration', 1);
+        const entryRegWindow = sectionParagraph(sections, 'entryRegistration');
+        const numRequired = findBottleRequirement(sections);
+        const dropOffWindow = sectionParagraph(sections, 'dropOff');
+        const shippingWindow = sectionParagraph(sections, 'shipping');
+        const awardsCeremony = sectionParagraph(sections, 'awardsCeremony');
 
         const header = [
             "entrant_registration",
@@ -79,25 +140,13 @@ export class BCOEMParser implements CompetitionParser {
         ]
 
         const data = [
-            accountRegWindow,
-            extractDateWindow(accountRegWindow).startDate,
-            extractDateWindow(accountRegWindow).endDate,
-            volunteerRegWindow,
-            extractDateWindow(volunteerRegWindow).startDate,
-            extractDateWindow(volunteerRegWindow).endDate,
-            entryRegWindow,
-            extractDateWindow(entryRegWindow).startDate,
-            extractDateWindow(entryRegWindow).endDate,
+            ...windowFor('accountRegistration', accountRegWindow),
+            ...windowFor('volunteerRegistration', volunteerRegWindow),
+            ...windowFor('entryRegistration', entryRegWindow),
             numRequired,
-            dropOffWindow,
-            extractDateWindow(dropOffWindow).startDate,
-            extractDateWindow(dropOffWindow).endDate,
-            shippingWindow,
-            extractDateWindow(shippingWindow).startDate,
-            extractDateWindow(shippingWindow).endDate,
-            awardsCeremony,
-            extractDateWindow(awardsCeremony).startDate,
-            extractDateWindow(awardsCeremony).endDate,
+            ...windowFor('dropOff', dropOffWindow),
+            ...windowFor('shipping', shippingWindow),
+            ...windowFor('awardsCeremony', awardsCeremony),
         ]
 
         const headerCsv = header.join('|');

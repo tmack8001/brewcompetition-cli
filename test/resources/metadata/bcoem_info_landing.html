@@ -1,0 +1,1166 @@
+
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    
+    <meta charset="utf-8">
+    <meta http-equiv="Content-type" content="text/html; charset=UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>2026 Maryland Microbrewery Festival Homebrew Competition - Brew Competition Online Entry &amp; Management</title>
+
+    <!-- Load jQuery / http://jquery.com/ -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+
+    <!-- Load Fancybox / http://www.fancyapps.com -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/fancybox/3.5.7/jquery.fancybox.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/fancybox/3.5.7/jquery.fancybox.min.css"/>
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/jquery-easing/1.3/jquery.easing.min.js"></script>
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/jquery-mousewheel/3.1.13/jquery.mousewheel.min.js"></script>
+
+    
+    <!-- Load DataTables / https://www.datatables.net -->
+    <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/2.1.8/css/dataTables.bootstrap5.min.css" />
+    <script type="text/javascript" src="https://cdn.datatables.net/2.1.8/js/dataTables.min.js"></script>
+    <script type="text/javascript" src="https://cdn.datatables.net/2.1.8/js/dataTables.bootstrap5.min.js"></script>
+    <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/plug-ins/1.10.12/integration/font-awesome/dataTables.fontAwesome.css" />
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.5.0/css/font-awesome.min.css">
+    
+    
+    <!-- Load Bootstrap 5.X / https://getbootstrap.com/ -->
+    <!-- 
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous"> 
+    -->
+    <!-- Load Ninja Bootstrap (REPLACES and EXTENDS Bootstrap's CSS) / https://bootstrap.ninja/ninjabootstrap/ -->
+    <link href="https://cdn.jsdelivr.net/gh/livecanvas-team/ninjabootstrap/dist/css/bootstrap.min.css" rel="stylesheet">
+
+    <!-- Load Animate Styles / https://animate.style -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css">
+    
+    <!-- Load Font Awesome / https://fortawesome.github.io/Font-Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css" />
+    <script type="text/javascript">
+        window.FontAwesomeConfig = { autoReplaceSvg: false }
+    </script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/js/all.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/v4-shims.min.css" />
+
+    <!-- Load Tom Select / https://github.com/orchidjs/tom-select / https://tom-select.js.org/ -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/tom-select@2.3.1/dist/css/tom-select.bootstrap5.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/tom-select/dist/js/tom-select.complete.min.js"></script>
+
+    <!-- Load Moment -->
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.1/moment-with-locales.min.js"></script>
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/moment-timezone/0.5.32/moment-timezone-with-data.min.js"></script>
+
+    <!-- Load jquery Countdown -->
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/jquery.countdown/2.2.0/jquery.countdown.min.js"></script>
+
+    
+    <script src="https://cdn.jsdelivr.net/npm/js-cookie@3.0.5/dist/js.cookie.min.js"></script>
+
+    <!-- Load BCOE&M Custom CSS - Contains Bootstrap overrides and custom classes common to all BCOE&M themes -->
+    <link rel="stylesheet" type="text/css" href="https://brewingcompetitions.com/_3.X_shared/css/common-3.min.css" />
+    <link rel="stylesheet" type="text/css" href="https://brewingcompetitions.com/_3.X_shared/css/default-3.min.css" />
+
+    <script type="text/javascript">
+        var username_url = "https://brewingcompetitions.com/mdmicrobrewfest/ajax/username.ajax.php";
+        var email_url="https://brewingcompetitions.com/mdmicrobrewfest/ajax/valid_email.ajax.php";
+        var user_agent_msg = "Internet Explorer is not supported by BCOE&M - features and functions will not render properly and your experience will not be optimal. Please upgrade to a newer browser.";
+        var setup = 0;
+    </script>
+    
+    <!-- Open Graph Implementation -->
+    <meta property="og:title" content="2026 Maryland Microbrewery Festival Homebrew Competition" />
+    <meta property="og:image" content="https://brewingcompetitions.com/mdmicrobrewfest/user_images/club_logo_larger.jpg" />
+    <meta property="og:url" content="https://brewingcompetitions.com/mdmicrobrewfest/" />
+
+</head>
+
+
+<body data-bs-spy="scroll" data-bs-target="#site-nav">
+
+<style>
+
+    /* Hero background (random via php script) */
+    
+    .layout-hero {
+        background: linear-gradient(rgba(0, 0, 0, 0.45), rgba(0, 0, 0, 0.75)), url('https://brewingcompetitions.com/_3.X_shared/images/beer-munich-mugs_3000x500.jpg');
+        background-repeat: no-repeat;
+        background-size: cover;
+        background-position: center top;
+    }
+
+</style>
+
+<div id="sticky-home" class="contains-link d-print-none">
+    <a href="#home"><i class="fas fa-2x fa-chevron-circle-up"></i></a>
+</div>
+
+<!-- Scroll indicator -->
+<div id="scroll-indicator" class="bounce text-center p-2 bg-white border-1 rounded bg-opacity-50">
+    <div class="text-scroll text-purple"><strong>Scroll</strong></div>
+    <div><i class="fas fa-2x fa-arrow-circle-down text-purple"></i></div>
+</div>
+
+<!-- LOADER -->
+<div id="loader-submit" class="d-print-none">
+    <div class="center">
+        <span class="fa fa-spinner fa-spin-pulse fa-spin-reverse fa-5x fa-fw mb-4"></span>
+        <p><strong>Working.<br>Please stand by. Press Esc to hide.</strong></p>
+    </div>
+</div>
+
+<!-- HEADER - also contains hero -->
+<header id="home" class="site-header">
+
+    <!-- MAIN NAV -->
+    <div class="hidden-print d-print-none">
+        
+	<nav id="site-nav" class="site-nav family-sans navbar navbar-expand-md navbar-dark fixed-top bg-dark" style="z-index: 1000;">
+
+    	<div class="container-fluid">
+
+	        <a class="navbar-brand" href="#home"><i class="fas fa-home me-2"></i></a>
+
+	        <button type="button" class="navbar-toggler" aria-controls="#nav-toggler" aria-label="Toggle Navigation" data-bs-toggle="collapse" data-bs-target="#nav-toggler">
+	          <span class="navbar-toggler-icon"></span>
+	        </button>
+
+	        <section class="collapse navbar-collapse" id="nav-toggler">
+	            
+	            <div class="navbar-nav ms-auto">
+
+	            
+	            		                <a class="nav-item nav-link" data-bs-toggle="collapse" data-bs-target=".navbar-collapse" href="#rules">Rules</a>
+	                <a class="nav-item nav-link" data-bs-toggle="collapse" data-bs-target=".navbar-collapse" href="#volunteers">Volunteers</a>
+	                	                	                <a class="nav-item nav-link" data-bs-toggle="collapse" data-bs-target=".navbar-collapse" href="#entry-info">Entry Info</a>
+	                	            		            		                <a class="nav-item nav-link" data-bs-toggle="collapse" data-bs-target=".navbar-collapse" href="#sponsors">Sponsors</a>
+	                	                <a class="nav-item nav-link" data-bs-toggle="collapse" data-bs-target=".navbar-collapse" href="#contact">Contact</a>
+	                	                                	<a class="nav-item nav-link hide-loader" data-bs-toggle="modal" data-bs-target="#login-modal" href="">Log In</a>
+                	
+                
+	            </div>
+	        </section>
+	    </div>
+	</nav>
+
+	    </div>
+
+    <div class="hidden-print d-print-none">
+            </div>
+    
+        
+    <!-- HERO -->
+    <div id="hero" class="layout-hero text-light d-flex align-items-center d-print-none">
+        <section class="container-fluid shadow-text color-hero px-3">
+            <header><div class="row align-items-center p-3 g-3"><div class="col-12 col-lg-9"><h1 class="text-center animate__animated animate__fadeInLeft">2026 Maryland Microbrewery Festival Homebrew Competition</h1></div><div class="col-12 col-lg-3"><img src="https://brewingcompetitions.com/mdmicrobrewfest/user_images/club_logo_larger.jpg" style="min-width: 150px; max-width: 225px;" class="float-end me-5 d-none d-sm-none d-md-none d-lg-inline-block animate__animated animate__fadeInRight" alt="Competition Logo" title="Competition Logo" /></div></div></header>
+        </section>
+    </div>
+    
+    <div id="salutation" class="text-light bg-black pt-4 pb-3 d-print-none">
+        <section class="container-xxl">
+            <p class='lead landing-page-salutation fw-light animate__animated animate__fadeInUp animate__delay-5s'><small>Thank you for your interest in the 2026 Maryland Microbrewery Festival Homebrew Competition organized by <a class='hide-loader' href='http://www.midnighthomebrewers.org/' target='_blank'>Midnight Homebrewers' League</a>, Westminster, Maryland.</small></p>        </section>
+    </div>
+
+    
+</header>
+<!-- ./HEADER -->
+
+
+<script>
+    try {
+        var ua = window.navigator.userAgent;
+        var msie = ua.indexOf("MSIE ");
+        if (msie > 0 || !!navigator.userAgent.match(/Trident.*rv\:11\./)) {
+            alert(user_agent_msg)
+        }
+    } catch (error) {
+        console.error('Error checking user agent.', error)
+    }
+
+    var date_time_now = new Date();
+    var date_time_now = date_time_now.getTime();
+    var base_url = "https://brewingcompetitions.com/mdmicrobrewfest/";
+    var ajax_url = "https://brewingcompetitions.com/mdmicrobrewfest/ajax/";
+    var section = "default";
+    var action = "default";
+    var go = "default";
+    var edition = "0";
+    var user_level = "2";
+    var label_length = "Length";
+    var label_score = "Score";
+    var entry_window_open = "1";
+    var current_timezone = "America/New_York";
+    var label_weeks = "weeks";
+    var label_days = "days";
+    var label_hours = "hours";
+</script>
+
+<!-- Public Pages -->
+
+<div id="main-content" class="container-xxl">
+
+    <div class="d-none d-print-block landing-page-section p-3">
+        <h1 class="fs-1 fw-bold">2026 Maryland Microbrewery Festival Homebrew Competition</h1>
+    </div>
+
+
+
+    <section id="at-a-glance" class="landing-page-section pb-3">
+        <div class="d-print-none">
+<div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 row-cols-xl-3 g-4 justify-content-center mt-1 d-print-none">
+
+	<div class="col">
+		<div class="card h-100 glance-card-bg reveal-element">
+			<div class="card-body glance-card-body">
+				<h5 class="card-title pt-2 pb-2 glance-header text-primary-glance-header">Entries</h5>
+				<div class="position-absolute top-0 start-50 translate-middle badge bg-primary-glance-pill dark rounded-pill glance-status-pill"><i class="fa fa-circle-info pe-2"></i>Status</div>
+				<p class="card-text glance-card-text"><small><ul class="list-unstyled"><li><strong>Total</strong> &ndash; <span id="entry-total-count" class="entry-total-count">29</span> / 110</li><li><strong>Paid</strong> &ndash; <span id="entry-paid-count" class="entry-paid-count">29</span> / 100</li><li class="small text-muted lh-1 pt-1">Updated <span id="entry-paid-count-updated" class="entry-paid-count-updated">09/08/2026 6:49 AM, EDT</span></li><li class="text-muted lh-1 pt-1"><small class="count-two-minute-info" id="count-two-minute-info"></small></li></ul></small></p>
+				<div class="d-grid"><button id="resume-updates-button" class="hide-loader btn btn-primary" onclick="resumeUpdates()">Resume Updates</button></div>			</div>
+		</div>
+	</div>
+	<div class="col">
+		<div class="card h-100 glance-card-bg reveal-element">
+			<div class="card-body glance-card-body">
+				<h5 class="card-title pt-2 pb-2 glance-header text-secondary-glance-header">Judging</h5>
+				<div class="position-absolute top-0 start-50 translate-middle badge bg-secondary-glance-pill dark rounded-pill glance-status-pill"><i class="fa fa-clock pe-2"></i>Not Started</div>
+				<p class="card-text glance-card-text"><small><ul class="list-unstyled"><li><strong>Start</strong> &ndash; 09/25/2026 5:00 PM, EDT</li><li><i class="fa fa-clock me-1"></i><span id="judging-open-date"></span></li><li><strong>End</strong> &ndash; 09/26/2026 1:00 PM, EDT</li></ul></small></p>
+							</div>
+		</div>
+	</div>
+	<div class="col">
+		<div class="card h-100 glance-card-bg reveal-element">
+			<div class="card-body glance-card-body">
+				<h5 class="card-title pt-2 pb-2 glance-header text-success-glance-header">Entry Registration</h5>
+				<div class="position-absolute top-0 start-50 translate-middle badge bg-success-glance-pill dark rounded-pill glance-status-pill"><i class="fa fa-circle-check pe-2"></i>Open</div>
+				<p class="card-text glance-card-text"><small><ul class="list-unstyled"><li><strong>Open</strong> &ndash; 07/04/2026 10:00 AM, EDT</li><li><strong>Close</strong> &ndash; 09/18/2026 5:00 PM, EDT</li><li id="entry-close-date-item"><i class="fa fa-clock me-1"></i><span id="entry-close-date"></span></li></ul></small></p>
+				<div class="d-grid"><button class="btn btn-success disabled">Register or Log In to Enter</button></div>			</div>
+		</div>
+	</div>
+	<div class="col">
+		<div class="card h-100 glance-card-bg reveal-element">
+			<div class="card-body glance-card-body">
+				<h5 class="card-title pt-2 pb-2 glance-header text-success-glance-header">Account Registration</h5>
+				<div class="position-absolute top-0 start-50 translate-middle badge bg-success-glance-pill dark rounded-pill glance-status-pill"><i class="fa fa-circle-check pe-2"></i>Open</div>
+				<p class="card-text glance-card-text"><small><ul class="list-unstyled"><li><strong>Open</strong> &ndash; 06/10/2026 12:00 AM, EDT</li><li><strong>Close</strong> &ndash; 09/18/2026 1:00 PM, EDT</li><li id="account-close-date-item"><i class="fa fa-clock me-1"></i><span id="account-close-date"></span></li></ul></small></p>
+				<div class="d-grid"><a href="https://brewingcompetitions.com/mdmicrobrewfest/index.php?section=register&amp;go=entrant" class="btn btn-success">Register</a></div>			</div>
+		</div>
+	</div>
+	<div class="col">
+		<div class="card h-100 glance-card-bg reveal-element">
+			<div class="card-body glance-card-body">
+				<h5 class="card-title pt-2 pb-2 glance-header text-success-glance-header">Judge Registration</h5>
+				<div class="position-absolute top-0 start-50 translate-middle badge bg-success-glance-pill dark rounded-pill glance-status-pill"><i class="fa fa-circle-check pe-2"></i>Open</div>
+				<p class="card-text glance-card-text"><small><ul class="list-unstyled"><li><strong>Open</strong> &ndash; 06/10/2026 12:00 AM, EDT</li><li><strong>Close</strong> &ndash; 09/25/2026 1:00 PM, EDT</li><li id="judge-close-date-item"><i class="fa fa-clock me-1"></i><span id="judge-close-date"></span></li></ul></small></p>
+				<div class="d-grid"><a href="https://brewingcompetitions.com/mdmicrobrewfest/index.php?section=register&amp;go=judge" class="btn btn-success">Register to be a Judge</a></div>			</div>
+		</div>
+	</div>
+	<div class="col">
+		<div class="card h-100 glance-card-bg reveal-element">
+			<div class="card-body glance-card-body">
+				<h5 class="card-title pt-2 pb-2 glance-header text-success-glance-header">Steward Registration</h5>
+				<div class="position-absolute top-0 start-50 translate-middle badge bg-success-glance-pill dark rounded-pill glance-status-pill"><i class="fa fa-circle-check pe-2"></i>Open</div>
+				<p class="card-text glance-card-text"><small><ul class="list-unstyled"><li><strong>Open</strong> &ndash; 06/10/2026 12:00 AM, EDT</li><li><strong>Close</strong> &ndash; 09/25/2026 1:00 PM, EDT</li><li id="steward-close-date-item"><i class="fa fa-clock me-1"></i><span id="steward-close-date"></span></li></ul></small></p>
+				<div class="d-grid"><a href="https://brewingcompetitions.com/mdmicrobrewfest/index.php?section=register&amp;go=steward" class="btn btn-success">Register to be a Steward</a></div>			</div>
+		</div>
+	</div>
+	<div class="col">
+		<div class="card h-100 glance-card-bg reveal-element">
+			<div class="card-body glance-card-body">
+				<h5 class="card-title pt-2 pb-2 glance-header text-success-glance-header">Entry Drop-Off</h5>
+				<div class="position-absolute top-0 start-50 translate-middle badge bg-success-glance-pill dark rounded-pill glance-status-pill"><i class="fa fa-circle-check pe-2"></i>Open</div>
+				<p class="card-text glance-card-text"><small><ul class="list-unstyled"><li><strong>Open</strong> &ndash; 08/14/2026 12:00 AM, EDT</li><li><strong>Close</strong> &ndash; 09/18/2026 5:00 PM, EDT</li><li id="dropoff-close-date-item"><i class="fa fa-clock me-1"></i><span id="dropoff-close-date"></span></li></ul></small></p>
+							</div>
+		</div>
+	</div>
+	<div class="col">
+		<div class="card h-100 glance-card-bg reveal-element">
+			<div class="card-body glance-card-body">
+				<h5 class="card-title pt-2 pb-2 glance-header text-success-glance-header">Entry Shipping</h5>
+				<div class="position-absolute top-0 start-50 translate-middle badge bg-success-glance-pill dark rounded-pill glance-status-pill"><i class="fa fa-circle-check pe-2"></i>Open</div>
+				<p class="card-text glance-card-text"><small><ul class="list-unstyled"><li><strong>Open</strong> &ndash; 08/14/2026 12:00 AM, EDT</li><li><strong>Close</strong> &ndash; 09/18/2026 5:00 PM, EDT</li><li id="shipping-close-date-item"><i class="fa fa-clock me-1"></i><span id="shipping-close-date"></span></li></ul></small></p>
+							</div>
+		</div>
+	</div>
+
+</div></div>    </section>
+
+        <section id="rules" class="landing-page-section pb-3 reveal-element">
+        <header class="landing-page-section-header py-2">
+            <h1>Rules</h1>
+        </header>
+        <div class="reveal-element"><h2>Judge and Steward Registration is <span class='text-success'>Open</span></h2><p>If you <em>have not</em> registered and are willing to be a volunteer, please register.</p><p>If you <em>have</em> registered, log in and then choose <em>Edit Account</em> from the My Account menu indicated by the <span class="fa fa-lg fa-user"></span> icon on the top menu.</p></div><div class="reveal-element"><h2>Entry Registration is <span class="text-success">Open</a></h2><p>The 2026 Maryland Microbrewery Festival Homebrew Competition is a BJCP-sanctioned competition open to all amateur homebrewers. This year, in honor of the United States 250th anniversary, we are celebrating the American categories scattered throughout the BJCP 2021 Style Guidelines. Entries are limited to those beer styles. </p>
+<p><strong>A. Entry limitations and exceptions</strong></p>
+<ol>
+<li>
+<p>Registration will be done at <a href="http://mdmicrobrewfest.brewcompetition.com">http://mdmicrobrewfest.brewcompetition.com</a>, through which all entries will be created.  </p>
+</li>
+<li>
+<p>The Entry Fee is $10 per entry. We prefer PayPal, but payment may also be made via cash or check payable to the Midnight Homebrewers' League.  </p>
+</li>
+<li>
+<p>The competition is open to American beer styles only. </p>
+<ul>
+<li>For styles in categories 29-34, where a base beer style must be specified, and American style must be selected for the base.</li>
+</ul>
+<p><strong>Any entries specifying non-American base styles will not be judged and the entry fee will not be refunded!</strong></p>
+</li>
+<li>
+<p>It is the entrants' responsibility to be familiar with the BJCP 2021 Style Guidelines for the categories you are entering.</p>
+</li>
+<li>
+<p>The competition will be limited to 100 entries. This limit is susceptible to increase if there is strong interest. In this way, we are able to judge the entire competition in the morning of the festival, so that Judges and Stewards are able to enjoy the festival in the afternoon. </p>
+</li>
+<li>
+<p>Entries will be judged by qualified BJCP beer judges against the <a href="https://www.bjcp.org/style/2021/beer/"><strong>2021</strong> BJCP Beer Style Guidelines</a> </p>
+</li>
+<li>
+<p>All entries must be brewed exclusively by homebrewers on homebrew equipment. Beers brewed on commercial equipment, or at a Brew-On-Premises facility, are not permitted.</p>
+</li>
+<li>
+<p>The Grand Prize winning beer will be brewed for commercial sales by Brewery Fire in Taneytown, Maryland. </p>
+</li>
+</ol>
+<p><strong>B. Bottle Requirements</strong> </p>
+<ol>
+<li>
+<p><strong>Entry labels must be attached to each bottle with Rubber Bands Only. Bottles with tape, glue, or any other adhesive method will NOT be judged and entry fees will not be refunded. Thanks for your cooperation with this</strong></p>
+</li>
+<li>
+<p>We require two (2) 12 to 22 oz capped or corked bottles or cans for each entry. Swing-top bottles are also considered to be capped. </p>
+</li>
+<li>
+<p>Remove all labeling. Raised lettering (such as Sam Adams bottles) is acceptable. Caps must be plain, or all printing blacked out. </p>
+</li>
+<li>
+<p>If paying with cash or check, please put your payment inside a plastic zip-lock bag and wrap it around one of your entry bottles with the rubber band. </p>
+</li>
+</ol>
+<p><strong>C. Other/General (sorry this is long; previous questions and issues cause us to include these)</strong></p>
+<ol>
+<li>
+<p>Organizers and Judges will NOT re-categorize entries. Entrants are responsible for selecting the proper category for your entries. If you have any questions about where to enter a beer, you may contact us for assistance.</p>
+</li>
+<li>
+<p>2026 Prize Categories are based upon the number of entries received in given categories, and the available number of Judges and Prizes. </p>
+</li>
+<li>
+<p>Ribbons are awarded for 1st, 2nd, and 3rd Place winners in each Prize Category. Additional prizes will be distributed to all 1st place winners in each Prize Category. 2nd and 3rd may be awarded additional prizes based on prize availability.</p>
+</li>
+<li>
+<p>Distribution of Score Sheets and Prizes: Prize winners will <em>generally</em> be notified by email within 48 hours after the competition. Score Sheets will be scanned and uploaded to this site. We prefer to distribute Prizes by dropping them off at various homebrew supply shop locations for pick-up by winners who shop at those locations. We do this where it makes sense, to save the costs of shipping prize packages all over the place. Other prizes are mailed out where necessary. </p>
+</li>
+<li>
+<p>All entrants, by creating and submitting one or more entries, <strong>agree and consent</strong> to the following: <strong><em>All prize winners' names will be made public. Prize winners' names and email addresses may be provided to the Sponsor(s) of any prizes won by the entrant, if a particular Sponsor wishes to know who won the prizes donated by that Sponsor. Prize winners will provide their prize winning entry's recipe at the request of the Competition Organizer. The Best Of Show winner will be brewed commercially by Brewery Fire of Taneytown, Maryland. The name of the Best of Show winning beer is subject to Brewery Fire's approval for commercial brewing purposes</em></strong></p>
+</li>
+<li>
+<p>Competition organizers bear no responsibility for broken, mis-placed, or missing entries, or for software errors. Every effort will be made to contact entrants in time to replace missing or broken bottles. If we break or lose an entry due to our error, and a replacement bottle is not available from you in time, the entrant's fee will be refunded. Otherwise... </p>
+</li>
+<li>
+<p>With the exception of paragraph 6. above, entry fees are non-refundable. </p>
+</li>
+<li>
+<p>No financial benefit is derived from the commercial brewing of the Best Of Show winning beer. The schedule for brewing and tapping of the Best of Show winning beer is subject to the needs and schedule of the brewery.</p>
+</li>
+<li>
+<p>One more time...<strong>PLEASE do not use any tape or glue to attach bottle labels to bottles. Use Rubber Bands Only.</strong> We're not kidding, bottles with anything other than rubber bands to attach labels will NOT be judged, and entry fees will not be refunded.</p>
+</li>
+</ol></div><div class="reveal-element"><h2>Entry Acceptance Rules</h2><p>Please submit two (2) 12 to 22 oz bottles or cans for each entry.</p>
+<p>Bottles may have raised lettering (such as Sam Adams bottles). However, all other labeling should be removed, except for a competition entry label. Bottle caps with printing must be blacked out with a permanent marker.  Cans may have no markings.</p>
+<p>Entry labels <strong>must</strong> be attached to each bottle or can with <strong>Rubber Bands Only</strong>. Entries with tape, glue, or any other adhesive method will NOT be judged and entry fees will not be refunded. Thanks for your cooperation with this.</p></div>    </section>    
+    
+    <section id="entry-info" class="landing-page-section pb-3 reveal-element">
+        <header class="landing-page-section-header py-2">
+            <h1>Entry Info</h1>
+        </header>
+        <p class="d-print-none"><a class="anchor-offset" name="top-page"></a><div class="reveal-element"><a class="anchor-offset" name="entry-fees"></a><h2>Entry Fees</h2><p>$10.00 (USD) per entry. </p></div><div class="reveal-element"><a class="anchor-offset" name="entry-limit"></a><h2>Entry Limits</h2><dl class="row"><dt class="col-6 col-md-3 col-lg-2">Entry Limit:</dt><dd class="col-6 col-md-9 col-lg-10">110</dd><dt class="col-6 col-md-3 col-lg-2">Entry Limit &ndash; Paid:</dt><dd class="col-6 col-md-9 col-lg-10">100</dd></dl><a class="anchor-offset" name="entry-limits-per-participant"></a><h3>Entry Limits Per Participant</h3><dl class="row"><dt class="col-7 col-md-4 col-lg-3">Per Style Entry Limit:</dt><dd class="col-5 col-md-8 col-lg-9">1</dd></dl></div><div class="reveal-element"><a class="anchor-offset" name="pay-entry-fees"></a><h2>Pay Entry Fees</h2><p>After creating your account and adding your entries to the system, you must pay your entry fee(s). Accepted payment methods are:</p><ul><li>Cash</li><li>Check, made out to <em>Midnight Homebrewers&#39; League</em></li><li>Credit/debit card and e-check, via PayPal</li></ul></div><div class="reveal-element"><a class="anchor-offset" name="judging-sessions"></a><h2>BJCP 2015 / 2021 Styles Accepted</h2><p><i class="fa fa-times-circle text-danger-emphasis me-1"></i>Indicates that the style's entry limit has been reached and no more entries of that style will be accepted.</p><table class="table table-striped table-bordered table-responsive border-dark-subtle"><tr><td width="33%">1A American Light Lager</td><td width="33%">1B American Lager</td><td width="33%">1C Cream Ale</td><tr><td width="33%">1D American Wheat Beer</td><td width="33%">18A Blonde Ale</td><td width="33%">18B American Pale Ale</td><tr><td width="33%">19A American Amber Ale</td><td width="33%">19B California Common</td><td width="33%">19C American Brown Ale</td><tr><td width="33%">20A American Porter</td><td width="33%">20B American Stout</td><td width="33%">20C Imperial Stout</td><tr><td width="33%">21A American IPA</td><td width="33%">21B Specialty IPA<span class="fa fa-check-circle text-orange ms-1 d-print-none" data-toggle="tooltip" data-placement="top" title="To ensure proper judging, the entrant must provide additional information about the beverage."></span></td><td width="33%">21B1 Belgian IPA<span class="fa fa-check-circle text-orange ms-1 d-print-none" data-toggle="tooltip" data-placement="top" title="To ensure proper judging, the entrant must provide additional information about the beverage."></span></td><tr><td width="33%">21B2 Black IPA<span class="fa fa-check-circle text-orange ms-1 d-print-none" data-toggle="tooltip" data-placement="top" title="To ensure proper judging, the entrant must provide additional information about the beverage."></span></td><td width="33%">21B3 Brown IPA<span class="fa fa-check-circle text-orange ms-1 d-print-none" data-toggle="tooltip" data-placement="top" title="To ensure proper judging, the entrant must provide additional information about the beverage."></span></td><td width="33%">21B4 Red IPA<span class="fa fa-check-circle text-orange ms-1 d-print-none" data-toggle="tooltip" data-placement="top" title="To ensure proper judging, the entrant must provide additional information about the beverage."></span></td><tr><td width="33%">21B5 Rye IPA<span class="fa fa-check-circle text-orange ms-1 d-print-none" data-toggle="tooltip" data-placement="top" title="To ensure proper judging, the entrant must provide additional information about the beverage."></span></td><td width="33%">21B6 White IPA<span class="fa fa-check-circle text-orange ms-1 d-print-none" data-toggle="tooltip" data-placement="top" title="To ensure proper judging, the entrant must provide additional information about the beverage."></span></td><td width="33%">21B7 Brut IPA<span class="fa fa-check-circle text-orange ms-1 d-print-none" data-toggle="tooltip" data-placement="top" title="To ensure proper judging, the entrant must provide additional information about the beverage."></span></td><tr><td width="33%">21C Hazy IPA</td><td width="33%">22A Double IPA</td><td width="33%">22B American Strong Ale</td><tr><td width="33%">22C American Barleywine</td><td width="33%">22D Wheatwine</td><td width="33%">27A Historical Beer<span class="fa fa-check-circle text-orange ms-1 d-print-none" data-toggle="tooltip" data-placement="top" title="To ensure proper judging, the entrant must provide additional information about the beverage."></span></td><tr><td width="33%">27A2 Kentucky Common</td><td width="33%">27A6 Pre-Prohibition Lager</td><td width="33%">27A7 Pre-Prohibition Porter</td><tr><td width="33%">28A Brett Beer<span class="fa fa-check-circle text-orange ms-1 d-print-none" data-toggle="tooltip" data-placement="top" title="To ensure proper judging, the entrant must provide additional information about the beverage."></span></td><td width="33%">28B Mixed Fermentation Sour Beer<span class="fa fa-check-circle text-orange ms-1 d-print-none" data-toggle="tooltip" data-placement="top" title="To ensure proper judging, the entrant must provide additional information about the beverage."></span></td><td width="33%">28C Wild Specialty Beer<span class="fa fa-check-circle text-orange ms-1 d-print-none" data-toggle="tooltip" data-placement="top" title="To ensure proper judging, the entrant must provide additional information about the beverage."></span></td><tr><td width="33%">28D Straight Sour Beer</td><td width="33%">29A Fruit Beer<span class="fa fa-check-circle text-orange ms-1 d-print-none" data-toggle="tooltip" data-placement="top" title="To ensure proper judging, the entrant must provide additional information about the beverage."></span></td><td width="33%">29B Fruit and Spice Beer<span class="fa fa-check-circle text-orange ms-1 d-print-none" data-toggle="tooltip" data-placement="top" title="To ensure proper judging, the entrant must provide additional information about the beverage."></span></td><tr><td width="33%">29C Specialty Fruit Beer<span class="fa fa-check-circle text-orange ms-1 d-print-none" data-toggle="tooltip" data-placement="top" title="To ensure proper judging, the entrant must provide additional information about the beverage."></span></td><td width="33%">30A Spice, Herb, or Vegetable Beer<span class="fa fa-check-circle text-orange ms-1 d-print-none" data-toggle="tooltip" data-placement="top" title="To ensure proper judging, the entrant must provide additional information about the beverage."></span></td><td width="33%">30B Autumn Seasonal Beer<span class="fa fa-check-circle text-orange ms-1 d-print-none" data-toggle="tooltip" data-placement="top" title="To ensure proper judging, the entrant must provide additional information about the beverage."></span></td><tr><td width="33%">30C Winter Seasonal Beer<span class="fa fa-check-circle text-orange ms-1 d-print-none" data-toggle="tooltip" data-placement="top" title="To ensure proper judging, the entrant must provide additional information about the beverage."></span></td><td width="33%">30D Specialty Spice Beer<span class="fa fa-check-circle text-orange ms-1 d-print-none" data-toggle="tooltip" data-placement="top" title="To ensure proper judging, the entrant must provide additional information about the beverage."></span></td><td width="33%">31A Alternative Grain Beer<span class="fa fa-check-circle text-orange ms-1 d-print-none" data-toggle="tooltip" data-placement="top" title="To ensure proper judging, the entrant must provide additional information about the beverage."></span></td><tr><td width="33%">31B Alternative Sugar Beer<span class="fa fa-check-circle text-orange ms-1 d-print-none" data-toggle="tooltip" data-placement="top" title="To ensure proper judging, the entrant must provide additional information about the beverage."></span></td><td width="33%">32A Classic Style Smoked Beer<span class="fa fa-check-circle text-orange ms-1 d-print-none" data-toggle="tooltip" data-placement="top" title="To ensure proper judging, the entrant must provide additional information about the beverage."></span></td><td width="33%">32B Specialty Smoked Beer<span class="fa fa-check-circle text-orange ms-1 d-print-none" data-toggle="tooltip" data-placement="top" title="To ensure proper judging, the entrant must provide additional information about the beverage."></span></td><tr><td width="33%">33A Wood-Aged Beer<span class="fa fa-check-circle text-orange ms-1 d-print-none" data-toggle="tooltip" data-placement="top" title="To ensure proper judging, the entrant must provide additional information about the beverage."></span></td><td width="33%">33B Specialty Wood-Aged Beer<span class="fa fa-check-circle text-orange ms-1 d-print-none" data-toggle="tooltip" data-placement="top" title="To ensure proper judging, the entrant must provide additional information about the beverage."></span></td><td width="33%">34A Commercial Specialty Beer<span class="fa fa-check-circle text-orange ms-1 d-print-none" data-toggle="tooltip" data-placement="top" title="To ensure proper judging, the entrant must provide additional information about the beverage."></span></td><tr><td width="33%">34B Mixed-Style Beer<span class="fa fa-check-circle text-orange ms-1 d-print-none" data-toggle="tooltip" data-placement="top" title="To ensure proper judging, the entrant must provide additional information about the beverage."></span></td><td width="33%">34C Experimental Beer<span class="fa fa-check-circle text-orange ms-1 d-print-none" data-toggle="tooltip" data-placement="top" title="To ensure proper judging, the entrant must provide additional information about the beverage."></span></td><td>&nbsp;</td></tr></table></div><div class="reveal-element"><a class="anchor-offset" name="judging-sessions"></a><h2>Drop-Off Locations</h2><p>Entry bottles accepted at our drop-off locations <strong class="text-success">Friday, August 14, 2026 12:00 AM, EDT</strong> &mdash; <strong class="text-success">Friday, September 18, 2026 5:00 PM, EDT</strong>.</p><p>Please pay attention to the notes provided for each drop-off location. There could be earlier deadlines for some drop-off locations listed, particular hours when entries are accepted, certain individuals to leave your entries with, etc. <strong class="text-danger">All entrants are responsible for reading the information provided by the organizers for each drop-off location.</strong></p><p><a class="hide-loader" href="http://www.mdhb.com" target="_blank" data-toggle="tooltip" data-placement="top" title="Maryland Homebrew Website"><strong>Maryland Homebrew</strong></a><span class="fa fa-sm fa-external-link ms-2"></span><br />9017 Mendenhall Ct., Suite C, Columbia, MD 21045<a href="#" data-bs-toggle="modal" data-bs-target="#dropoff-loc6" title="9017 Mendenhall Ct., Suite C, Columbia, MD 21045"><span class="fa fa-map-marker ms-2"></span></a><br />410-290-3768<br />*<em>Entries must be dropped off or received via shipping, 6:00 PM EST on Friday Sept. 18, 2026</em></p><div class="modal modal-lg fade" id="dropoff-loc6" tabindex="-1" role="dialog" aria-hidden="true"><div class="modal-dialog"><div class="modal-content"><div class="modal-header"><h4 class="modal-title">Please Note &ndash; Maryland Homebrew Entry Delivery</h4><button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button></div><div class="modal-body"><p>Entries must be dropped off or received via shipping, 6:00 PM EST on Friday Sept. 18, 2026</p></div><div class="modal-footer"><button type="button" class="btn btn-danger" data-bs-dismiss="modal">Cancel</button><a href="http://maps.google.com/maps?f=q&source=s_q&hl=en&q=9017+Mendenhall+Ct.,+Suite+C,+Columbia,+MD+21045" target="_blank" class="hide-loader btn btn-success">I Understand</a></div></div></div></div><p><strong>Tavern 741 (Kranz Residence)</strong><br />741 Windsor Dr, Westminster, MD 21158<a href="#" data-bs-toggle="modal" data-bs-target="#dropoff-loc8" title="741 Windsor Dr, Westminster, MD 21158"><span class="fa fa-map-marker ms-2"></span></a><br />443-536-8645<br />*<em>Please reach out to Steve Kranz at phone number listed to coordinate drop off time.</em></p><div class="modal modal-lg fade" id="dropoff-loc8" tabindex="-1" role="dialog" aria-hidden="true"><div class="modal-dialog"><div class="modal-content"><div class="modal-header"><h4 class="modal-title">Please Note &ndash; Tavern 741 (Kranz Residence) Entry Delivery</h4><button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button></div><div class="modal-body"><p>Please reach out to Steve Kranz at phone number listed to coordinate drop off time.</p></div><div class="modal-footer"><button type="button" class="btn btn-danger" data-bs-dismiss="modal">Cancel</button><a href="http://maps.google.com/maps?f=q&source=s_q&hl=en&q=741+Windsor+Dr,+Westminster,+MD+21158" target="_blank" class="hide-loader btn btn-success">I Understand</a></div></div></div></div><p><a class="hide-loader" href="https://www.flyingbarrel.com" target="_blank" data-toggle="tooltip" data-placement="top" title="The Flying Barrel Website"><strong>The Flying Barrel</strong></a><span class="fa fa-sm fa-external-link ms-2"></span><br />1781 N. Market St., Frederick, MD 21701<a href="#" data-bs-toggle="modal" data-bs-target="#dropoff-loc11" title="1781 N. Market St., Frederick, MD 21701"><span class="fa fa-map-marker ms-2"></span></a><br />301-663-4491<br />*<em>Entries must be dropped off by 4:00 PM EST on Friday, Sept. 18, 2026</em></p><div class="modal modal-lg fade" id="dropoff-loc11" tabindex="-1" role="dialog" aria-hidden="true"><div class="modal-dialog"><div class="modal-content"><div class="modal-header"><h4 class="modal-title">Please Note &ndash; The Flying Barrel Entry Delivery</h4><button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button></div><div class="modal-body"><p>Entries must be dropped off by 4:00 PM EST on Friday, Sept. 18, 2026</p></div><div class="modal-footer"><button type="button" class="btn btn-danger" data-bs-dismiss="modal">Cancel</button><a href="http://maps.google.com/maps?f=q&source=s_q&hl=en&q=1781+N.+Market+St.,+Frederick,+MD+21701" target="_blank" class="hide-loader btn btn-success">I Understand</a></div></div></div></div></div><div class="reveal-element"><a class="anchor-offset" name="judging-sessions"></a><h2>Shipping Info</h2><p>Entry bottles accepted at our shipping location <strong class="text-success">Friday, August 14, 2026 12:00 AM, EDT</strong> &mdash; <strong class="text-success">Friday, September 18, 2026 5:00 PM, EDT</strong>.</p><p>Ship entries to:</p><p>Maryland Homebrew - ATTN: Union Mills<br>9017 Mendenhall Ct. Suite C, Columbia, MD 21045</p><h3>Packing and Shipping</h3><p>Carefully pack your entries in a sturdy box. Line the inside of your carton with a plastic trash bag. Partition and pack each bottle with adequate packaging material. Please do not over pack!</p>
+<p>Write clearly: <em>Fragile. This Side Up.</em> on the package. Please only use bubble wrap as your packing material.</p>
+<p>Enclose <em>each</em> of your bottle labels in a small zip-top bag before attaching to their respective bottles. This way it makes it possible for the organizer to identify specifically which entry has broken if there is damage during shipment.</p>
+<p>Every reasonable effort will be made to contact entrants whose bottles have broken to make arrangements for sending replacement bottles.</p>
+<p><strong>All shipped entries must be recieved by 6:00 PM EST on Friday, September 18, 2026 - please allow for shipping time (if shipping)</strong></p></div><div class="reveal-element"><a class="anchor-offset" name="judging-sessions"></a><h2>Judging Sessions</h2><p><strong>Early Round (if needed)</strong><a href="#" target="_blank" data-toggle="tooltip" data-placement="top" title="Log in to view the location and its address, if available."><span class="fa fa-map-marker ms-2"></span></a><br />Friday, September 25, 2026 5:00 PM, EDT</p><p><strong>Union Mills Homestead Session 1</strong><a href="#" target="_blank" data-toggle="tooltip" data-placement="top" title="Log in to view the location and its address, if available."><span class="fa fa-map-marker ms-2"></span></a><br />Saturday, September 26, 2026 9:00 AM, EDT</p><p><strong>Union Mills Session 2</strong><a href="#" target="_blank" data-toggle="tooltip" data-placement="top" title="Log in to view the location and its address, if available."><span class="fa fa-map-marker ms-2"></span></a><br />Saturday, September 26, 2026 1:00 PM, EDT</p></div><div class="reveal-element"></div><div class="reveal-element"><a class="anchor-offset" name="judging-sessions"></a><h2>Best of Show</h2><p>The Best Of Show winning beer will be scaled up and brewed commercially by Brewery Fire in Taneytown, Maryland.  The name of the winning homebrew is subject to the approval of the brewery.</p>
+<p>No financial benefit is derived from winning the Best of Show prize.</p></div><div class="reveal-element"><a class="anchor-offset" name="judging-sessions"></a><h2>Awards</h2><p>Prize Categories will be established by the Competition organizers, depending on the number, and categories, of entries received. Prize Categories may consist of combined beer categories.</p>
+<p>Ribbons are awarded for 1st, 2nd, and 3rd Place winners in each Prize Category. Additional prizes will be distributed to all 1st place winners in each Prize Category. 2nd and 3rd may be awarded additional prizes based on prize availability.</p>
+<p>Qualification for a prize, regardless of placement in any Prize Category, may require a minimum score at the discretion of the Competition Organizer and/or Head Judge.</p>
+<p>Entrants do NOT need to be present at the Festival to win.</p><a class="anchor-offset" name="judging-sessions"></a><h2>Awards Ceremony</h2><p><strong>Union Mills Homestead</strong><br />3311 Littlestown Pike, Westminster, MD 21158<a class="hide-loader" href="http://maps.google.com/maps?f=q&source=s_q&hl=en&q=3311+Littlestown+Pike,+Westminster,+MD+21158" data-toggle="tooltip" data-placement="top" title="Map to Union Mills Homestead " target="_blank"><span class="fa fa-map-marker ms-2"></span></a><br />Saturday, September 26, 2026 5:00 PM, EDT</p></div><div class="reveal-element"></div>    </section>
+    
+        <section id="volunteers" class="landing-page-section pb-3 reveal-element">
+        <header class="landing-page-section-header py-2">
+            <h1>Volunteers</h1>
+        </header>
+        <h2>Judges and Stewards</h2><p>If you have registered, log in and then choose <em>Edit Account</em> from the My Account menu indicated by the <span class="fa fa-user"></span> icon on the top menu.</p><p>If you have <em>not</em> registered and are willing to be a judge or steward, please register.</p><h2>Staff</h2><p>If you would like to volunteer to be a competition staff member, please register or update your account to indicate that you wish to be a part of the competition staff.<h2>Other Volunteer Info</h2><p>We love judges-in-training, so Novice and Provisional Judges are welcome in our competition. All non-BJCP ranked judges will be paired with a BJCP-ranked judge.</p>
+<p>Stewards provide the magic that makes any competition run smoothly. They help the Organizers and Judges with beer, supplies, double-checking score sheets, and keeping the judging area clean and free of distractions.</p>
+<p><strong>The perks of volunteering for our competition are many:</strong></p>
+<ul>
+<li>All Judges, Stewards and Staff will receive complimentary breakfast and lunch.</li>
+<li>Judges and Stewards receive free admission to the Festival.</li>
+</ul>
+    </section>
+    
+    
+    <section id="sponsors" class="landing-page-section pb-3 d-print-none reveal-element">
+        <header class="landing-page-section-header py-2">
+            <h1>Sponsors</h1>
+        </header>
+        <div class="row row-cols-1 row-cols-sm-2 row-cols-md-3 row-cols-lg-4 g-4 justify-content-center mt-4">
+
+	<div class="col">
+		<div class="card h-100 sponsor-card-bg reveal-element">
+			<div class="card-body">
+				<header class="sponsor-header">American Homebrewers Association</header>
+								<div class="d-flex align-content-center flex-wrap">
+					<img style="max-height: 200px" class="img-fluid rounded mx-auto mt-4 d-block" src="https://brewingcompetitions.com/mdmicrobrewfest/user_images/ahalogo.png" border="0" alt="American Homebrewers Association" title="American Homebrewers Association"  />				</div>
+							</div>
+			<div class="card-footer" style="border:none; background-color: inherit;">
+				<p class="glance-card-text mt-2 lh-sm small align-middle"><small></small></p>
+									<div class="d-grid mb-2"><a href="https://www.homebrewersassociation.org" class="btn btn-dark" target="_blank">Visit</a></div>
+							</div>
+			
+		</div>
+	</div>
+
+	<div class="col">
+		<div class="card h-100 sponsor-card-bg reveal-element">
+			<div class="card-body">
+				<header class="sponsor-header">Amoretti</header>
+								<div class="d-flex align-content-center flex-wrap">
+					<img style="max-height: 200px" class="img-fluid rounded mx-auto mt-4 d-block" src="https://brewingcompetitions.com/mdmicrobrewfest/user_images/image001.png" border="0" alt="Amoretti" title="Amoretti"  />				</div>
+							</div>
+			<div class="card-footer" style="border:none; background-color: inherit;">
+				<p class="glance-card-text mt-2 lh-sm small align-middle"><small></small></p>
+									<div class="d-grid mb-2"><a href="https://amoretti.com" class="btn btn-dark" target="_blank">Visit</a></div>
+							</div>
+			
+		</div>
+	</div>
+
+	<div class="col">
+		<div class="card h-100 sponsor-card-bg reveal-element">
+			<div class="card-body">
+				<header class="sponsor-header">Bear Branch Malt</header>
+								<div class="d-flex align-content-center flex-wrap">
+					<img style="max-height: 200px" class="img-fluid rounded mx-auto mt-4 d-block" src="https://brewingcompetitions.com/mdmicrobrewfest/user_images/bearbranch.jpg" border="0" alt="Bear Branch Malt" title="Bear Branch Malt"  />				</div>
+							</div>
+			<div class="card-footer" style="border:none; background-color: inherit;">
+				<p class="glance-card-text mt-2 lh-sm small align-middle"><small>Craft malt Maryland grown and malted</small></p>
+									<div class="d-grid mb-2"><a href="https://bearbranchmalt.com" class="btn btn-dark" target="_blank">Visit</a></div>
+							</div>
+			
+		</div>
+	</div>
+
+	<div class="col">
+		<div class="card h-100 sponsor-card-bg reveal-element">
+			<div class="card-body">
+				<header class="sponsor-header">Beersmith</header>
+								<div class="d-flex align-content-center flex-wrap">
+					<img style="max-height: 200px" class="img-fluid rounded mx-auto mt-4 d-block" src="https://brewingcompetitions.com/mdmicrobrewfest/user_images/softnew200.png" border="0" alt="Beersmith" title="Beersmith"  />				</div>
+							</div>
+			<div class="card-footer" style="border:none; background-color: inherit;">
+				<p class="glance-card-text mt-2 lh-sm small align-middle"><small></small></p>
+									<div class="d-grid mb-2"><a href="http://beersmith.com" class="btn btn-dark" target="_blank">Visit</a></div>
+							</div>
+			
+		</div>
+	</div>
+
+	<div class="col">
+		<div class="card h-100 sponsor-card-bg reveal-element">
+			<div class="card-body">
+				<header class="sponsor-header">Brewery Fire</header>
+								<div class="d-flex align-content-center flex-wrap">
+					<img style="max-height: 200px" class="img-fluid rounded mx-auto mt-4 d-block" src="https://brewingcompetitions.com/mdmicrobrewfest/user_images/brewery-fire-full-logo-rgb-color-e1735603394500.png" border="0" alt="Brewery Fire" title="Brewery Fire"  />				</div>
+							</div>
+			<div class="card-footer" style="border:none; background-color: inherit;">
+				<p class="glance-card-text mt-2 lh-sm small align-middle"><small></small></p>
+									<div class="d-grid mb-2"><a href="https://www.breweryfire.com" class="btn btn-dark" target="_blank">Visit</a></div>
+							</div>
+			
+		</div>
+	</div>
+
+	<div class="col">
+		<div class="card h-100 sponsor-card-bg reveal-element">
+			<div class="card-body">
+				<header class="sponsor-header">Briess Malt & Ingredient Company</header>
+								<div class="d-flex align-content-center flex-wrap">
+					<img style="max-height: 200px" class="img-fluid rounded mx-auto mt-4 d-block" src="https://brewingcompetitions.com/mdmicrobrewfest/user_images/BriessLogo.jpg" border="0" alt="Briess Malt & Ingredient Company" title="Briess Malt & Ingredient Company"  />				</div>
+							</div>
+			<div class="card-footer" style="border:none; background-color: inherit;">
+				<p class="glance-card-text mt-2 lh-sm small align-middle"><small></small></p>
+									<div class="d-grid mb-2"><a href="https://www.briess.com" class="btn btn-dark" target="_blank">Visit</a></div>
+							</div>
+			
+		</div>
+	</div>
+
+	<div class="col">
+		<div class="card h-100 sponsor-card-bg reveal-element">
+			<div class="card-body">
+				<header class="sponsor-header">College Square Liquors</header>
+								<div class="d-flex align-content-center flex-wrap">
+					<img style="max-height: 200px" class="img-fluid rounded mx-auto mt-4 d-block" src="https://brewingcompetitions.com/mdmicrobrewfest/user_images/csliquors.gif" border="0" alt="College Square Liquors" title="College Square Liquors"  />				</div>
+							</div>
+			<div class="card-footer" style="border:none; background-color: inherit;">
+				<p class="glance-card-text mt-2 lh-sm small align-middle"><small></small></p>
+									<div class="d-grid mb-2"><a href="https://collegesquarecraft.com" class="btn btn-dark" target="_blank">Visit</a></div>
+							</div>
+			
+		</div>
+	</div>
+
+	<div class="col">
+		<div class="card h-100 sponsor-card-bg reveal-element">
+			<div class="card-body">
+				<header class="sponsor-header">Five Star Chemicals</header>
+								<div class="d-flex align-content-center flex-wrap">
+					<img style="max-height: 200px" class="img-fluid rounded mx-auto mt-4 d-block" src="https://brewingcompetitions.com/mdmicrobrewfest/user_images/fivestarlogo.jpg" border="0" alt="Five Star Chemicals" title="Five Star Chemicals"  />				</div>
+							</div>
+			<div class="card-footer" style="border:none; background-color: inherit;">
+				<p class="glance-card-text mt-2 lh-sm small align-middle"><small></small></p>
+									<div class="d-grid mb-2"><a href="http://www.fivestarchemicals.com" class="btn btn-dark" target="_blank">Visit</a></div>
+							</div>
+			
+		</div>
+	</div>
+
+	<div class="col">
+		<div class="card h-100 sponsor-card-bg reveal-element">
+			<div class="card-body">
+				<header class="sponsor-header">Imperial Yeast</header>
+								<div class="d-flex align-content-center flex-wrap">
+					<img style="max-height: 200px" class="img-fluid rounded mx-auto mt-4 d-block" src="https://brewingcompetitions.com/mdmicrobrewfest/user_images/image_3.jpeg" border="0" alt="Imperial Yeast" title="Imperial Yeast"  />				</div>
+							</div>
+			<div class="card-footer" style="border:none; background-color: inherit;">
+				<p class="glance-card-text mt-2 lh-sm small align-middle"><small></small></p>
+									<div class="d-grid mb-2"><a href="https://www.imperialyeast.com" class="btn btn-dark" target="_blank">Visit</a></div>
+							</div>
+			
+		</div>
+	</div>
+
+	<div class="col">
+		<div class="card h-100 sponsor-card-bg reveal-element">
+			<div class="card-body">
+				<header class="sponsor-header">Maryland Homebrew</header>
+								<div class="d-flex align-content-center flex-wrap">
+					<img style="max-height: 200px" class="img-fluid rounded mx-auto mt-4 d-block" src="https://brewingcompetitions.com/mdmicrobrewfest/user_images/mdhbnew.png" border="0" alt="Maryland Homebrew" title="Maryland Homebrew"  />				</div>
+							</div>
+			<div class="card-footer" style="border:none; background-color: inherit;">
+				<p class="glance-card-text mt-2 lh-sm small align-middle"><small></small></p>
+									<div class="d-grid mb-2"><a href="http://www.mdhb.com" class="btn btn-dark" target="_blank">Visit</a></div>
+							</div>
+			
+		</div>
+	</div>
+
+	<div class="col">
+		<div class="card h-100 sponsor-card-bg reveal-element">
+			<div class="card-body">
+				<header class="sponsor-header">Midnight Homebrewers League</header>
+								<div class="d-flex align-content-center flex-wrap">
+					<img style="max-height: 200px" class="img-fluid rounded mx-auto mt-4 d-block" src="https://brewingcompetitions.com/mdmicrobrewfest/user_images/logoaminated.gif" border="0" alt="Midnight Homebrewers League" title="Midnight Homebrewers League"  />				</div>
+							</div>
+			<div class="card-footer" style="border:none; background-color: inherit;">
+				<p class="glance-card-text mt-2 lh-sm small align-middle"><small>Competition Host Club</small></p>
+									<div class="d-grid mb-2"><a href="http://www.midnighthomebrewers.org" class="btn btn-dark" target="_blank">Visit</a></div>
+							</div>
+			
+		</div>
+	</div>
+
+	<div class="col">
+		<div class="card h-100 sponsor-card-bg reveal-element">
+			<div class="card-body">
+				<header class="sponsor-header">Pints For Prostates</header>
+								<div class="d-flex align-content-center flex-wrap">
+					<img style="max-height: 200px" class="img-fluid rounded mx-auto mt-4 d-block" src="https://brewingcompetitions.com/mdmicrobrewfest/user_images/PFPLogo.jpg" border="0" alt="Pints For Prostates" title="Pints For Prostates"  />				</div>
+							</div>
+			<div class="card-footer" style="border:none; background-color: inherit;">
+				<p class="glance-card-text mt-2 lh-sm small align-middle"><small>Reaching men through the universal language of beer</small></p>
+									<div class="d-grid mb-2"><a href="https://www.pintsforprostates.org" class="btn btn-dark" target="_blank">Visit</a></div>
+							</div>
+			
+		</div>
+	</div>
+
+	<div class="col">
+		<div class="card h-100 sponsor-card-bg reveal-element">
+			<div class="card-body">
+				<header class="sponsor-header">Pub Dog Brewing Co.</header>
+								<div class="d-flex align-content-center flex-wrap">
+					<img style="max-height: 200px" class="img-fluid rounded mx-auto mt-4 d-block" src="https://brewingcompetitions.com/mdmicrobrewfest/user_images/img-0003.gif" border="0" alt="Pub Dog Brewing Co." title="Pub Dog Brewing Co."  />				</div>
+							</div>
+			<div class="card-footer" style="border:none; background-color: inherit;">
+				<p class="glance-card-text mt-2 lh-sm small align-middle"><small></small></p>
+									<div class="d-grid mb-2"><a href="https://pubdog.com" class="btn btn-dark" target="_blank">Visit</a></div>
+							</div>
+			
+		</div>
+	</div>
+
+	<div class="col">
+		<div class="card h-100 sponsor-card-bg reveal-element">
+			<div class="card-body">
+				<header class="sponsor-header">Spike Brewing</header>
+								<div class="d-flex align-content-center flex-wrap">
+					<img style="max-height: 200px" class="img-fluid rounded mx-auto mt-4 d-block" src="https://brewingcompetitions.com/mdmicrobrewfest/user_images/img-0004.jpeg" border="0" alt="Spike Brewing" title="Spike Brewing"  />				</div>
+							</div>
+			<div class="card-footer" style="border:none; background-color: inherit;">
+				<p class="glance-card-text mt-2 lh-sm small align-middle"><small></small></p>
+									<div class="d-grid mb-2"><a href="https://spikebrewing.com" class="btn btn-dark" target="_blank">Visit</a></div>
+							</div>
+			
+		</div>
+	</div>
+
+	<div class="col">
+		<div class="card h-100 sponsor-card-bg reveal-element">
+			<div class="card-body">
+				<header class="sponsor-header">The Flying Barrel</header>
+								<div class="d-flex align-content-center flex-wrap">
+					<img style="max-height: 200px" class="img-fluid rounded mx-auto mt-4 d-block" src="https://brewingcompetitions.com/mdmicrobrewfest/user_images/flylogo.gif" border="0" alt="The Flying Barrel" title="The Flying Barrel"  />				</div>
+							</div>
+			<div class="card-footer" style="border:none; background-color: inherit;">
+				<p class="glance-card-text mt-2 lh-sm small align-middle"><small></small></p>
+									<div class="d-grid mb-2"><a href="http://www.flyingbarrel.com" class="btn btn-dark" target="_blank">Visit</a></div>
+							</div>
+			
+		</div>
+	</div>
+
+	<div class="col">
+		<div class="card h-100 sponsor-card-bg reveal-element">
+			<div class="card-body">
+				<header class="sponsor-header">Tilt Hydrometers</header>
+								<div class="d-flex align-content-center flex-wrap">
+					<img style="max-height: 200px" class="img-fluid rounded mx-auto mt-4 d-block" src="https://brewingcompetitions.com/mdmicrobrewfest/user_images/tilt_logo.jpeg" border="0" alt="Tilt Hydrometers" title="Tilt Hydrometers"  />				</div>
+							</div>
+			<div class="card-footer" style="border:none; background-color: inherit;">
+				<p class="glance-card-text mt-2 lh-sm small align-middle"><small></small></p>
+									<div class="d-grid mb-2"><a href="https://tilthydrometer.com" class="btn btn-dark" target="_blank">Visit</a></div>
+							</div>
+			
+		</div>
+	</div>
+
+	<div class="col">
+		<div class="card h-100 sponsor-card-bg reveal-element">
+			<div class="card-body">
+				<header class="sponsor-header">Union Mills Homestead</header>
+								<div class="d-flex align-content-center flex-wrap">
+					<img style="max-height: 200px" class="img-fluid rounded mx-auto mt-4 d-block" src="https://brewingcompetitions.com/mdmicrobrewfest/user_images/mill_lineart.jpg" border="0" alt="Union Mills Homestead" title="Union Mills Homestead"  />				</div>
+							</div>
+			<div class="card-footer" style="border:none; background-color: inherit;">
+				<p class="glance-card-text mt-2 lh-sm small align-middle"><small>Festival and Competition Host</small></p>
+									<div class="d-grid mb-2"><a href="http://www.unionmills.org" class="btn btn-dark" target="_blank">Visit</a></div>
+							</div>
+			
+		</div>
+	</div>
+
+	<div class="col">
+		<div class="card h-100 sponsor-card-bg reveal-element">
+			<div class="card-body">
+				<header class="sponsor-header">Wyeast Laboratories</header>
+								<div class="d-flex align-content-center flex-wrap">
+					<img style="max-height: 200px" class="img-fluid rounded mx-auto mt-4 d-block" src="https://brewingcompetitions.com/mdmicrobrewfest/user_images/Wyeast_Logo.gif" border="0" alt="Wyeast Laboratories" title="Wyeast Laboratories"  />				</div>
+							</div>
+			<div class="card-footer" style="border:none; background-color: inherit;">
+				<p class="glance-card-text mt-2 lh-sm small align-middle"><small></small></p>
+									<div class="d-grid mb-2"><a href="https://wyeastlab.com" class="btn btn-dark" target="_blank">Visit</a></div>
+							</div>
+			
+		</div>
+	</div>
+
+
+</div>    </section>
+
+        
+    <section id="contact" class="landing-page-section pb-3 d-print-none reveal-element">
+        <header class="landing-page-section-header py-2">
+            <h1>Contact</h1>
+        </header>
+        <p>Use the form below to contact a competition official. All fields with a star are required.</p>
+        <div id="message-container"></div>
+
+        <form id="contact-form" class="justify-content-center hide-loader-form-submit needs-validation" name="contact-form" method="post" action="https://brewingcompetitions.com/mdmicrobrewfest/includes/process.inc.php?dbTable=mdmicrobrewfest_contacts&section=contact-pub&action=email" novalidate>
+
+            <input type="text" name="website" class="pooh-bear" tabindex="-1" autocomplete="off">
+            <input type="hidden" name="form_token" id="form_token" value="">
+            <input type="hidden" name="form_loaded_time" id="form_loaded_time" value="">
+            <input type="hidden" name="user_session_token" value ="a68483e831a61225fddac1535bf56f84dd0fd75f5b2c14ff017fcb320ad717d7">
+                        <input type="hidden" name="relocate" value="https://brewingcompetitions.com/mdmicrobrewfest/#contact">
+            
+            <div class="row mb-3">
+                <label for="select-contact" class="col-sm-12 col-md-2 col-form-label text-teal"><i class="fa fa-sm fa-star pe-1"></i><strong>Contact</strong></label>
+                <div class="col-sm-12 col-md-10">
+                    <select id="select-contact" class="form-select bootstrap-select" name="to" placeholder="Select or search for a contact." autocomplete="off" required>
+                        <option value="">Select or search for a contact.</option>
+                        <option value="1">Justin Wilson &ndash; Competition Coordinator</option>                    </select>
+                    <div class="invalid-feedback">Please select a person.</div>
+                </div>
+            </div>
+
+            <div class="row mb-3">
+                <label for="from-name" class="col-sm-12 col-md-2 col-form-label text-teal"><i class="fa fa-sm fa-star pe-1"></i><strong>Name</strong></label>
+                <div class="col-sm-12 col-md-10">
+                    <input id="from-name" class="form-control no-spam" name="from_name" type="text" size="35" placeholder="Please provide your first and last name." value="" autocomplete="off" required>
+                    <div class="invalid-feedback">Please provide your first and last name.</div>
+                </div>
+            </div>
+
+            <div class="row mb-3">
+                <label for="from-email" class="col-sm-12 col-md-2 col-form-label text-teal"><i class="fa fa-sm fa-star pe-1"></i><strong>Email Address</strong></label>
+                <div class="col-sm-12 col-md-10">
+                    <input id="from-email" class="form-control no-spam" name="from_email" type="email" size="35" onchange="AjaxFunction(this.value);" placeholder="Please provide a valid email address." value="" autocomplete="off" required>
+                    <div id="msg_email" class="mt-2"></div>
+                    <div class="invalid-feedback">Please provide a valid email address.</div>
+                </div>
+            </div>
+
+            <div class="row mb-3">
+                <label for="subject" class="col-sm-12 col-md-2 col-form-label text-teal"><i class="fa fa-sm fa-star pe-1"></i><strong>Subject</strong></label>
+                <div class="col-sm-12 col-md-10">
+                    <input id="subject" class="form-control no-spam" name="subject" type="text" placeholder="Please provide a subject." value="" autocomplete="off" required> 
+                    <div class="invalid-feedback">Please provide a subject.</div> 
+                </div>
+            </div>
+
+            <div class="row mb-3">
+                <label for="message" class="col-sm-12 col-md-2 col-form-label text-teal"><i class="fa fa-sm fa-star pe-1"></i><strong>Message</strong></label>
+                <div class="col-sm-12 col-md-10">
+                    <textarea id="message" class="form-control no-spam" style="height: 140px" name="message" required></textarea>
+                    <div class="invalid-feedback">Please provide a message.</div>
+                </div>
+            </div>
+
+            <div class="row mb-3">
+                <label for="" class="col-sm-12 col-md-2 col-form-label text-teal"><i class="fa fa-sm fa-star pe-1"></i><strong>Verify</strong></label>
+                <div class="col-sm-12 col-md-10">
+                    <div class="h-captcha mb-3" data-sitekey="e5ac6fda-b3de-4374-86cc-75c88270ada4"></div>
+                </div>
+            </div>
+
+            <div class="row mb-3">
+                <label for="form-submit-button-1" class="col-sm-2 col-form-label"></label>
+                <div class="col-sm-12 col-md-10">
+                    <div class="d-grid">
+                        <button id="form-submit-button-1" name="submit" type="submit" class="btn btn-primary">Send Message</button>
+                    </div>
+                </div>
+            </div>
+            
+        </form>
+
+    <script src="https://js.hcaptcha.com/1/api.js"></script>
+    <script>
+        var no_paste_message = '<strong>Pasting text is disabled.</strong> Please type your information.';
+    </script>
+    <script src="https://brewingcompetitions.com/_3.X_shared/js_includes/contact.min.js"></script>
+
+    </section>
+    
+
+
+
+
+
+
+
+
+
+
+    
+</div>
+
+<!-- Login Modals -->
+<div class="modal fade" id="login-modal" data-bs-backdrop="static" data-bs-keyboard="false" aria-hidden="true" aria-labelledby="login-modal-label" tabindex="-1">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h1 class="modal-title fs-5" id="login-modal-label">Log In</h1>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <form class="needs-validation" method="post" action="https://brewingcompetitions.com/mdmicrobrewfest/includes/process.inc.php?section=login&action=login" novalidate>
+            <div class="form-floating mb-3"><input class="form-control form-control-lg mb-3" id="login-user-name" type="email" name="loginUsername" placeholder="Email Address" required><label for="login-user-name">Email Address</label></div><div class="invalid-feedback mb-4">Your user name (email address) is required. The token provided has expired. Please use the reset password function again to generate a new token.</div><div class="form-floating mb-3"><input class="form-control form-control-lg mb-3" id="login-password" type="password" name="loginPassword" placeholder="Password" required><label for="login-user-name">Password</label></div><div class="invalid-feedback mb-3">Your password is required.</div>            <div class="d-grid gap-2 mx-auto mb-4">
+              <button id="login-button" class="btn btn-lg btn-success" type="submit">Log In<i class="fas fa-sign-in-alt ps-2"></i></button>
+            </div>
+        </form>
+        <div class="d-grid gap-2 col-5 mx-auto text-center">Forgot your password?<br><button class="btn btn-sm btn-primary mt-1" data-bs-target="#forgot-modal" data-bs-toggle="modal">Reset It</button></div>        </div>
+        <div class="modal-footer">
+            <button type="button" class="btn btn-danger" data-bs-dismiss="modal" onclick="forgot_password_clear_all()">Close</button>
+        </div>      
+    </div>
+  </div>
+</div>
+
+<div class="modal fade" id="forgot-modal" data-bs-backdrop="static" data-bs-keyboard="false" aria-hidden="true" aria-labelledby="login-modal-label2" tabindex="-1">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+        <div class="modal-header">
+        <h1 class="modal-title fs-5" id="login-modal-label2">Reset Password</h1>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close" onclick="forgot_password_clear_all()"></button>
+        </div>
+        <div class="modal-body" id="forgot-password">
+            <p class="lead">To reset your password, enter the email address you used when you registered.</p><div class="form-floating mb-3"><input class="form-control form-control-lg mb-3" name="forgot-user-name" id="forgot-user-name" type="text" onkeyup="check_valid_email('https://brewingcompetitions.com/mdmicrobrewfest/ajax/','forgot-user-name','forgot-user-name-email-status')" placeholder="Email Address"><label for="login-user-name">Email Address</label><div class="invalid-feedback mb-4">Your user name (email address) is required.</div></div><div id="forgot-user-name-email-status" class="mb-3"></div><div id="forgot-user-name-status" class="mb-3"></div><div id="security-question-response-status" class="mb-3"></div>            <div class="d-grid gap-1 mx-auto mb-4"><button id="forgot-user-name-check-button" class="btn btn-block btn-lg btn-primary mb-3" onclick="check_user_name_avail('https://brewingcompetitions.com/mdmicrobrewfest/ajax/','forgot-user-name','forgot-user-name-status','forgot_password')">Verify<i class="fas fa-search ps-2"></i></button><button id="forgot-user-name-clear-button" class="btn btn-block btn-lg btn-secondary" onclick="forgot_password_clear_all()">Clear<i class="fas fa-eraser ps-2"></i></button></div>        </div> 
+        <div class="modal-footer">
+        <button class="btn btn-dark" data-bs-target="#login-modal" data-bs-toggle="modal" onclick="forgot_password_clear_all()"><i class="fas fa-chevron-left pe-2"></i>Log In</button>
+        <button type="button" class="btn btn-danger" data-bs-dismiss="modal" onclick="forgot_password_clear_all()">Close</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<!-- Footer -->
+<footer class="site-footer bg-dark text-light justify-content-center container-fluid fixed-bottom pt-3 d-print-none">
+     <p class="text-center"><span class="d-none d-lg-inline">2026 Maryland Microbrewery Festival Homebrew Competition &ndash; </span><a href="http://www.brewingcompetitions.com" target="_blank">BCOE&amp;M</a> 3.0.3<span class="d-none d-lg-inline"> &ndash; Hosted Amateur Competition Edition</span> <span class="far fa-copyright fa-xs"></span>2009-2026</p>
+</footer>
+
+
+<!-- Required Info Missing Modal -->
+<div class="modal modal-lg fade" id="form-submit-button-disabled-msg-required" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="form-submit-button-disabled-msg-required-label" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+            <h1 class="modal-title fs-5" id="form-submit-button-disabled-msg-required-label">Required Info</h1>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+            <p><strong>Not all required fields have been filled out or selected.</strong></p><p>Required fields that are missing values are indicated with a star <i class="fa fa-sm fa-star"></i> and/or in <strong class="text-danger">red</strong>. Please scroll/swipe up as necessary to find all required fields.</p>            </div>
+            <div class="modal-footer">
+            <button type="button" class="btn btn-primary" data-bs-dismiss="modal">I Understand</button>
+            </div>
+        </div>
+    </div>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.8/dist/umd/popper.min.js" integrity="sha384-I7E8VVD/ismYTF4hNIPjVp/Zjvgyol6VFvRkX/vR+Vc4jQkC+hVqc2pM8ODewa9r" crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.min.js" integrity="sha384-BBtl+eGJRgqQAUMxJ7pMwbEyER4l1g+O15P+16Ep7Q9Q+zqX6gSbd85u4mG4QzX+" crossorigin="anonymous"></script>
+<script src="https://brewingcompetitions.com/_3.X_shared/js_includes/app.pub.min.js"></script> 
+<script src="https://brewingcompetitions.com/_3.X_shared/js_includes/invoke.min.js"></script>
+<script>
+
+    if (section == "brewer") {
+        var club_other = false;
+        var brewer_judge = "N";
+        var brewer_steward = "N";
+        var brewer_staff = "N";
+        var brewer_brewery_ttb = false;
+        var brewer_brewery_prod = false;
+        var user_question_answer = ""
+        if (action == "edit") {
+            var brewer_country = "";
+            var brewer_judge = "";
+            var brewer_steward = "";
+            var brewer_staff = "";
+        }        
+    }
+
+    if (section != "brew") var edit_style = "default";
+    else edit_style = edit_style;
+
+    // Only execute countdowns for at-a-glance cards 
+    // if on the home page or the user's account page
+
+    if ((section == "default") || (section == "list")) {
+
+        var awards_open = "2026-09-26 17:00:00";
+        var judging_open = "2026-09-25 17:00:00";
+        var judging_close = "2026-09-26 13:00:00";
+        var entry_open = "2026-07-04 10:00:00";
+        var entry_close = "2026-09-18 17:00:00";
+        var account_open = "2026-06-10 00:00:00";
+        var account_close = "2026-09-18 13:00:00";
+        var judge_steward_open = "2026-06-10 00:00:00";
+        var judge_steward_close = "2026-09-25 13:00:00";
+        var shipping_open = "2026-08-14 00:00:00";
+        var shipping_close = "2026-09-18 17:00:00";
+        var dropoff_open = "2026-08-14 00:00:00";
+        var dropoff_close = "2026-09-18 17:00:00";
+
+        var awards_date = "";
+        var judging_open_date = "";
+        var judging_close_date = "";
+        var entry_open_date = "";
+        var entry_close_date = "";
+        var account_open_date = "";
+        var account_close_date = "";
+        var judge_steward_open_date = "";
+        var judge_steward_close_date = "";
+        var shipping_open_date = "";
+        var shipping_close_date = "";
+        var dropoff_open_date = "";
+        var dropoff_close_date = "";
+
+        if (awards_open) var awards_date = moment.tz(awards_open,current_timezone);    
+        if (judging_open) var judging_open_date = moment.tz(judging_open,current_timezone);
+        if (judging_close) var judging_close_date = moment.tz(judging_close,current_timezone);
+        if (entry_open) var entry_open_date = moment.tz(entry_open,current_timezone);    
+        if (entry_close) var entry_close_date = moment.tz(entry_close,current_timezone);    
+        if (account_open) var account_open_date = moment.tz(account_open,current_timezone);    
+        if (account_close) var account_close_date = moment.tz(account_close,current_timezone);    
+        if (judge_steward_open) var judge_steward_open_date = moment.tz(judge_steward_open,current_timezone);    
+        if (judge_steward_close) var judge_steward_close_date = moment.tz(judge_steward_close,current_timezone);    
+        if (shipping_open) var shipping_open_date = moment.tz(shipping_open,current_timezone);    
+        if (shipping_close) var shipping_close_date = moment.tz(shipping_close,current_timezone);    
+        if (dropoff_open) var dropoff_open_date = moment.tz(dropoff_open,current_timezone);    
+        if (dropoff_close) var dropoff_close_date = moment.tz(dropoff_close,current_timezone);
+
+        $(document).ready(function() {
+
+            if (awards_date) {
+                
+                $("#awards-date").countdown(awards_date.toDate(), function(event) {
+                    $(this).text(event.strftime('%-D '+label_days+' %-H:%M:%S '+label_hours));
+                });
+
+                var date_compare = new Date(judging_close_date);
+                var date_close = date_compare.getTime();
+                var date_close_minus_1_day = date_compare.getTime() - 86400000;
+                
+                if (date_time_now > date_close_minus_1_day) {
+                    $("#awards-date").attr("class", "fw-bold");
+                    $("#awards-date-item").attr("class", "text-danger-emphasis");
+                }
+
+            }
+                
+            if (judging_open_date) {
+                $("#judging-open-date").countdown(judging_open_date.toDate(), function(event) {
+                    $(this).text(event.strftime('%-D '+label_days+' %-H:%M:%S '+label_hours));
+                });
+            }
+                
+            if (judging_close_date) {
+                
+                $("#judging-close-date").countdown(judging_close_date.toDate(), function(event) {
+                    $(this).text(event.strftime('%-D '+label_days+' %-H:%M:%S '+label_hours));
+                });
+
+                var date_compare = new Date(judging_close_date);
+                var date_close = date_compare.getTime();
+                var date_close_minus_1_day = date_compare.getTime() - 86400000;
+                
+                if (date_time_now > date_close_minus_1_day) {
+                    $("#judging-close-date").attr("class", "fw-bold");
+                    $("#judging-close-date-item").attr("class", "text-danger-emphasis");
+                }
+            }
+                
+            if (entry_open_date) {
+                $("#entry-open-date").countdown(entry_open_date.toDate(), function(event) {
+                    $(this).text(event.strftime('%-D '+label_days+' %-H:%M:%S '+label_hours));
+                });
+            }
+
+            if (entry_close_date) {
+                
+                $("#entry-close-date").countdown(entry_close_date.toDate(), function(event) {
+                    $(this).text(event.strftime('%-D '+label_days+' %-H:%M:%S '+label_hours));
+                });
+
+                var date_compare = new Date(entry_close_date);
+                var date_close = date_compare.getTime();
+                var date_close_minus_1_day = date_compare.getTime() - 86400000;
+                
+                if (date_time_now > date_close_minus_1_day) {
+                    $("#entry-close-date").attr("class", "fw-bold");
+                    $("#entry-close-date-item").attr("class", "text-danger-emphasis");
+                }
+
+            }   
+
+            if (account_open_date) {
+                $("#account-open-date").countdown(account_open_date.toDate(), function(event) {
+                    $(this).text(event.strftime('%-D '+label_days+' %-H:%M:%S '+label_hours));
+                });
+            }
+
+            if (account_close_date) {
+                
+                $("#account-close-date").countdown(account_close_date.toDate(), function(event) {
+                    $(this).text(event.strftime('%-D '+label_days+' %-H:%M:%S '+label_hours));
+                });
+
+                var date_compare = new Date(account_close_date);
+                var date_close = date_compare.getTime();
+                var date_close_minus_1_day = date_compare.getTime() - 86400000;
+
+                if (date_time_now > date_close_minus_1_day) {
+                    $("#account-close-date").attr("class", "fw-bold");
+                    $("#account-close-date-item").attr("class", "text-danger-emphasis");
+                }
+            
+            }
+
+            if (judge_steward_open_date) {
+                $("#judge-open-date").countdown(judge_steward_open_date.toDate(), function(event) {
+                    $(this).text(event.strftime('%-D '+label_days+' %-H:%M:%S '+label_hours));
+                });
+                $("#steward-open-date").countdown(judge_steward_open_date.toDate(), function(event) {
+                    $(this).text(event.strftime('%-D '+label_days+' %-H:%M:%S '+label_hours));
+                });
+            }
+                
+            if (judge_steward_close_date) {
+                
+                $("#judge-close-date").countdown(judge_steward_close_date.toDate(), function(event) {
+                    $(this).text(event.strftime('%-D '+label_days+' %-H:%M:%S '+label_hours));
+                });
+                $("#steward-close-date").countdown(judge_steward_close_date.toDate(), function(event) {
+                    $(this).text(event.strftime('%-D '+label_days+' %-H:%M:%S '+label_hours));
+                });
+
+                var date_compare = new Date(judge_steward_close_date);
+                var date_close = date_compare.getTime();
+                var date_close_minus_1_day = date_compare.getTime() - 86400000;
+                
+                if (date_time_now > date_close_minus_1_day) {
+                    $("#judge-close-date").attr("class", "fw-bold");
+                    $("#judge-close-date-item").attr("class", "text-danger-emphasis");
+                    $("#steward-close-date").attr("class", "fw-bold");
+                    $("#steward-close-date-item").attr("class", "text-danger-emphasis");
+                }
+            }
+
+            if (shipping_open_date) {
+                $("#shipping-open-date").countdown(shipping_open_date.toDate(), function(event) {
+                    $(this).text(event.strftime('%-D '+label_days+' %-H:%M:%S '+label_hours));
+                });
+            }
+                
+            if (shipping_close_date) {
+                
+                $("#shipping-close-date").countdown(shipping_close_date.toDate(), function(event) {
+                    $(this).text(event.strftime('%-D '+label_days+' %-H:%M:%S '+label_hours));
+                });
+
+                var date_compare = new Date(shipping_close_date);
+                var date_close = date_compare.getTime();
+                var date_close_minus_1_day = date_compare.getTime() - 86400000;
+                
+                if (date_time_now > date_close_minus_1_day) {
+                    $("#shipping-close-date").attr("class", "fw-bold");
+                    $("#shipping-close-date-item").attr("class", "text-danger-emphasis");
+                }
+            
+            }
+
+            if (dropoff_open_date) {
+                $("#dropoff-open-date").countdown(dropoff_open_date.toDate(), function(event) {
+                    $(this).text(event.strftime('%-D '+label_days+' %-H:%M:%S '+label_hours));
+                });
+            }
+                
+            if (dropoff_close_date) {
+                
+                $("#dropoff-close-date").countdown(dropoff_close_date.toDate(), function(event) {
+                    $(this).text(event.strftime('%-D '+label_days+' %-H:%M:%S '+label_hours));
+                });
+
+                var date_compare = new Date(dropoff_close_date);
+                var date_close = date_compare.getTime();
+                var date_close_minus_1_day = date_compare.getTime() - 86400000;
+                
+                if (date_time_now > date_close_minus_1_day) {
+                    $("#dropoff-close-date").attr("class", "fw-bold");
+                    $("#dropoff-close-date-item").attr("class", "text-danger-emphasis");
+                }
+
+            }
+
+        });
+
+    }
+
+    if ((section == "default") && (entry_window_open == 1)) {
+
+        $("#resume-updates-button").hide();
+
+        var count_update_text = "Counts update every two minutes.";
+        var count_paused_text = "Counts paused while window is inactive. Click or tap to reactivate.";
+        var count_timeout_text = "Count updates timed out. Select Resume Updates to restart.";
+        var interval_onfocus = null;
+        var interval_onload = null;
+        var interval_timeout = null;
+        
+        // Update all counters
+        function updateAllCounters(ajax_url) {
+            fetchRecordCount(ajax_url,'entry-total-count','1','brewing');
+            setTimeout(function() {
+                fetchRecordCount(ajax_url,'entry-paid-count','1','brewing','brewPaid','1');
+            }, 2000);
+        }
+
+        // Timeout function
+        function stopUpdates() {
+            clearInterval(interval_onload);
+            clearInterval(interval_onfocus);
+            clearInterval(interval_timeout);
+            $(".count-two-minute-info").text(count_timeout_text);
+            $("#resume-updates-button").fadeIn('fast');
+        }
+
+        function resumeUpdates() {
+            clearInterval(interval_onload);
+            clearInterval(interval_onfocus);
+            clearInterval(interval_timeout);
+            updateAllCounters(ajax_url);
+            interval_onfocus = setInterval(function() { 
+                updateAllCounters(ajax_url); 
+            }, 120000);
+            interval_timeout = setTimeout(function() {
+                stopUpdates();
+            }, 1200000);
+            $(".count-two-minute-info").text(count_update_text);
+            $("#resume-updates-button").fadeOut('fast');
+        }
+        
+        $(document).ready(function() {
+            
+            $(".count-two-minute-info").html(count_update_text);
+
+            window.onload = function () {
+                interval_onload = setInterval(function() { 
+                    updateAllCounters(ajax_url); 
+                }, 120000);
+                interval_timeout = setTimeout(function() {
+                    stopUpdates();
+                }, 1200000);
+                $(".count-two-minute-info").html(count_update_text);
+            };
+
+            window.onfocus = function () {
+                clearInterval(interval_onload);
+                clearInterval(interval_onfocus);
+                clearInterval(interval_timeout);
+                updateAllCounters(ajax_url);
+                interval_onfocus = setInterval(function() { 
+                    updateAllCounters(ajax_url); 
+                }, 120000);
+                interval_timeout = setTimeout(function() {
+                    stopUpdates();
+                }, 1200000);
+                $(".count-two-minute-info").text(count_update_text);
+                $("#resume-updates-button").fadeOut('fast');
+            };
+
+            window.onblur = function () {
+                clearInterval(interval_onload);
+                clearInterval(interval_onfocus);
+                clearInterval(interval_timeout);
+                $(".count-two-minute-info").text(count_paused_text);
+            };
+
+        });
+
+    }
+
+</script>
+
+
+</body></html>

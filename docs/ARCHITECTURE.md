@@ -51,6 +51,7 @@ src/
 │   ├── platform-detector.ts  # URL-based platform detection
 │   ├── parser-factory.ts  # Factory for creating parsers
 │   ├── bcoem-parser.ts    # BCOEM implementation
+│   ├── bcoem-sections.ts  # BCOEM entry-info page section extraction
 │   ├── reggie-parser.ts   # Reggie implementation
 │   └── bap-parser.ts      # BAP implementation
 ├── bcoem.ts               # [DEPRECATED] Old BCOEM code
@@ -62,6 +63,7 @@ test/
 ├── http/
 │   └── fetch.test.ts
 └── parsers/
+    ├── bcoem-parser.test.ts
     └── platform-detector.test.ts
 ```
 

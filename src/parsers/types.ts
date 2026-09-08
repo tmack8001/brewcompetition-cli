@@ -18,6 +18,14 @@ export interface ParsedMetadata {
 }
 
 export interface CompetitionParser {
+  /**
+   * Pages worth trying for competition metadata, most likely first.
+   *
+   * Implement when a platform keeps its metadata somewhere other than the URL a
+   * user would naturally paste in. Omit to use the given URL as-is.
+   */
+  metadataUrls?(url: string): string[];
+
   parseMetadata(html: string): Promise<ParsedMetadata>;
   
   parseResults(
