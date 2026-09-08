@@ -68,6 +68,7 @@
     "@oclif/plugin-plugins": "^5",
     "axios": "^1.6.8",
     "cheerio": "^1.0.0-rc.12",
+    "impit": "^0.14.5",
     "moment-timezone": "^0.5.45",
     "node-persist": "^4.0.1"
   },
@@ -88,7 +89,7 @@
     "eslint-config-oclif-typescript": "^3",
     "eslint-config-prettier": "^9.1.0",
     "json2csv": "^6.0.0-alpha.2",
-    "mocha": "^10",
+    "mocha": "^11.8.0",
     "node-localstorage": "^3.0.5",
     "oclif": "^4.4.19",
     "shx": "^0.3.4",
@@ -96,6 +97,6 @@
     "typescript": "^5"
   },
   "engines": {
-    "node": ">=18.0.0"
+    "node": ">=20.0.0"
   }
 }

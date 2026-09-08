@@ -13,11 +13,22 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
--
+- Automatic browser impersonation fallback for competition sites behind bot
+  protection (Cloudflare, Hostinger CDN). Requests that come back as a
+  "Just a moment..." / "Enable JavaScript and cookies" interstitial are
+  retried with a Chrome, then Firefox, TLS fingerprint via `impit`.
+- `BotChallengeError` with the list of attempted strategies, so a site that
+  genuinely cannot be reached reports why instead of failing to parse.
 
 ### Changed
 
--
+- Minimum supported Node.js version raised from 18 to 20 (`impit` requires
+  Node 20+; Node 18 reached end of life in April 2025).
+- Upgraded `mocha` from v10 to v11. mocha 10 pulls `yargs` 16, which cannot be
+  loaded on Node 22.12+ and prevented the test suite from starting.
+- HTTP requests in `medals`, `competitions`, and the BAP API client now go
+  through the shared `fetchHtml`/`fetchJson` helpers instead of calling
+  `axios` directly.
 
 
 ## [1.0.1] - 2026-01-16

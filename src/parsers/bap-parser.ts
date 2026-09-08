@@ -1,7 +1,18 @@
-import axios from 'axios';
 import cheerio from 'cheerio';
 
+import { fetchJson } from '../http/fetch.js';
 import { CompetitionParser, ParsedMetadata, ParsedResults } from './types.js';
+
+interface BapEntry {
+  name?: string;
+  participant?: { club?: string; displayName?: string; name?: string };
+  styleSubcategory?: string;
+}
+
+interface BapCategory {
+  name?: string;
+  positions?: Record<string, BapEntry[]>;
+}
 
 export class BAPParser implements CompetitionParser {
   async parseMetadata(_html: string): Promise<ParsedMetadata> {
@@ -108,22 +119,22 @@ export class BAPParser implements CompetitionParser {
 
     try {
       // First, get the competition info to extract the competitionId
-      const infoResponse = await axios.get(
+      const info = await fetchJson<{ competition?: { competitionId?: string } }>(
         `https://beerawardsplatform.com/api/loadCompetitionInfo?competitionKey=${competitionKey}&includeEntryCount`
       );
 
-      const competitionId = infoResponse.data?.competition?.competitionId;
+      const competitionId = info?.competition?.competitionId;
       if (!competitionId) {
         console.error('Could not extract competitionId from BAP API');
         return data;
       }
 
       // Now fetch the results
-      const resultsResponse = await axios.get(
+      const resultsResponse = await fetchJson<{ results?: { miniBos?: Record<string, BapCategory> } }>(
         `https://beerawardsplatform.com/api/getResults?competitionId=${competitionId}`
       );
 
-      const results = resultsResponse.data?.results?.miniBos;
+      const results = resultsResponse?.results?.miniBos;
       if (!results) {
         console.error('No results found in BAP API response');
         return data;

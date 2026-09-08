@@ -24,7 +24,7 @@ This document describes how to create and publish releases of Brew Competition C
 
 ```bash
 # Verify Node.js version
-node --version  # Should be >= 18.0.0
+node --version  # Should be >= 20.0.0
 
 # Verify npm is installed
 npm --version

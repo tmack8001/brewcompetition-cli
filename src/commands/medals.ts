@@ -1,8 +1,8 @@
 import {Args, Command, Flags} from '@oclif/core'
-import axios from 'axios';
 import fs from 'node:fs';
 import path from 'node:path';
 
+import { fetchHtml } from '../http/fetch.js';
 import { getParser } from '../parsers/index.js';
 
 interface Config {
@@ -88,8 +88,7 @@ export default class Medals extends Command {
   }
 
   private async fetchMedals(url: string, output: string, filters : { brewers: string | undefined, club: string | undefined }) {
-    const response = await axios.get(url);
-    const htmlString = response.data;
+    const htmlString = await fetchHtml(url);
     
     const parser = getParser(url);
     const result = await parser.parseResults(htmlString, filters, url);

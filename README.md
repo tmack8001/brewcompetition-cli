@@ -3,7 +3,7 @@
 [![latest release](https://img.shields.io/npm/v/brewcompetition-cli.svg)](https://www.npmjs.com/package/brewcompetition-cli)
 [![Build status](https://github.com/tmack8001/brewcompetition-cli/workflows/build/badge.svg)](https://github.com/tmack8001/brewcompetition-cli/actions)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
-[![Node.js Version](https://img.shields.io/badge/node-%3E%3D18.0.0-brightgreen)](https://nodejs.org/)
+[![Node.js Version](https://img.shields.io/badge/node-%3E%3D20.0.0-brightgreen)](https://nodejs.org/)
 [![Contributors](https://img.shields.io/github/contributors/tmack8001/brewcompetition-cli.svg)](https://github.com/tmack8001/brewcompetition-cli/contributors)
 
 
@@ -275,7 +275,7 @@ npm run lint
 
 ## Requirements
 
-- Node.js >= 18.0.0
+- Node.js >= 20.0.0
 - npm or yarn package manager
 
 ## Contributing

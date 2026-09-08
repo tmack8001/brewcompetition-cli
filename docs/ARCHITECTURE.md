@@ -44,6 +44,8 @@ src/
 ├── commands/
 │   ├── medals.ts           # CLI command for fetching medals
 │   └── competitions.ts     # CLI command for fetching metadata
+├── http/
+│   └── fetch.ts           # HTTP layer with bot-protection fallback
 ├── parsers/
 │   ├── types.ts           # Shared interfaces and types
 │   ├── platform-detector.ts  # URL-based platform detection
@@ -57,9 +59,30 @@ src/
 test/
 ├── commands/
 │   └── medals.test.ts
+├── http/
+│   └── fetch.test.ts
 └── parsers/
     └── platform-detector.test.ts
 ```
+
+### HTTP Layer
+
+`src/http/fetch.ts` sits between the commands and the parsers. Competition
+sites increasingly sit behind bot protection that serves a JavaScript
+interstitial ("Just a moment...", "Enable JavaScript and cookies to
+continue") instead of the page, which the parsers then fail to read.
+
+`fetchHtml`/`fetchJson` handle this with an ordered set of strategies:
+
+1. A plain `axios` request. This stays first because some CDNs challenge
+   browser-looking clients while letting ordinary HTTP clients through.
+2. A request with a Chrome TLS/HTTP2 fingerprint, via `impit`.
+3. The same with a Firefox fingerprint.
+
+Each response is checked with `isChallengeResponse` before it is accepted, so
+an interstitial served with a `200` is caught as well as one served with a
+`403`. If every strategy is challenged, a `BotChallengeError` names the
+strategies that were tried.
 
 ## Key Interfaces
 

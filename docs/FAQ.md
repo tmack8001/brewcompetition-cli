@@ -27,7 +27,7 @@ No coding knowledge is required to use the tool. Basic command-line familiarity 
 
 ### What are the system requirements?
 
-- Node.js version 18.0.0 or higher
+- Node.js version 20.0.0 or higher
 - npm or yarn package manager
 - Internet connection (for fetching competition results)
 
@@ -178,6 +178,18 @@ Check:
 2. Competition URL is accessible in a browser
 3. No firewall blocking the requests
 4. Competition site isn't experiencing downtime
+
+### I'm getting "Blocked by bot protection"
+
+Some competition sites sit behind Cloudflare or a similar service that serves
+a "Just a moment..." / "Enable JavaScript and cookies to continue" page
+instead of the results. The CLI retries these automatically using a browser
+TLS fingerprint, so most such sites work without any extra steps.
+
+If you still see `BotChallengeError`, the error lists every strategy that was
+tried. Open the URL in a browser to confirm it loads; if the browser shows a
+checkbox or puzzle before letting you in, that site's protection is set to a
+level the CLI cannot clear on its own.
 
 ### Results are missing some data
 
