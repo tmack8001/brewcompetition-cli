@@ -15,17 +15,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 -
 
-### Removed
-
-- `src/bcoem.ts`, the pre-refactor BCOEM implementation. It was superseded by
-  `src/parsers/bcoem-parser.ts` when multi-platform support landed and has been
-  unreferenced since: nothing imported it, its `parseResults(html, tableSelector,
-  filters)` signature predates the `CompetitionParser` interface, and removing it
-  leaves the build, the full suite and all three platforms working. It still
-  carried three date-handling bugs fixed in 1.1.0, next to the corrected code and
-  under a near-identical name, which made it a hazard rather than the reference
-  implementation it was kept as.
-
 ### Fixed
 
 -
@@ -41,6 +30,40 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   retried with a Chrome, then Firefox, TLS fingerprint via `impit`.
 - `BotChallengeError` with the list of attempted strategies, so a site that
   genuinely cannot be reached reports why instead of failing to parse.
+
+### Changed
+
+- A platform whose metadata parsing is not implemented now reports that, instead of
+  reporting that the competition published no metadata. Trying a second URL on the
+  same site cannot help, so it is fatal rather than a candidate failure.
+- `competitions` now tries `?section=entry` when the given URL publishes no
+  metadata, and reports plainly when a competition publishes none at all
+  (BCOEM gates the entry-info page behind a login once the windows close).
+- BCOEM metadata resolution now matches on `<h2>` headings first and falls back
+  to the original named anchors, which are derived from translated labels and so
+  differ on non-English installs. The section prose is kept as the readable value
+  - it carries the drop-off locations and shipping address that the dates alone do
+  not - while the "At a Glance" cards supply the timestamps.
+- Minimum supported Node.js version raised from 18 to 20 (`impit` requires
+  Node 20+). Released as a minor version rather than a major one: Node 18 reached
+  end of life on 2025-04-30, so it receives no security patches and nobody should
+  be running the CLI on it. See the Runtime Support Policy in `docs/RELEASING.md`.
+- Upgraded `mocha` from v10 to v11. mocha 10 pulls `yargs` 16, which cannot be
+  loaded on Node 22.12+ and prevented the test suite from starting.
+- HTTP requests in `medals`, `competitions`, and the BAP API client now go
+  through the shared `fetchHtml`/`fetchJson` helpers instead of calling
+  `axios` directly.
+
+### Removed
+
+- `src/bcoem.ts`, the pre-refactor BCOEM implementation. It was superseded by
+  `src/parsers/bcoem-parser.ts` when multi-platform support landed and has been
+  unreferenced since: nothing imported it, its `parseResults(html, tableSelector,
+  filters)` signature predates the `CompetitionParser` interface, and removing it
+  leaves the build, the full suite and all three platforms working. It still
+  carried three date-handling bugs fixed in this release, next to the corrected code and
+  under a near-identical name, which made it a hazard rather than the reference
+  implementation it was kept as.
 
 ### Fixed
 
@@ -127,29 +150,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - The bottle requirement is found even when its heading is not rendered, which
   BCOEM does once the drop-off and shipping windows have closed.
 - Standard-time zones (EST, CST, MST, PST) are recognised alongside daylight ones.
-
-### Changed
-
-- A platform whose metadata parsing is not implemented now reports that, instead of
-  reporting that the competition published no metadata. Trying a second URL on the
-  same site cannot help, so it is fatal rather than a candidate failure.
-- `competitions` now tries `?section=entry` when the given URL publishes no
-  metadata, and reports plainly when a competition publishes none at all
-  (BCOEM gates the entry-info page behind a login once the windows close).
-- BCOEM metadata resolution now matches on `<h2>` headings first and falls back
-  to the original named anchors, which are derived from translated labels and so
-  differ on non-English installs. The section prose is kept as the readable value
-  - it carries the drop-off locations and shipping address that the dates alone do
-  not - while the "At a Glance" cards supply the timestamps.
-- Minimum supported Node.js version raised from 18 to 20 (`impit` requires
-  Node 20+). Released as a minor version rather than a major one: Node 18 reached
-  end of life on 2025-04-30, so it receives no security patches and nobody should
-  be running the CLI on it. See the Runtime Support Policy in `docs/RELEASING.md`.
-- Upgraded `mocha` from v10 to v11. mocha 10 pulls `yargs` 16, which cannot be
-  loaded on Node 22.12+ and prevented the test suite from starting.
-- HTTP requests in `medals`, `competitions`, and the BAP API client now go
-  through the shared `fetchHtml`/`fetchJson` helpers instead of calling
-  `axios` directly.
 
 
 ## [1.0.1] - 2026-01-16
