@@ -15,6 +15,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 -
 
+### Removed
+
+- `src/bcoem.ts`, the pre-refactor BCOEM implementation. It was superseded by
+  `src/parsers/bcoem-parser.ts` when multi-platform support landed and has been
+  unreferenced since: nothing imported it, its `parseResults(html, tableSelector,
+  filters)` signature predates the `CompetitionParser` interface, and removing it
+  leaves the build, the full suite and all three platforms working. It still
+  carried three date-handling bugs fixed in 1.1.0, next to the corrected code and
+  under a near-identical name, which made it a hazard rather than the reference
+  implementation it was kept as.
+
 ### Fixed
 
 -

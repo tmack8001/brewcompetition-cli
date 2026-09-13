@@ -52,19 +52,24 @@ src/
 │   ├── parser-factory.ts  # Factory for creating parsers
 │   ├── bcoem-parser.ts    # BCOEM implementation
 │   ├── bcoem-sections.ts  # BCOEM entry-info page section extraction
+│   ├── bcoem-dates.ts     # BCOEM date, window and timezone parsing
 │   ├── reggie-parser.ts   # Reggie implementation
 │   └── bap-parser.ts      # BAP implementation
-├── bcoem.ts               # [DEPRECATED] Old BCOEM code
 └── index.ts               # Entry point
 
 test/
 ├── commands/
+│   ├── competitions.test.ts
 │   └── medals.test.ts
 ├── http/
 │   └── fetch.test.ts
-└── parsers/
-    ├── bcoem-parser.test.ts
-    └── platform-detector.test.ts
+├── parsers/
+│   ├── bap-parser.test.ts
+│   ├── bcoem-dates.test.ts
+│   ├── bcoem-parser.test.ts
+│   ├── platform-detector.test.ts
+│   └── reggie-parser.test.ts
+└── resources/             # Captured pages and API payloads; see metadata/README.md
 ```
 
 ### HTTP Layer
@@ -215,12 +220,6 @@ export enum Platform {
 - No API calls required for detection
 - Works with any URL structure from known platforms
 - Easy to extend with new platform patterns
-
-### Why Keep Old bcoem.ts?
-- Backward compatibility during transition period
-- Can be removed after thorough verification
-- Serves as reference implementation for BCOEM parser
-- Allows gradual migration without breaking existing functionality
 
 ## Performance Considerations
 
