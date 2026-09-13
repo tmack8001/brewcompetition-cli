@@ -53,6 +53,19 @@ jobs:
           fetch-depth: 0
           ref: ${{ inputs.retry_tag != '' && inputs.retry_tag || github.ref }}
 
+      # GitHub runs the workflow file from the dispatched ref but checks out the
+      # tree at `ref` above, so recovering an older tag would leave the tooling
+      # behind - a tag cut before .github/scripts existed has none of it, which is
+      # exactly the sort of tag most likely to need recovering. Overlay the
+      # dispatched ref's .github so the scripts match the workflow running them.
+      - name: Use tooling from the dispatched ref, not the recovered tag
+        if: inputs.retry_tag != ''
+        env:
+          DISPATCH_SHA: ${{ github.sha }}
+        run: |
+          git checkout "$DISPATCH_SHA" -- .github
+          git --no-pager diff --stat HEAD -- .github | tail -1
+
       - uses: actions/setup-node@v4
         with:
           node-version: 20.x
