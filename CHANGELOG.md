@@ -7,9 +7,20 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-### Security
+### Added
 
 -
+
+### Changed
+
+-
+
+### Fixed
+
+-
+
+
+## [1.1.0] - 2026-09-13
 
 ### Added
 
@@ -120,7 +131,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - it carries the drop-off locations and shipping address that the dates alone do
   not - while the "At a Glance" cards supply the timestamps.
 - Minimum supported Node.js version raised from 18 to 20 (`impit` requires
-  Node 20+; Node 18 reached end of life in April 2025).
+  Node 20+). Released as a minor version rather than a major one: Node 18 reached
+  end of life on 2025-04-30, so it receives no security patches and nobody should
+  be running the CLI on it. See the Runtime Support Policy in `docs/RELEASING.md`.
 - Upgraded `mocha` from v10 to v11. mocha 10 pulls `yargs` 16, which cannot be
   loaded on Node 22.12+ and prevented the test suite from starting.
 - HTTP requests in `medals`, `competitions`, and the BAP API client now go

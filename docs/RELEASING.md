@@ -120,6 +120,33 @@ We follow [Semantic Versioning](https://semver.org/) (SemVer):
   - Documentation updates
   - Performance improvements
 
+### Runtime Support Policy
+
+**Dropping support for a Node.js version that is already end-of-life is a MINOR
+release, not a MAJOR one.**
+
+Raising the `engines.node` floor is technically a breaking change for anyone still
+on the removed runtime. We treat it as minor anyway, on the grounds that an
+end-of-life Node.js receives no security patches, so nobody should be running the
+CLI on one and a major version bump overstates the disruption. `engines` is also
+advisory in npm by default — installation warns rather than fails.
+
+What this means in practice:
+
+- Raising the floor to a version that is **already EOL upstream** → MINOR.
+- Raising the floor to a version that is **still supported** → MAJOR, because that
+  strands users who are on a runtime they were entitled to expect works.
+
+Either way, call it out under `### Changed` in the CHANGELOG with the EOL date, so
+someone reading the release notes can see the reasoning rather than inferring it
+from the version number.
+
+Applied so far:
+
+| Release | Change | Rationale |
+| --- | --- | --- |
+| 1.1.0 | Node 18 → 20 | Node 18 reached end of life 2025-04-30 |
+
 ### Pre-Release Versions
 
 For testing before official release:
