@@ -1,65 +1,201 @@
 name: Release
 
+# Cutting a release is a GitHub action, not a local one: dispatch this workflow
+# from the Actions tab. It bumps the version, rolls the changelog, tags, publishes
+# the GitHub release with notes and a tarball, and optionally publishes to npm.
+#
+# Deliberately NOT triggered by pushing a tag. A tag trigger cannot bump a version
+# or roll a changelog, so it splits the release across two places and leaves the
+# repository in a half-released state when either half fails.
 on:
-  push:
-    tags:
-      - 'v*'
+  workflow_dispatch:
+    inputs:
+      bump:
+        description: 'Version bump. Dropping an already-EOL Node version is minor; see docs/RELEASING.md'
+        type: choice
+        options: [patch, minor, major]
+        default: patch
+      dry_run:
+        description: 'Rehearse only: compute the version and notes, push nothing'
+        type: boolean
+        default: true
+      publish_npm:
+        description: 'Publish to npm (needs the NPM_TOKEN secret)'
+        type: boolean
+        default: false
+      retry_tag:
+        description: 'Recover a half-finished release: re-run notes, assets and publish for this existing tag (e.g. v1.1.0). Skips the version bump.'
+        type: string
+        default: ''
 
 permissions:
   contents: write
+  id-token: write
+
+concurrency:
+  group: release
+  cancel-in-progress: false
 
 jobs:
   release:
-    name: Create Release
+    name: Cut release
     runs-on: ubuntu-latest
-    
+
     steps:
-    - name: Checkout code
-      uses: actions/checkout@v4
-      with:
-        fetch-depth: 0
-    
-    - name: Setup Node.js
-      uses: actions/setup-node@v4
-      with:
-        node-version: 20.x
-        registry-url: 'https://registry.npmjs.org'
-        cache: 'npm'
-    
-    - name: Install dependencies
-      run: npm ci
-    
-    - name: Run tests
-      run: npm test
-    
-    - name: Build
-      run: npm run build
-    
-    - name: Extract version from tag
-      id: get_version
-      run: echo "VERSION=${GITHUB_REF#refs/tags/v}" >> $GITHUB_OUTPUT
-    
-    - name: Extract changelog
-      id: changelog
-      run: |
-        # Extract changelog for this version
-        VERSION=${{ steps.get_version.outputs.VERSION }}
-        CHANGELOG=$(sed -n "/## \[$VERSION\]/,/## \[/p" CHANGELOG.md | sed '$d')
-        echo "CHANGELOG<<EOF" >> $GITHUB_OUTPUT
-        echo "$CHANGELOG" >> $GITHUB_OUTPUT
-        echo "EOF" >> $GITHUB_OUTPUT
-    
-    - name: Create GitHub Release
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      run: |
-        gh release create ${{ github.ref_name }} \
-          --title "${{ github.ref_name }}" \
-          --notes "${{ steps.changelog.outputs.CHANGELOG }}"
-    
-    # Uncomment to enable automatic npm publishing
-    # Requires NPM_TOKEN secret to be set in repository settings
-    # - name: Publish to npm
-    #   run: npm publish --access public
-    #   env:
-    #     NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+      - name: Refuse to release from a branch other than main
+        if: inputs.retry_tag == '' && github.ref != 'refs/heads/main'
+        run: |
+          echo "::error::Releases are cut from main. This run is on ${{ github.ref }}."
+          exit 1
+
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          ref: ${{ inputs.retry_tag != '' && inputs.retry_tag || github.ref }}
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20.x
+          registry-url: 'https://registry.npmjs.org'
+          cache: 'npm'
+
+      - run: npm ci
+
+      - name: Verify the tree is releasable
+        run: |
+          npm run lint
+          npm test
+          npm run build
+
+      # --- new release: bump, roll the changelog, tag -------------------------
+
+      - name: Check the changelog has something to release
+        if: inputs.retry_tag == ''
+        run: python3 .github/scripts/changelog.py check
+
+      - name: Resolve the new version
+        if: inputs.retry_tag == ''
+        id: bump
+        env:
+          BUMP: ${{ inputs.bump }}
+        run: |
+          NEW=$(node -p "
+            const v = require('./package.json').version.split('.').map(Number);
+            const b = process.env.BUMP;
+            if (b === 'major') { v[0]++; v[1] = 0; v[2] = 0; }
+            else if (b === 'minor') { v[1]++; v[2] = 0; }
+            else { v[2]++; }
+            v.join('.');
+          ")
+          echo "version=$NEW" >> "$GITHUB_OUTPUT"
+          echo "Next version: $NEW"
+
+      - name: Refuse to reuse an existing tag
+        if: inputs.retry_tag == ''
+        env:
+          TAG: v${{ steps.bump.outputs.version }}
+        run: |
+          if git rev-parse -q --verify "refs/tags/$TAG" >/dev/null; then
+            echo "::error::$TAG already exists. Bump further, or use retry_tag to finish that release."
+            exit 1
+          fi
+
+      - name: Roll the changelog into the new version
+        if: inputs.retry_tag == ''
+        env:
+          VERSION: ${{ steps.bump.outputs.version }}
+        run: python3 .github/scripts/changelog.py roll "$VERSION"
+
+      - name: Commit and tag
+        if: inputs.retry_tag == ''
+        env:
+          VERSION: ${{ steps.bump.outputs.version }}
+          BUMP: ${{ inputs.bump }}
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add CHANGELOG.md
+          npm version "$BUMP" -m "prepare release %s"
+          git --no-pager show --stat HEAD
+
+      - name: Push commit and tag
+        if: inputs.retry_tag == '' && inputs.dry_run == false
+        run: git push origin HEAD:main --follow-tags
+
+      # --- both paths: notes, assets, npm ------------------------------------
+
+      - name: Settle which version is being released
+        id: target
+        env:
+          RETRY: ${{ inputs.retry_tag }}
+        run: |
+          if [ -n "$RETRY" ]; then
+            VERSION="${RETRY#v}"
+          else
+            VERSION=$(node -p "require('./package.json').version")
+          fi
+          echo "version=$VERSION" >> "$GITHUB_OUTPUT"
+          echo "tag=v$VERSION" >> "$GITHUB_OUTPUT"
+
+      - name: Extract the release notes
+        env:
+          VERSION: ${{ steps.target.outputs.version }}
+        # Written to a file and passed with --notes-file. Interpolating notes into a
+        # shell command lets any backtick in the changelog run as a command - which
+        # is how the previous version of this workflow failed on v1.1.0.
+        run: python3 .github/scripts/changelog.py notes "$VERSION" > release-notes.md
+
+      - name: Build the tarball
+        run: npm pack
+
+      - name: Summarise
+        env:
+          TAG: ${{ steps.target.outputs.tag }}
+          DRY: ${{ inputs.dry_run }}
+        run: |
+          {
+            echo "## Release $TAG"
+            echo
+            [ "$DRY" = "true" ] && echo "**Dry run — nothing was pushed or published.**" && echo
+            echo "### Notes"
+            echo
+            cat release-notes.md
+            echo
+            echo "### Tarball"
+            echo
+            echo '```'
+            ls -la ./*.tgz
+            echo '```'
+          } >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Publish or update the GitHub release
+        if: inputs.dry_run == false
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          TAG: ${{ steps.target.outputs.tag }}
+        # create-or-update, so re-running after a partial failure is safe.
+        run: |
+          if gh release view "$TAG" >/dev/null 2>&1; then
+            gh release edit "$TAG" --notes-file release-notes.md --title "$TAG"
+            gh release upload "$TAG" ./*.tgz --clobber
+          else
+            gh release create "$TAG" --title "$TAG" --notes-file release-notes.md ./*.tgz
+          fi
+
+      - name: Publish to npm
+        if: inputs.dry_run == false && inputs.publish_npm == true
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+        run: |
+          if [ -z "$NODE_AUTH_TOKEN" ]; then
+            echo "::error::publish_npm was requested but the NPM_TOKEN secret is not set."
+            exit 1
+          fi
+          npm publish --access public --provenance
+
+      - name: Point at the rollback workflow
+        if: inputs.dry_run == false
+        env:
+          TAG: ${{ steps.target.outputs.tag }}
+        run: |
+          echo "::notice::$TAG released. If it is broken, run the 'Rollback release' workflow - npm unpublish is only possible for 72 hours."

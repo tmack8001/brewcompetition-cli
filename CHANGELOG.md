@@ -9,7 +9,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
--
+- A `Release` workflow, dispatched from the GitHub Actions tab, that bumps the
+  version, rolls the changelog, tags, publishes the release page with notes and a
+  tarball, and optionally publishes to npm. Guards against releasing off `main`,
+  releasing an empty changelog, or reusing an existing tag, and takes a
+  `retry_tag` input to finish a release whose second half failed.
+- A `Rollback release` workflow for pulling or neutralising a broken release:
+  demote npm's `latest` tag, deprecate, unpublish (inside npm's 72-hour window),
+  delete the release page, delete the tag. Requires the version typed twice and
+  defaults to a dry run.
 
 ### Changed
 

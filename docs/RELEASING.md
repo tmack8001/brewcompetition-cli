@@ -8,6 +8,8 @@ This document describes how to create and publish releases of Brew Competition C
 - [Pre-Release Checklist](#pre-release-checklist)
 - [Version Numbering](#version-numbering)
 - [Release Steps](#release-steps)
+  - [Cutting a release](#cutting-a-release)
+  - [If a release goes wrong](#if-a-release-goes-wrong)
 - [Publishing to npm](#publishing-to-npm)
 - [Post-Release Tasks](#post-release-tasks)
 - [Troubleshooting](#troubleshooting)
@@ -157,7 +159,74 @@ For testing before official release:
 
 ## Release Steps
 
-### Quick Release (Recommended)
+Releases are cut by dispatching a workflow from the GitHub Actions tab. Nothing
+about a release is done from a local checkout any more: the workflow bumps the
+version, rolls the changelog, tags, publishes the release page with notes and a
+tarball, and optionally publishes to npm.
+
+### Cutting a release
+
+**Actions → Release → Run workflow**, from `main`.
+
+| Input | Meaning |
+| --- | --- |
+| `bump` | `patch`, `minor` or `major`. See [Version Numbering](#version-numbering) — dropping an already-EOL Node version is minor. |
+| `dry_run` | On by default. Computes the version and notes, pushes nothing. Run it once this way and read the job summary. |
+| `publish_npm` | Publishes to npm. Requires the `NPM_TOKEN` secret. |
+| `retry_tag` | Recovery. Give an existing tag (e.g. `v1.1.0`) to re-run notes, assets and publishing for it without bumping anything. |
+
+The workflow refuses to run when:
+
+- it is not on `main` (unless recovering with `retry_tag`),
+- `[Unreleased]` in the changelog has no real entries — only the `-` placeholders,
+- the tag it would create already exists.
+
+Those three guards are what stop a half-formed release from going out.
+
+### If a release goes wrong
+
+**Actions → Rollback release → Run workflow.** Each action is independent; pick
+what you need. It requires the version typed twice, and defaults to a dry run.
+
+What is possible depends on how long ago it published:
+
+| Action | Window | Effect |
+| --- | --- | --- |
+| `demote_npm_latest` | any time | Points npm's `latest` back at the previous release. Fastest mitigation, fully reversible, and usually the right first move — new installs immediately stop getting the bad version. |
+| `deprecate_npm` | any time | Version stays installable but warns on install. The durable "pull" for anything older than 72 hours. |
+| `unpublish_npm` | **72 hours only** | Removes it. **Burns the version number permanently** — npm will never accept it again. Fails outright past the window. |
+| `delete_github_release` | any time | Deletes the release page only. |
+| `delete_git_tag` | any time | Deletes the tag only. |
+
+npm and GitHub are independent: deleting the release page does nothing to npm, and
+unpublishing does nothing to the release page.
+
+To ship the fix afterwards: land it on `main` with a `### Fixed` entry under
+`[Unreleased]`, then dispatch **Release** with a `patch` bump. If you unpublished,
+that number is gone and the next patch skips it.
+
+### Why not trigger on pushing a tag
+
+The previous workflow ran on `push: tags`. A tag trigger cannot bump a version or
+roll a changelog, so half the release happened locally and half in CI — and when
+either half failed the repository was left inconsistent. It also failed outright on
+`v1.1.0`: it interpolated the changelog into a shell command with `${{ ... }}`, so
+backticks in the release notes ran as command substitutions. Notes are now written
+to a file and passed with `--notes-file`, and nothing but repository metadata is
+ever interpolated into a `run:` block.
+
+### Local scripts
+
+`scripts/release.sh` and `npm run changelog` still exist for local use, but the
+workflow is the supported path — it is the one that enforces the guards above.
+
+
+### Local Release (legacy)
+
+Superseded by the **Release** workflow above, which enforces guards these steps do
+not. Kept for the case where Actions is unavailable. If you use it, you are
+responsible for the checks the workflow would have made: on `main`, `[Unreleased]`
+non-empty, tag unused.
 
 #### Step 1: Prepare CHANGELOG
 

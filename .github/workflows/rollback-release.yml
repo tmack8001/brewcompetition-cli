@@ -1,0 +1,251 @@
+name: Rollback release
+
+# Pull or neutralise a broken release. Dispatch from the Actions tab.
+#
+# What is actually possible depends on how long ago the release went out:
+#
+#   npm unpublish   only within 72 hours of publishing, and only if nothing
+#                   depends on it. The version number is burned permanently -
+#                   npm will never accept it again.
+#   npm deprecate   works forever. Leaves the version installable but warns on
+#                   install. This is the durable "pull" for anything older.
+#   dist-tag        moving `latest` back to the last good version is the fastest
+#                   and most reversible mitigation, and usually the right first
+#                   move: new installs stop getting the bad version immediately.
+#
+# Deleting the GitHub release and the git tag does nothing to npm, and vice versa.
+# Pick the actions you need; each is independent.
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Version to roll back, without the v (e.g. 1.1.0)'
+        type: string
+        required: true
+      confirm_version:
+        description: 'Type the same version again to confirm'
+        type: string
+        required: true
+      dry_run:
+        description: 'Report what would happen and change nothing'
+        type: boolean
+        default: true
+      demote_npm_latest:
+        description: 'Point the npm latest tag back at the previous release'
+        type: boolean
+        default: false
+      deprecate_npm:
+        description: 'Deprecate the version on npm (works at any age)'
+        type: boolean
+        default: false
+      unpublish_npm:
+        description: 'Unpublish from npm (only possible within 72 hours; burns the version number)'
+        type: boolean
+        default: false
+      delete_github_release:
+        description: 'Delete the GitHub release page'
+        type: boolean
+        default: false
+      delete_git_tag:
+        description: 'Delete the git tag'
+        type: boolean
+        default: false
+      reason:
+        description: 'Why it is being pulled. Shown in the npm deprecation warning.'
+        type: string
+        default: 'This release has a defect; please upgrade.'
+
+permissions:
+  contents: write
+
+concurrency:
+  group: release
+  cancel-in-progress: false
+
+jobs:
+  rollback:
+    name: Roll back
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Confirm the version was typed twice
+        env:
+          VERSION: ${{ inputs.version }}
+          CONFIRM: ${{ inputs.confirm_version }}
+        run: |
+          if [ "$VERSION" != "$CONFIRM" ]; then
+            echo "::error::version and confirm_version differ ('$VERSION' vs '$CONFIRM'). Nothing was changed."
+            exit 1
+          fi
+          case "$VERSION" in
+            v*) echo "::error::Give the version without the leading v."; exit 1 ;;
+          esac
+
+      - name: Refuse a no-op
+        if: >-
+          inputs.demote_npm_latest == false &&
+          inputs.deprecate_npm == false &&
+          inputs.unpublish_npm == false &&
+          inputs.delete_github_release == false &&
+          inputs.delete_git_tag == false
+        run: |
+          echo "::error::No action selected. Choose at least one rollback action."
+          exit 1
+
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20.x
+          registry-url: 'https://registry.npmjs.org'
+
+      - name: Report current state
+        id: state
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          VERSION: ${{ inputs.version }}
+        run: |
+          PKG=$(node -p "require('./package.json').name")
+          echo "package=$PKG" >> "$GITHUB_OUTPUT"
+
+          VERSIONS=$(npm view "$PKG" versions --json 2>/dev/null || echo '[]')
+          echo "versions=$VERSIONS" >> "$GITHUB_OUTPUT"
+
+          ON_NPM=no
+          echo "$VERSIONS" | grep -q "\"$VERSION\"" && ON_NPM=yes
+          echo "on_npm=$ON_NPM" >> "$GITHUB_OUTPUT"
+
+          HAS_RELEASE=no
+          gh release view "v$VERSION" >/dev/null 2>&1 && HAS_RELEASE=yes
+          echo "has_release=$HAS_RELEASE" >> "$GITHUB_OUTPUT"
+
+          HAS_TAG=no
+          git rev-parse -q --verify "refs/tags/v$VERSION" >/dev/null && HAS_TAG=yes
+          echo "has_tag=$HAS_TAG" >> "$GITHUB_OUTPUT"
+
+          {
+            echo "## Rollback of v$VERSION"
+            echo
+            echo "| Where | Present |"
+            echo "| --- | --- |"
+            echo "| npm ($PKG) | $ON_NPM |"
+            echo "| GitHub release | $HAS_RELEASE |"
+            echo "| git tag | $HAS_TAG |"
+            echo
+            echo "npm dist-tags:"
+            echo '```'
+            npm view "$PKG" dist-tags --json 2>/dev/null || echo 'package not on npm'
+            echo '```'
+          } >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Require an npm token for npm actions
+        if: >-
+          inputs.dry_run == false &&
+          (inputs.demote_npm_latest || inputs.deprecate_npm || inputs.unpublish_npm)
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+        run: |
+          if [ -z "$NODE_AUTH_TOKEN" ]; then
+            echo "::error::An npm action was requested but the NPM_TOKEN secret is not set."
+            exit 1
+          fi
+
+      - name: Move the npm latest tag to the previous release
+        if: inputs.demote_npm_latest
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+          PKG: ${{ steps.state.outputs.package }}
+          VERSION: ${{ inputs.version }}
+          VERSIONS: ${{ steps.state.outputs.versions }}
+          DRY: ${{ inputs.dry_run }}
+        run: |
+          PREV=$(python3 .github/scripts/npm_versions.py previous "$VERSION" "$VERSIONS")
+          echo "Demoting latest: $VERSION -> $PREV"
+          if [ "$DRY" = "true" ]; then
+            echo "::notice::Dry run: would run npm dist-tag add $PKG@$PREV latest"
+          else
+            npm dist-tag add "$PKG@$PREV" latest
+            echo "- Moved npm \`latest\` to \`$PREV\`" >> "$GITHUB_STEP_SUMMARY"
+          fi
+
+      - name: Deprecate the version on npm
+        if: inputs.deprecate_npm
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+          PKG: ${{ steps.state.outputs.package }}
+          VERSION: ${{ inputs.version }}
+          REASON: ${{ inputs.reason }}
+          DRY: ${{ inputs.dry_run }}
+        run: |
+          if [ "$DRY" = "true" ]; then
+            echo "::notice::Dry run: would run npm deprecate $PKG@$VERSION"
+          else
+            npm deprecate "$PKG@$VERSION" "$REASON"
+            echo "- Deprecated \`$PKG@$VERSION\` on npm" >> "$GITHUB_STEP_SUMMARY"
+          fi
+
+      - name: Unpublish the version from npm
+        if: inputs.unpublish_npm
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+          PKG: ${{ steps.state.outputs.package }}
+          VERSION: ${{ inputs.version }}
+          DRY: ${{ inputs.dry_run }}
+        run: |
+          echo "::warning::Unpublishing burns $VERSION permanently - npm will never accept that number again. It also only works within 72 hours of publishing."
+          if [ "$DRY" = "true" ]; then
+            echo "::notice::Dry run: would run npm unpublish $PKG@$VERSION"
+          else
+            if npm unpublish "$PKG@$VERSION"; then
+              echo "- Unpublished \`$PKG@$VERSION\` from npm" >> "$GITHUB_STEP_SUMMARY"
+            else
+              echo "::error::Unpublish failed - most likely past the 72 hour window. Use deprecate_npm instead."
+              exit 1
+            fi
+          fi
+
+      - name: Delete the GitHub release
+        if: inputs.delete_github_release
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          VERSION: ${{ inputs.version }}
+          DRY: ${{ inputs.dry_run }}
+        run: |
+          if [ "$DRY" = "true" ]; then
+            echo "::notice::Dry run: would delete the GitHub release v$VERSION"
+          else
+            gh release delete "v$VERSION" --yes || echo "::warning::No release v$VERSION to delete"
+            echo "- Deleted the GitHub release \`v$VERSION\`" >> "$GITHUB_STEP_SUMMARY"
+          fi
+
+      - name: Delete the git tag
+        if: inputs.delete_git_tag
+        env:
+          VERSION: ${{ inputs.version }}
+          DRY: ${{ inputs.dry_run }}
+        run: |
+          if [ "$DRY" = "true" ]; then
+            echo "::notice::Dry run: would delete the tag v$VERSION locally and on origin"
+          else
+            git push origin --delete "v$VERSION" || echo "::warning::No remote tag v$VERSION"
+            echo "- Deleted the git tag \`v$VERSION\`" >> "$GITHUB_STEP_SUMMARY"
+          fi
+
+      - name: What to do next
+        env:
+          DRY: ${{ inputs.dry_run }}
+        run: |
+          {
+            echo
+            if [ "$DRY" = "true" ]; then
+              echo "**Dry run — nothing was changed.** Re-run with dry_run unchecked to apply."
+            else
+              echo "### Next"
+              echo
+              echo "- Land the fix on \`main\`, with a \`### Fixed\` entry under \`[Unreleased]\`."
+              echo "- Dispatch **Release** with a \`patch\` bump. A burned version number cannot be reused."
+              echo "- If \`latest\` was demoted, releasing again moves it forward automatically."
+            fi
+          } >> "$GITHUB_STEP_SUMMARY"
