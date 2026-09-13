@@ -22,6 +22,59 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- A bot-protection retry is no longer the answer to every failure. A 404, a 500,
+  a DNS failure and a refused connection are reported as themselves; only a
+  response that actually looks like an interstitial triggers impersonation, and a
+  bare refusal that survives every strategy is reported as its status rather than
+  as a browser problem.
+- `fetchJson` no longer returns a non-JSON body typed as its caller's payload.
+  axios hands back the raw string rather than throwing, so an HTML error page was
+  reaching the BAP parser as though it were the API response.
+- Requests now carry a timeout on the direct attempt as well as the impersonated
+  one, so a hanging server can no longer stall the CLI indefinitely.
+- A missing `impit` native binary now reports one actionable line instead of
+  embedding the loader's multi-paragraph dump in the error twice.
+- A `|` in competition text no longer desynchronises the output row from its
+  header. These fields are admin free-text and nothing upstream prevents one.
+- Dates are emitted as ISO-8601 rather than `Date.prototype.toString()`, which
+  rendered in the host machine's timezone and in no parseable format.
+- All of BCOEM's date renderings are now read, not just the US default. Date
+  order, 12- versus 24-hour time and the long/short forms are each independently
+  configurable, so a non-English install previously yielded empty date columns for
+  every window. Numeric date order is inferred from the page.
+- An unrecognised timezone abbreviation now yields no date instead of the host
+  machine's zone. A Sydney competition in summer was read 15 hours out. The
+  abbreviation table is derived from upstream's own zone list rather than
+  hand-maintained in two places that had already diverged.
+- A window stating only its closing date no longer reports that date as the
+  window's start. This covers the sentences an *open* competition renders, where
+  BCOEM replaces the opening timestamp with the words "today" or "now" and the
+  only date present is the deadline.
+- The bottle requirement is no longer satisfied by prose that happens to end in a
+  clock, such as "Ship bottles to arrive by 9/16 at 5:00".
+- An admin-authored heading in the rules blurb can no longer outrank the real
+  section it resembles.
+- A standard timezone abbreviation now resolves to a zone that never leaves it, so
+  an Arizona or Saskatchewan competition is no longer an hour out every summer.
+- The short numeric timezone stamp PHP emits for zones without a lettered
+  abbreviation (`-03`, `+08`, `+07` and others, covering 13 of the 46 zones BCOEM
+  supports) is now accepted; previously every date on such a page was dropped.
+- A rate-limited or transient response from one browser profile no longer stops
+  the other from being tried.
+- A connection reset now retries with a browser fingerprint instead of giving up.
+  Some WAFs reject an unrecognised TLS fingerprint by destroying the socket rather
+  than answering with a status, so a reset is a plausible fingerprint problem. DNS
+  failures and refused connections are still reported as themselves.
+- A failure that never reached an HTTP status is no longer reported as "status
+  code 0".
+- A line break in competition text becomes a space rather than gluing two lines
+  together, so a venue no longer runs into its own street address.
+- A window rendered without any wrapping element - which the public page does for
+  judge-and-steward-only registration - is no longer skipped, and stays one
+  sentence across its own inline markup so the "through" cue is not stranded from
+  the date it governs.
+- `competitions` no longer gives up when the first candidate URL fails to fetch,
+  which is precisely the case the second candidate exists to cover.
 - `competitions` no longer aborts a whole page when one section states no dates.
   A closed competition renders "Registration is closed." with no window, which
   previously threw `No date ranges found` and lost every other field.
@@ -48,7 +101,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   (BCOEM gates the entry-info page behind a login once the windows close).
 - BCOEM metadata resolution now matches on `<h2>` headings first and falls back
   to the original named anchors, which are derived from translated labels and so
-  differ on non-English installs.
+  differ on non-English installs. The section prose is kept as the readable value
+  - it carries the drop-off locations and shipping address that the dates alone do
+  not - while the "At a Glance" cards supply the timestamps.
 - Minimum supported Node.js version raised from 18 to 20 (`impit` requires
   Node 20+; Node 18 reached end of life in April 2025).
 - Upgraded `mocha` from v10 to v11. mocha 10 pulls `yargs` 16, which cannot be

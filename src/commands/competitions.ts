@@ -77,43 +77,87 @@ export default class Competitions extends Command {
     const candidates = parser.metadataUrls?.(url) ?? [url];
 
     let result;
-    for (const candidate of candidates) {
-      // eslint-disable-next-line no-await-in-loop
-      const htmlString = await fetchHtml(candidate);
-      // eslint-disable-next-line no-await-in-loop
-      result = await parser.parseMetadata(htmlString);
+    const failures: string[] = [];
 
-      if (hasMetadata(result)) break;
+    for (const candidate of candidates) {
+      try {
+        // eslint-disable-next-line no-await-in-loop
+        const htmlString = await fetchHtml(candidate);
+        // eslint-disable-next-line no-await-in-loop
+        const parsed = await parser.parseMetadata(htmlString);
+
+        if (hasMetadata(parsed)) {
+          result = parsed;
+          break;
+        }
+
+        // Keep the best thing seen so far. A page carrying only an incidental
+        // field is not worth stopping the search for, but it beats reporting
+        // nothing if no later candidate does better.
+        if (!result || !hasAnyField(result)) result = parsed;
+      } catch (error) {
+        // One candidate failing must not end the search. A finished competition
+        // commonly drops or redirects the page a user would paste, which is the
+        // very case the remaining candidates exist to cover.
+        failures.push(`${candidate}: ${error instanceof Error ? error.message : String(error)}`);
+      }
     }
 
-    if (!result || !hasMetadata(result)) {
+    if (!result || !hasAnyField(result)) {
       // A finished competition often gates or drops its entry-info page - BCOEM
       // redirects it to a login form once the windows have closed - so there is
       // genuinely nothing to report rather than something we failed to read.
       console.error(`No competition metadata published at ${url} (tried: ${candidates.join(', ')})`);
+      for (const failure of failures) console.error(`  ${failure}`);
       return;
     }
 
-    if (result) {
-      if (output.toLowerCase() === 'json') {
-        const jsonData = csvToJson(result, '|');
-        console.log(JSON.stringify(jsonData, null, 2));
-      } else if (output.toLowerCase() === 'csv') {
-        console.log(result.header);
-        console.log(result.data);
-      }
+    if (output.toLowerCase() === 'json') {
+      const jsonData = csvToJson(result, '|');
+      console.log(JSON.stringify(jsonData, null, 2));
+    } else if (output.toLowerCase() === 'csv') {
+      console.log(result.header);
+      console.log(result.data);
     }
   }
 }
 
 /**
- * Reports whether a parse found anything at all, so the caller knows to try the
+ * Columns that do not on their own mean a page carries competition metadata.
+ *
+ * The bottle requirement is the one field BCOEM can emit detached from its own
+ * section, so it turns up on pages that have nothing else - a finished
+ * competition's landing page carrying only a rules blurb. Accepting it as proof
+ * stopped the search before the entry-info page was ever tried.
+ */
+const INCIDENTAL_COLUMNS = new Set(['num_required']);
+
+/**
+ * Reports whether a parse found metadata, so the caller knows whether to try the
  * next candidate page rather than printing a row of empty columns.
  *
  * @param result the parsed metadata
- * @returns `true` when at least one field has a value
+ * @returns `true` when at least one substantive field has a value
  */
-function hasMetadata(result: { data: string }): boolean {
+function hasMetadata(result: { data: string; header: string }): boolean {
+  const headers = result.header.split('|');
+
+  return result.data
+    .split('|')
+    .some((value, index) => value.trim() !== '' && !INCIDENTAL_COLUMNS.has(headers[index]));
+}
+
+/**
+ * Whether a parse yielded anything worth printing at all.
+ *
+ * Deliberately weaker than {@link hasMetadata}: an incidental field is not enough
+ * to stop searching, but once the search is over it is still better than telling
+ * the user nothing was published and dropping the value.
+ *
+ * @param result the parsed metadata
+ * @returns `true` when any field has a value
+ */
+function hasAnyField(result: { data: string }): boolean {
   return result.data.split('|').some(value => value.trim() !== '');
 }
 

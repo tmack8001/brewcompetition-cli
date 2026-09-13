@@ -41,7 +41,7 @@ https://example.com/competition/results
 ## Environment
 
 - OS: [e.g., macOS, Windows, Linux]
-- Node.js version: [e.g., 18.0.0]
+- Node.js version: [e.g., 20.0.0]
 - CLI version: [e.g., 0.0.0]
 - Platform: [e.g., BCOEM, Reggie, BAP]
 

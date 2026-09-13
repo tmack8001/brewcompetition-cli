@@ -65,8 +65,10 @@ software is live at any time. Two are common.
 <p>Entry registration opens...</p>
 ```
 
-The anchor is the heading lowercased with spaces hyphenated, built in
-`sections/entry_info.sec.php`:
+The anchor is the heading lowercased with spaces hyphenated. The public page is
+rendered by `pub/entry_info.pub.php`; the identically-named file under `sections/`
+is reachable only through the admin-only `index.legacy.php`. Both build it the
+same way:
 
 ```php
 $anchor_name = str_replace(" ", "-", $label_entry_registration);
@@ -93,14 +95,17 @@ grid stating every window as an explicit timestamp pair:
 </div>
 ```
 
-Anchors are present on this build but unusable: the same
-`name="judging-sessions"` precedes Drop-Off Locations, Shipping Info *and*
-Awards Ceremony, because `$anchor_name` is not reset between sections. Headings
-also carry an inline status - `<h2>Entry Registration is <span>Open</span></h2>`.
+Anchors are present on this build but unusable: `$anchor_name` is stale by the
+time these sections render, so `name="judging-sessions"` precedes Drop-Off
+Locations, Shipping Info, Awards Ceremony and several others. Headings also carry
+an inline status - `<h2>Entry Registration is <span>Open</span></h2>` - so heading
+patterns are anchored at both ends, allowing only that suffix: a loose prefix
+match would let an admin-authored `<h2>Shipping &amp; Handling</h2>` in the rules
+blurb outrank the real `Shipping Info`, and the rules section renders first.
 
 ### Conditional sections
 
-`entry_info.sec.php` gates several sections on competition state, so a closed
+`entry_info.pub.php` gates several sections on competition state, so a closed
 competition legitimately renders fewer than an open one:
 
 | Section | Rendered when |

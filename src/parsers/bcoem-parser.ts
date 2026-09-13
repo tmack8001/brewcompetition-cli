@@ -1,71 +1,27 @@
 import cheerio from 'cheerio';
-import moment from 'moment-timezone';
 
-import { BcoemField, extractGlanceWindows, extractSections, findBottleRequirement, findGlanceWindow, sectionParagraph } from './bcoem-sections.js';
+import { detectShortDateOrder, extractWindow, parseTimestamps } from './bcoem-dates.js';
+import { BcoemField, extractGlanceWindows, extractSections, findBottleRequirement, findGlanceWindow, sectionParagraph, sectionWindowText } from './bcoem-sections.js';
 import { CompetitionParser, ParsedMetadata, ParsedResults } from './types.js';
 
-function getFullTimezoneName(abbreviation: string): string {
-    // Standard-time abbreviations matter as much as daylight ones: a competition
-    // whose entry window opens in October and closes in November is quoted in
-    // CDT and CST respectively. The IANA zone handles the offset either way.
-    const timezoneMap: { [key: string]: string } = {
-        'AEST': 'Australia/Sydney',
-        'AKDT': 'America/Anchorage',
-        'AKST': 'America/Anchorage',
-        'BST': 'Europe/London',
-        'CDT': 'America/Chicago',
-        'CET': 'Europe/Paris',
-        'CST': 'America/Chicago',
-        'EDT': 'America/New_York',
-        'EST': 'America/New_York',
-        'GMT': 'Etc/GMT',
-        'HST': 'Pacific/Honolulu',
-        'JST': 'Asia/Tokyo',
-        'MDT': 'America/Denver',
-        'MST': 'America/Denver',
-        'PDT': 'America/Los_Angeles',
-        'PST': 'America/Los_Angeles',
-        'UTC': 'Etc/UTC'
-    };
-
-    return timezoneMap[abbreviation] || moment.tz.guess();
-}
-
 /**
- * Pulls the start and end of a window out of a BCOEM sentence.
+ * Renders one metadata value for the pipe-delimited row.
  *
- * BCOEM renders a window as two timestamps joined by an em dash and terminated
- * with a full stop - "... accepted at our drop-off locations Friday, August 14,
- * 2026 12:00 AM, EDT - Friday, September 18, 2026 5:00 PM, EDT." The trailing
- * stop is therefore on the closing date only, which is why it is optional here;
- * requiring it matched the end of a window but never its start.
+ * Two things have to be true of every field. A `|` anywhere in the text would
+ * shift every later column and desynchronise the row from its header - the
+ * competition prose these fields come from is admin free-text, stored and echoed
+ * verbatim, so nothing upstream prevents one. And a date has to be stable
+ * wherever the CLI runs, which `Date.prototype.toString()` is not: it renders in
+ * the host machine's zone and its own locale-ish format.
  *
- * @param dateString the sentence to read
- * @returns the window, with either field left `undefined` when it is not stated
+ * @param value the field value
+ * @returns a single-column string, ISO-8601 for dates
  */
-function extractDateWindow(dateString: string): { endDate: Date | undefined, startDate: Date | undefined } {
-    const dateRegex = /(today)|(?:(Sunday|Monday|Tuesday|Wednesday|Thursday|Friday|Saturday), ([A-Za-z]+) (\d{1,2}), (\d{4}) (\d{1,2}:\d{2} [AP]M), ([A-Za-z]+))/g;
-    const dates = [];
+function formatField(value: Date | string | undefined): string {
+    if (value === undefined) return '';
+    if (value instanceof Date) return value.toISOString();
 
-    const matches = dateString.matchAll(dateRegex);
-    for (const match of matches) {
-        if (match[1]) {
-            dates.push(moment().toDate());
-        } else {
-            // eslint-disable-next-line @typescript-eslint/no-unused-vars
-            const [_, __, dayOfWeek, month, day, year, time, timeZone] = match;
-            const dateStr = `${dayOfWeek}, ${day} ${month} ${year} ${time}`;
-            // The parts are full names and a 12-hour clock, so the format has to
-            // say so. Parsing "12:00 AM" with HH:mm:ss silently yields midday.
-            const date = moment.tz(dateStr, 'dddd, DD MMMM YYYY hh:mm A', getFullTimezoneName(timeZone));
-            if (date.isValid()) dates.push(date.toDate());
-        }
-    }
-
-    // A section with no dates is normal, not exceptional: a closed competition
-    // renders "Registration is closed." and nothing more. Throwing here aborted
-    // the whole page for one absent window.
-    return { endDate: dates[1], startDate: dates[0] };
+    return value.replaceAll('|', '/');
 }
 
 export class BCOEMParser implements CompetitionParser {
@@ -91,31 +47,41 @@ export class BCOEMParser implements CompetitionParser {
     async parseMetadata(html: string): Promise<ParsedMetadata> {
         const sections = extractSections(html);
         const glance = extractGlanceWindows(html);
+        // `short` dates are ambiguous between m/d/Y and d/m/Y for any day of 12 or
+        // less, so the ordering is inferred once from the whole page.
+        const order = detectShortDateOrder(html);
 
-        // Three strategies, most reliable first. The "At a Glance" cards on newer
-        // builds state each window as an explicit timestamp pair. Failing that,
-        // the window is read out of the prose under its <h2>. Failing that, the
-        // original anchor lookup, which still serves the self-hosted installs
-        // running older BCOEM releases.
+        // Three strategies. The "At a Glance" cards on newer builds give the dates
+        // as explicit timestamps, so they win for the date columns outright. For
+        // the readable column the section prose wins only when it actually
+        // describes the window - it says things the timestamps do not, such as
+        // "accepted at our drop-off locations" - because on that build a section's
+        // first paragraph is often unrelated rules text, and the card summary is
+        // the better answer then. Failing the cards, the prose is parsed; failing
+        // a heading match, the original anchor lookup still serves older installs.
         const windowFor = (field: BcoemField, text: string) => {
             const card = findGlanceWindow(glance, field);
-            if (card) return [card.summary || text, card.open ?? '', card.close ?? ''];
 
-            const { endDate, startDate } = extractDateWindow(text);
-            return [text, startDate ?? '', endDate ?? ''];
+            if (card) {
+                const describesWindow = text !== '' && parseTimestamps(text, order).length > 0;
+                return [describesWindow ? text : card.summary, card.open, card.close];
+            }
+
+            const { end, start } = extractWindow(text, order);
+            return [text, start, end];
         };
 
-        const accountRegWindow = sectionParagraph(sections, 'accountRegistration');
+        const accountRegWindow = sectionWindowText(sections, 'accountRegistration', order);
         // Older builds have no volunteer heading - judge and steward registration
         // is the second paragraph of the Account Registration section. Newer ones
         // give it a heading of its own, so prefer that and fall back.
-        const volunteerRegWindow = sectionParagraph(sections, 'volunteerRegistration')
+        const volunteerRegWindow = sectionWindowText(sections, 'volunteerRegistration', order)
             || sectionParagraph(sections, 'accountRegistration', 1);
-        const entryRegWindow = sectionParagraph(sections, 'entryRegistration');
+        const entryRegWindow = sectionWindowText(sections, 'entryRegistration', order);
         const numRequired = findBottleRequirement(sections);
-        const dropOffWindow = sectionParagraph(sections, 'dropOff');
-        const shippingWindow = sectionParagraph(sections, 'shipping');
-        const awardsCeremony = sectionParagraph(sections, 'awardsCeremony');
+        const dropOffWindow = sectionWindowText(sections, 'dropOff', order);
+        const shippingWindow = sectionWindowText(sections, 'shipping', order);
+        const awardsCeremony = sectionWindowText(sections, 'awardsCeremony', order);
 
         const header = [
             "entrant_registration",
@@ -139,7 +105,7 @@ export class BCOEMParser implements CompetitionParser {
             "awards_ceremony_end_date",
         ]
 
-        const data = [
+        const data: (Date | string | undefined)[] = [
             ...windowFor('accountRegistration', accountRegWindow),
             ...windowFor('volunteerRegistration', volunteerRegWindow),
             ...windowFor('entryRegistration', entryRegWindow),
@@ -150,7 +116,7 @@ export class BCOEMParser implements CompetitionParser {
         ]
 
         const headerCsv = header.join('|');
-        const dataCsv = data.join('|');
+        const dataCsv = data.map(value => formatField(value)).join('|');
 
         return {
             data: dataCsv,
