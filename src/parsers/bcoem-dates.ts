@@ -109,7 +109,9 @@ const WEEKDAYS = 'Sunday|Monday|Tuesday|Wednesday|Thursday|Friday|Saturday';
  *
  * - date, `long`:  `l, F j, Y` or `l j F, Y` - the latter on any install whose
  *   `prefsDateFormat` is not 1, which includes every non-US default
- * - date, `short`: `m/d/Y`, `d/m/Y`, `Y/m/d` or `Y-m-d H:i:s`
+ * - date, `short`: `m/d/Y`, `d/m/Y` or `Y/m/d`. (`prefsDateFormat` 999 renders
+ *   `Y-m-d H:i:s`, but its only caller asks for a zone-less format, so those
+ *   timestamps carry no zone and are correctly ignored.)
  * - time:          `g:i A` (12-hour) or `H:i` (24-hour)
  *
  * The weekday is consumed but deliberately not parsed. Feeding it to moment as
@@ -276,6 +278,33 @@ export function extractWindow(
   text: string,
   order: ShortDateOrder = 'MDY'
 ): { end: Date | undefined; start: Date | undefined } {
+  return readWindow(text, order, false);
+}
+
+/**
+ * Reads a single instant out of text that is a moment rather than a window.
+ *
+ * Used for the awards ceremony, the one field whose lone date is preceded entirely
+ * by admin free-text - the venue name and address share its paragraph. A cue word
+ * in either would otherwise move the ceremony into the closing column, and real
+ * venues supply them: "Deadline Brewing Parlor", "Brewery by the Bay".
+ *
+ * @param text the paragraph to read
+ * @param order how this install orders `short` dates
+ * @returns the instant as the start, with no end
+ */
+export function extractMoment(
+  text: string,
+  order: ShortDateOrder = 'MDY'
+): { end: Date | undefined; start: Date | undefined } {
+  return readWindow(text, order, true);
+}
+
+function readWindow(
+  text: string,
+  order: ShortDateOrder,
+  bare: boolean
+): { end: Date | undefined; start: Date | undefined } {
   const stamps = parseTimestamps(text, order);
 
   if (stamps.length === 0) return { end: undefined, start: undefined };
@@ -290,7 +319,7 @@ export function extractWindow(
   }
 
   const only = stamps[0];
-  const cue = nearestCue(text.slice(0, only.index));
+  const cue = bare ? undefined : nearestCue(text.slice(0, only.index));
 
   if (cue === 'end') return { end: only.date, start: undefined };
 
@@ -303,10 +332,21 @@ export function extractWindow(
  * Formats an instant for the human-readable column, in the competition's own
  * timezone and carrying the zone so a reader can place it.
  *
+ * A fixed offset is not a moment-timezone zone. Passing one to `.tz()` logs a
+ * warning and leaves the moment in the host's zone, which rolls the clock and
+ * sometimes the date - the very host-dependence this column exists to avoid - and
+ * drops the zone label, leaving a dangling comma. Nineteen of the zones BCOEM can
+ * be configured for have no lettered abbreviation, so this is the common path and
+ * not an edge case.
+ *
  * @param date the instant
- * @param zone the IANA zone or fixed offset it should be shown in
+ * @param zone the IANA zone name, or a fixed offset such as `-03:00`
  * @returns the formatted timestamp
  */
 export function formatInZone(date: Date, zone: string): string {
+  if (/^[+-]\d{2}:\d{2}$/.test(zone)) {
+    return moment(date).utcOffset(zone).format('dddd, MMMM D, YYYY h:mm A, [UTC]Z');
+  }
+
   return moment(date).tz(zone).format('dddd, MMMM D, YYYY h:mm A, z');
 }

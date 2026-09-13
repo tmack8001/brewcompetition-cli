@@ -18,8 +18,11 @@ anchor-build page is closed — which leaves the prose date path, the single-loc
 drop-off heading, and the volunteer-paragraph fallback untested. It is assembled
 from upstream's own sentence templates (`lang/en/en-US.lang.php`,
 `pub/entry_info.pub.php`) in a deliberately non-US configuration:
-`prefsDateFormat` other than 1 (`Monday 8 June, 2026`), `prefsTimeFormat` 1
-(24-hour), and a European zone. Replace it with a real capture if one turns up.
+`prefsLanguage` of `en-GB` with `prefsDateFormat` 2 (`Monday 8 June, 2026`),
+`prefsTimeFormat` 1 (24-hour), and a European zone. That combination is reachable:
+`constants.inc.php` renders the long date form only when `prefsLanguage` contains
+`en-`, so a genuinely translated install uses the short numeric form instead.
+Replace this fixture with a real capture if one turns up.
 
 ## What differs between the builds
 

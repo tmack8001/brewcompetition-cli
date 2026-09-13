@@ -1,6 +1,7 @@
 import { expect } from 'chai';
+import moment from 'moment-timezone';
 
-import { detectShortDateOrder, extractWindow, parseTimestamps, resolveTimezone } from '../../src/parsers/bcoem-dates.js';
+import { detectShortDateOrder, extractMoment, extractWindow, formatInZone, parseTimestamps, resolveTimezone } from '../../src/parsers/bcoem-dates.js';
 
 describe('BCOEM date handling', () => {
   describe('Timezone resolution', () => {
@@ -39,11 +40,29 @@ describe('BCOEM date handling', () => {
       expect(resolveTimezone('-03')).to.equal('-03:00');
     });
 
-    it('should resolve the non-US zones BCOEM can render', () => {
+    it('should resolve the non-US zones BCOEM can render to the right offset', () => {
       // Upstream's offset table spans 46 zones; the abbreviation index is derived
-      // from it rather than hand-listed, so these come along for free.
-      for (const abbreviation of ['AEDT', 'AEST', 'ACST', 'AWST', 'CEST', 'CET', 'EEST', 'IST', 'KST', 'MSK', 'NST', 'PKT', 'SST', 'ChST']) {
-        expect(resolveTimezone(abbreviation), abbreviation).to.be.a('string');
+      // from it rather than hand-listed. Asserting only that a string comes back
+      // would pass for a zone with the wrong offset, so check the offset.
+      const expected: [string, string, number][] = [
+        ['AEDT', '2026-01-15', 660],
+        ['AEST', '2026-07-15', 600],
+        ['ACST', '2026-07-15', 570],
+        ['AWST', '2026-07-15', 480],
+        ['CEST', '2026-07-15', 120],
+        ['CET', '2026-01-15', 60],
+        ['IST', '2026-07-15', 330],
+        ['KST', '2026-07-15', 540],
+        ['MSK', '2026-07-15', 180],
+        ['NST', '2026-01-15', -210],
+        ['PKT', '2026-07-15', 300],
+        ['SST', '2026-07-15', -660],
+      ];
+
+      for (const [abbreviation, day, offset] of expected) {
+        const zone = resolveTimezone(abbreviation);
+        expect(zone, abbreviation).to.be.a('string');
+        expect(moment.tz(day, zone!).utcOffset(), abbreviation).to.equal(offset);
       }
     });
 
@@ -70,7 +89,10 @@ describe('BCOEM date handling', () => {
       ['international long, 12-hour', 'accepted Friday 14 August, 2026 12:00 AM, EDT — Friday 18 September, 2026 5:00 PM, EDT.'],
       ['US long, 24-hour', 'accepted Friday, August 14, 2026 00:00, EDT — Friday, September 18, 2026 17:00, EDT.'],
       ['US short', 'accepted 08/14/2026 12:00 AM, EDT — 09/18/2026 5:00 PM, EDT.'],
-      ['ISO short', 'accepted 2026-08-14 00:00:00, EDT — 2026-09-18 17:00:00, EDT.'],
+      // Not an upstream rendering: prefsDateFormat 999 emits Y-m-d H:i:s, but its
+      // only caller asks for a zone-less format, so those timestamps carry no zone
+      // and are ignored. Tolerated here so a hand-edited or future page still reads.
+      ['a year-first numeric form', 'accepted 2026-08-14 00:00:00, EDT — 2026-09-18 17:00:00, EDT.'],
     ];
 
     for (const [name, text] of renderings) {
@@ -180,6 +202,38 @@ describe('BCOEM date handling', () => {
       );
 
       expect(window.start!.getTime()).to.be.lessThan(window.end!.getTime());
+    });
+  });
+
+  describe('Formatting for the readable column', () => {
+    it('should render a fixed offset in that offset, not the host timezone', () => {
+      // A fixed offset is not a moment-timezone zone: passing one to .tz() logs a
+      // warning and silently leaves the moment in the host's zone, rolling the
+      // clock and sometimes the date. Nineteen of the zones BCOEM supports have no
+      // lettered abbreviation, so this is the common path.
+      const instant = new Date('2026-09-18T20:00:00.000Z');
+
+      expect(formatInZone(instant, '-03:00')).to.equal('Friday, September 18, 2026 5:00 PM, UTC-03:00');
+      expect(formatInZone(instant, '+05:30')).to.equal('Saturday, September 19, 2026 1:30 AM, UTC+05:30');
+    });
+
+    it('should render a named zone with its abbreviation', () => {
+      const instant = new Date('2026-09-18T21:00:00.000Z');
+
+      expect(formatInZone(instant, 'America/New_York')).to.equal('Friday, September 18, 2026 5:00 PM, EDT');
+    });
+  });
+
+  describe('Moments rather than windows', () => {
+    it('should ignore cue words in admin free-text for a bare moment', () => {
+      // The awards ceremony shares its paragraph with the venue name and address,
+      // and real venues contain cue words: "Deadline Brewing Parlor".
+      for (const venue of ['Union Mills Homestead', 'Deadline Brewing Parlor', 'Brewery by the Bay']) {
+        const moment_ = extractMoment(`${venue} 123 Main St Saturday, September 26, 2026 5:00 PM, EDT`);
+
+        expect(moment_.start?.toISOString(), venue).to.equal('2026-09-26T21:00:00.000Z');
+        expect(moment_.end, venue).to.equal(undefined);
+      }
     });
   });
 

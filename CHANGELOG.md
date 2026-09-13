@@ -69,6 +69,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   code 0".
 - A line break in competition text becomes a space rather than gluing two lines
   together, so a venue no longer runs into its own street address.
+- The readable window column is rendered in the competition's own offset for the
+  19 zones BCOEM supports that have no lettered abbreviation. A fixed offset is
+  not a moment-timezone zone, so these were silently rendered in the machine's own
+  zone - rolling the clock and sometimes the date - with a warning on stderr.
+- The awards ceremony is read as a moment rather than a window, so a cue word in
+  the venue name or address no longer moves it into the closing column. Real
+  venues supply them: "Deadline Brewing Parlor", "Brewery by the Bay".
+- The bottle requirement is no longer taken from another section's prose. Only the
+  explicitly labelled form is searched for page-wide; the looser shape is confined
+  to the Entry Acceptance Rules section.
+- Impersonated retries carry a shorter timeout, so a host that accepts a
+  connection and never answers costs 50s rather than 90s per page.
 - A window rendered without any wrapping element - which the public page does for
   judge-and-steward-only registration - is no longer skipped, and stays one
   sentence across its own inline markup so the "through" cue is not stranded from

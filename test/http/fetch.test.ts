@@ -134,14 +134,28 @@ describe('fetchWithFallback', () => {
     }
   });
 
-  it('should surface a connection failure as itself', async () => {
-    // Nothing is listening on this port; impersonation cannot help.
+  it('should surface a connection failure as itself without impersonating', async () => {
+    // Nothing is listening on this port; no fingerprint changes that. Asserting the
+    // message alone passed even when ECONNREFUSED was wrongly made retryable,
+    // because the retry path produces a message that also mentions the code - so
+    // the attempt list is what actually pins this.
     try {
       await fetchHtml('http://127.0.0.1:1');
       expect.fail('expected a rejection');
     } catch (error) {
       expect(error).to.not.be.instanceOf(BotChallengeError);
       expect((error as Error).message).to.match(/econnrefused|connect/i);
+      expect((error as Error).message, 'must not have tried impersonation').to.not.contain('impersonation');
+    }
+  });
+
+  it('should surface a DNS failure as itself without impersonating', async () => {
+    try {
+      await fetchHtml('http://no-such-host-abcxyz123.invalid/');
+      expect.fail('expected a rejection');
+    } catch (error) {
+      expect((error as Error).message).to.not.contain('impersonation');
+      expect((error as Error).message).to.not.contain('Could not reach');
     }
   });
 
@@ -372,6 +386,49 @@ describe('fetchWithFallback', () => {
     } catch (error) {
       expect((error as Error).message).to.contain('bot protection');
       expect((error as Error).message).to.contain('not publicly readable');
+    } finally {
+      await stop();
+    }
+  });
+
+  it('should not call a transient status ambiguous the way it does a refusal', async () => {
+    // The "either bot protection or not public" hint belongs to 403 and 503. A 429
+    // surviving every profile is rate limiting, and saying otherwise misleads.
+    const { stop, url } = await serve((_request, response) => {
+      response.writeHead(429).end('slow down');
+    });
+
+    try {
+      await fetchHtml(url);
+      expect.fail('expected a rejection');
+    } catch (error) {
+      expect((error as HttpStatusError).status).to.equal(429);
+      expect((error as Error).message).to.not.contain('not publicly readable');
+    } finally {
+      await stop();
+    }
+  });
+
+  it('should not call a transient status ambiguous after exhausting every strategy', async () => {
+    // Reaches the tail of the chain, where the flag is actually computed: the plain
+    // client is walled off with a bare 403 and both profiles are then throttled.
+    // The direct-403 case alone never gets that far.
+    const { stop, url } = await serve((request, response) => {
+      if (isPlainClient(request)) {
+        response.writeHead(403).end('<html>Forbidden</html>');
+        return;
+      }
+
+      response.writeHead(429).end('slow down');
+    });
+
+    try {
+      await fetchHtml(url);
+      expect.fail('expected a rejection');
+    } catch (error) {
+      expect((error as HttpStatusError).status).to.equal(429);
+      expect((error as Error).message).to.contain('impersonation');
+      expect((error as Error).message).to.not.contain('not publicly readable');
     } finally {
       await stop();
     }

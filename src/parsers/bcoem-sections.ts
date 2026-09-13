@@ -221,22 +221,31 @@ export function sectionParagraph(sections: BcoemSection[], field: BcoemField, in
 }
 
 /**
- * The English labelled form, tried first for determinism.
+ * The labelled form BCOEM emits when a bottle count is configured. Searched for
+ * across the whole page, because this is the paragraph that detaches: it is
+ * appended to the Entry Acceptance Rules body but outside the guard that renders
+ * that section's heading, so on a closed competition it trails whichever section
+ * came before.
  */
 const BOTTLE_LABEL_EN = /\bnumber of bottles\b[^:]{0,60}:\s*\d{1,3}\s*$/i;
 
 /**
- * Language-independent shape of the same paragraph: a bottle word, then a colon
- * and a small count at the end.
+ * The same paragraph's shape, for an install that words the label differently.
  *
- * The `\D` before the colon is what keeps a clock out. `Ship bottles to arrive by
- * 9/16 at 5:00` and `Bottles due by 17:00` both end in a colon followed by
- * digits; the difference is that a time's colon always follows a digit and a
- * label's never does. The label itself is translated - Czech renders it
- * `Pozadovany pocet lahvi kazdeho vzorku` - so matching on its words alone would
- * only work on English installs.
+ * The lookbehind keeps a clock out: `Ship bottles to arrive by 9/16 at 5:00` ends
+ * in a colon followed by digits, but a time's colon always follows a digit and a
+ * label's never does. It has to be a lookbehind rather than a consumed `\D`, or
+ * the colon itself satisfies the non-digit and `Required bottles: 3` stops
+ * matching.
+ *
+ * This still requires the English word "bottles", so a genuinely translated
+ * install matches neither tier and the column is left empty. That is the honest
+ * outcome - guessing from structure alone produced worse. Applied only within the
+ * Entry Acceptance Rules section, because page-wide it outranked that section's
+ * own prose using unrelated text from elsewhere: "Please bring bottles to the
+ * drop-off. Entries per brewer: 5".
  */
-const BOTTLE_LABEL_ANY = /\bbottles?\b[^:]{0,40}\D:\s*\d{1,3}\s*$/i;
+const BOTTLE_LABEL_ANY = /\bbottles?\b[^:]{0,40}(?<!\d):\s*\d{1,3}\s*$/i;
 
 /**
  * Finds the "number of bottles required per entry" paragraph.
@@ -255,14 +264,17 @@ const BOTTLE_LABEL_ANY = /\bbottles?\b[^:]{0,40}\D:\s*\d{1,3}\s*$/i;
  * @returns the paragraph text, or an empty string when absent
  */
 export function findBottleRequirement(sections: BcoemSection[]): string {
-  for (const pattern of [BOTTLE_LABEL_EN, BOTTLE_LABEL_ANY]) {
-    for (const section of sections) {
-      const labelled = section.paragraphs.find(paragraph => pattern.test(paragraph));
-      if (labelled) return labelled;
-    }
+  for (const section of sections) {
+    const labelled = section.paragraphs.find(paragraph => BOTTLE_LABEL_EN.test(paragraph));
+    if (labelled) return labelled;
   }
 
-  return sectionParagraph(sections, 'entryAcceptanceRules');
+  const rules = findSection(sections, 'entryAcceptanceRules');
+  if (!rules) return '';
+
+  return rules.paragraphs.find(paragraph => BOTTLE_LABEL_ANY.test(paragraph))
+    ?? rules.paragraphs[0]
+    ?? '';
 }
 
 /** A window read from an "At a Glance" card. */

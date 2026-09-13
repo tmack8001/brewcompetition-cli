@@ -9,8 +9,16 @@ const IMPERSONATION_PROFILES = ['chrome', 'firefox'] as const;
 
 type ImpersonationProfile = typeof IMPERSONATION_PROFILES[number];
 
-/** Applied to both the direct and the impersonated attempt. */
+/** Applied to the direct attempt. */
 const REQUEST_TIMEOUT_MS = 30_000;
+
+/**
+ * Applied to each impersonated retry, shorter than the direct attempt on purpose.
+ * A host that accepts a connection and never answers otherwise costs the full
+ * timeout three times over, and the competitions command pays that per candidate
+ * URL - 30s became 90s per page and 180s for the command.
+ */
+const IMPERSONATION_TIMEOUT_MS = 10_000;
 
 /**
  * Fragments that only appear on interstitial "prove you're a browser" pages.
@@ -146,7 +154,7 @@ async function impitClient(profile: ImpersonationProfile) {
     );
   }
 
-  const client = new Impit({ browser: profile, followRedirects: true, timeout: REQUEST_TIMEOUT_MS });
+  const client = new Impit({ browser: profile, followRedirects: true, timeout: IMPERSONATION_TIMEOUT_MS });
   clients.set(profile, client);
 
   return client;

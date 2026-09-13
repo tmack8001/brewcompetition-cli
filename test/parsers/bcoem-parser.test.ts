@@ -304,6 +304,45 @@ describe('BCOEM Parser, hostile input', () => {
     expect(asRecord(await parser.parseMetadata(html)).awards_ceremony).to.contain('Homestead 3311');
   });
 
+  it('should read the window sentence even when it is not the first paragraph', async () => {
+    // BCOEM renders the window sentence only when the relevant deadline is set, so
+    // it is not reliably paragraph zero.
+    const html = page(
+      '<a name="shipping-info"></a><h2>Shipping Info</h2>' +
+        '<p>Please pack your entries carefully.</p>' +
+        '<p>Entry bottles accepted at our shipping location Friday, August 14, 2026 12:00 AM, EDT — Friday, September 18, 2026 5:00 PM, EDT.</p>'
+    );
+    const row = asRecord(await parser.parseMetadata(html));
+
+    expect(row.shipping_window).to.contain('accepted at our shipping location');
+    expect(row.shipping_window_start_date).to.equal('2026-08-14T04:00:00.000Z');
+  });
+
+  it('should not let prose from another section supply the bottle count', async () => {
+    // The shape-based tier is scoped to Entry Acceptance Rules because page-wide it
+    // outranked that section's own prose using unrelated text from elsewhere.
+    const html = page(
+      '<h2>Drop-Off Locations</h2><p>Please bring bottles to the drop-off. Entries per brewer: 5</p>' +
+        '<a name="entry-acceptance-rules"></a><h2>Entry Acceptance Rules</h2>' +
+        '<p>Entries must be in commercial glass. No ceramic or swing-top bottles.</p>'
+    );
+
+    expect(asRecord(await parser.parseMetadata(html)).num_required).to.equal(
+      'Entries must be in commercial glass. No ceramic or swing-top bottles.'
+    );
+  });
+
+  it('should read a differently worded bottle label inside the rules section', async () => {
+    // The colon guard has to be a lookbehind: a consumed non-digit is satisfied by
+    // the colon itself, which stops "Required bottles: 3" matching.
+    const html = page(
+      '<a name="entry-acceptance-rules"></a><h2>Entry Acceptance Rules</h2>' +
+        '<p>Bottles due by 17:00</p><p>Required bottles: 3</p>'
+    );
+
+    expect(asRecord(await parser.parseMetadata(html)).num_required).to.equal('Required bottles: 3');
+  });
+
   it('should prefer the labelled bottle count over prose that ends in a clock', async () => {
     // A time's colon always follows a digit; a label's never does.
     const html = page(

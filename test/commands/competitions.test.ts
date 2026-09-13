@@ -9,11 +9,17 @@ const ENTRY_INFO =
   '<p>Judges and stewards may register beginning Friday, August 14, 2026 12:00 AM, EDT through Friday, September 25, 2026 5:00 PM, EDT.</p>' +
   '</body></html>';
 
+/** A page the parser can read nothing at all out of. */
+const NOTHING_READABLE = '<html><body><h2>Rules</h2><p>Ship bottles to arrive by 9/16 at 5:00</p></body></html>';
+
 /**
- * A page with nothing but a rules blurb whose prose happens to end in a clock -
- * the shape that used to satisfy the "found metadata" test.
+ * A page whose only readable field is the bottle requirement - the one field BCOEM
+ * can emit detached from its own section, so it turns up on pages that have
+ * nothing else.
  */
-const JUNK_ONLY = '<html><body><h2>Rules</h2><p>Ship bottles to arrive by 9/16 at 5:00</p></body></html>';
+const INCIDENTAL_ONLY =
+  '<html><body><a name="entry-acceptance-rules"></a><h2>Entry Acceptance Rules</h2>' +
+  '<p><strong>Number of Bottles Required Per Entry: 2</strong></p></body></html>';
 
 /**
  * Serves the entry-info page only at `?section=entry`, and whatever the caller
@@ -71,9 +77,9 @@ describe('competitions', () => {
     }
   });
 
-  it('should keep searching when the given URL yields only an incidental field', async () => {
+  it('should keep searching when the given URL yields nothing readable', async () => {
     const { paths, stop, url } = await serveCompetition(response => {
-      response.writeHead(200, { 'content-type': 'text/html' }).end(JUNK_ONLY);
+      response.writeHead(200, { 'content-type': 'text/html' }).end(NOTHING_READABLE);
     });
 
     try {
@@ -85,15 +91,27 @@ describe('competitions', () => {
     }
   });
 
+  it('should keep searching when the given URL yields only an incidental field', async () => {
+    // This is what INCIDENTAL_COLUMNS is for: the bottle requirement alone is not
+    // proof a page carries competition metadata, so the search must continue.
+    const { paths, stop, url } = await serveCompetition(response => {
+      response.writeHead(200, { 'content-type': 'text/html' }).end(INCIDENTAL_ONLY);
+    });
+
+    try {
+      const { stdout } = await runCommand(['competitions', url, '-o', 'csv']);
+      expect(paths.some(path => path.includes('section=entry')), 'must try entry-info').to.equal(true);
+      expect(stdout).to.contain('create your account beginning');
+    } finally {
+      await stop();
+    }
+  });
+
   it('should still print an incidental field when no candidate offers more', async () => {
     // Not worth stopping the search for, but once the search is over it beats
     // dropping the value and claiming nothing was published.
-    const bottlesOnly =
-      '<html><body><a name="entry-acceptance-rules"></a><h2>Entry Acceptance Rules</h2>' +
-      '<p><strong>Number of Bottles Required Per Entry: 2</strong></p></body></html>';
-
     const server = http.createServer((_request, response) => {
-      response.writeHead(200, { 'content-type': 'text/html' }).end(bottlesOnly);
+      response.writeHead(200, { 'content-type': 'text/html' }).end(INCIDENTAL_ONLY);
     });
     await new Promise<void>(resolve => { server.listen(0, '127.0.0.1', resolve); });
     const address = server.address();

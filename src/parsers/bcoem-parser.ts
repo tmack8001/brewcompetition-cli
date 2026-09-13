@@ -1,6 +1,6 @@
 import cheerio from 'cheerio';
 
-import { detectShortDateOrder, extractWindow, parseTimestamps } from './bcoem-dates.js';
+import { detectShortDateOrder, extractMoment, extractWindow, parseTimestamps } from './bcoem-dates.js';
 import { BcoemField, extractGlanceWindows, extractSections, findBottleRequirement, findGlanceWindow, sectionParagraph, sectionWindowText } from './bcoem-sections.js';
 import { CompetitionParser, ParsedMetadata, ParsedResults } from './types.js';
 
@@ -67,7 +67,12 @@ export class BCOEMParser implements CompetitionParser {
                 return [describesWindow ? text : card.summary, card.open, card.close];
             }
 
-            const { end, start } = extractWindow(text, order);
+            // The awards ceremony is a moment, and its paragraph carries the venue
+            // and address, so cue words in admin free-text must not reinterpret it.
+            const { end, start } = field === 'awardsCeremony'
+                ? extractMoment(text, order)
+                : extractWindow(text, order);
+
             return [text, start, end];
         };
 
