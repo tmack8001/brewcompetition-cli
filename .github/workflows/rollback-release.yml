@@ -110,7 +110,12 @@ jobs:
           PKG=$(node -p "require('./package.json').name")
           echo "package=$PKG" >> "$GITHUB_OUTPUT"
 
-          VERSIONS=$(npm view "$PKG" versions --json 2>/dev/null || echo '[]')
+          # Compacted to one line: npm pretty-prints this, and a multi-line value
+          # cannot be written to $GITHUB_OUTPUT as key=value. npm also returns a
+          # bare string rather than an array when only one version exists.
+          VERSIONS=$(npm view "$PKG" versions --json 2>/dev/null \
+            | python3 -c 'import json,sys; d=json.load(sys.stdin); print(json.dumps(d if isinstance(d, list) else [d]))' \
+            || echo '[]')
           echo "versions=$VERSIONS" >> "$GITHUB_OUTPUT"
 
           ON_NPM=no
