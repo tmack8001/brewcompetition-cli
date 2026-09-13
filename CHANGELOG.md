@@ -108,6 +108,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- A platform whose metadata parsing is not implemented now reports that, instead of
+  reporting that the competition published no metadata. Trying a second URL on the
+  same site cannot help, so it is fatal rather than a candidate failure.
 - `competitions` now tries `?section=entry` when the given URL publishes no
   metadata, and reports plainly when a competition publishes none at all
   (BCOEM gates the entry-info page behind a login once the windows close).

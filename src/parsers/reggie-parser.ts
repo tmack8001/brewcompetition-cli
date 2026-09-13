@@ -1,11 +1,11 @@
 import cheerio from 'cheerio';
 
-import { CompetitionParser, ParsedMetadata, ParsedResults } from './types.js';
+import { CompetitionParser, ParsedMetadata, ParsedResults, UnsupportedOperationError } from './types.js';
 
 export class ReggieParser implements CompetitionParser {
   async parseMetadata(_html: string): Promise<ParsedMetadata> {
     // Reggie metadata parsing - to be implemented based on Reggie's structure
-    throw new Error('Reggie metadata parsing not yet implemented');
+    throw new UnsupportedOperationError('Reggie metadata parsing not yet implemented');
   }
 
   async parseResults(html: string, filters: { brewers: string | undefined, club: string | undefined }): Promise<ParsedResults | undefined> {

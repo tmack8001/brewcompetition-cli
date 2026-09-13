@@ -17,6 +17,20 @@ export interface ParsedMetadata {
   header: string;
 }
 
+/**
+ * Raised when a parser does not implement an operation for its platform.
+ *
+ * Distinct from a fetch or parse failure so callers can tell "this tool cannot
+ * read that platform yet" from "that competition published nothing" - the two
+ * need different words, and the user can act on only one of them.
+ */
+export class UnsupportedOperationError extends Error {
+  constructor(message: string) {
+    super(message);
+    this.name = 'UnsupportedOperationError';
+  }
+}
+
 export interface CompetitionParser {
   /**
    * Pages worth trying for competition metadata, most likely first.

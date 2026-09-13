@@ -1,7 +1,7 @@
 import cheerio from 'cheerio';
 
 import { fetchJson } from '../http/fetch.js';
-import { CompetitionParser, ParsedMetadata, ParsedResults } from './types.js';
+import { CompetitionParser, ParsedMetadata, ParsedResults, UnsupportedOperationError } from './types.js';
 
 interface BapEntry {
   name?: string;
@@ -17,7 +17,7 @@ interface BapCategory {
 export class BAPParser implements CompetitionParser {
   async parseMetadata(_html: string): Promise<ParsedMetadata> {
     // BAP metadata parsing - to be implemented based on BAP's structure
-    throw new Error('BAP metadata parsing not yet implemented');
+    throw new UnsupportedOperationError('BAP metadata parsing not yet implemented');
   }
 
   async parseResults(html: string, filters: { brewers: string | undefined, club: string | undefined }, url?: string): Promise<ParsedResults | undefined> {

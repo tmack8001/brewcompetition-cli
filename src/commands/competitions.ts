@@ -4,6 +4,7 @@ import path from 'node:path';
 
 import { fetchHtml } from '../http/fetch.js';
 import { getParser } from '../parsers/index.js';
+import { UnsupportedOperationError } from '../parsers/types.js';
 
 interface Config {
   competitions: string[];
@@ -96,9 +97,14 @@ export default class Competitions extends Command {
         // nothing if no later candidate does better.
         if (!result || !hasAnyField(result)) result = parsed;
       } catch (error) {
-        // One candidate failing must not end the search. A finished competition
-        // commonly drops or redirects the page a user would paste, which is the
-        // very case the remaining candidates exist to cover.
+        // A platform this tool cannot read yet is not a candidate failure - trying
+        // another URL on the same site will not help, and reporting it as "nothing
+        // published" blames the competition for a gap in the CLI.
+        if (error instanceof UnsupportedOperationError) throw error;
+
+        // Otherwise one candidate failing must not end the search. A finished
+        // competition commonly drops or redirects the page a user would paste,
+        // which is the very case the remaining candidates exist to cover.
         failures.push(`${candidate}: ${error instanceof Error ? error.message : String(error)}`);
       }
     }
