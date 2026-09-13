@@ -125,6 +125,44 @@ describe('competitions', () => {
     }
   });
 
+  it('should keep an incidental field found at the first candidate when the second has none', async () => {
+    // Exercises the "keep the best thing seen so far" guard. Serving the same page
+    // to both candidates cannot detect its loss.
+    const server = http.createServer((request, response) => {
+      const body = (request.url ?? '').includes('section=entry') ? NOTHING_READABLE : INCIDENTAL_ONLY;
+      response.writeHead(200, { 'content-type': 'text/html' }).end(body);
+    });
+    await new Promise<void>(resolve => { server.listen(0, '127.0.0.1', resolve); });
+    const address = server.address();
+    if (address === null || typeof address === 'string') throw new Error('no port');
+
+    try {
+      const { stdout } = await runCommand(['competitions', `http://127.0.0.1:${address.port}/index.php`, '-o', 'csv']);
+      expect(stdout).to.contain('Number of Bottles Required Per Entry: 2');
+    } finally {
+      await new Promise<void>(resolve => { server.close(() => resolve()); });
+    }
+  });
+
+  it('should report none published when every candidate parses to nothing', async () => {
+    // Reaches the final guard through a successful fetch rather than a failed one,
+    // which is the path the fetch-failure test does not cover.
+    const server = http.createServer((_request, response) => {
+      response.writeHead(200, { 'content-type': 'text/html' }).end(NOTHING_READABLE);
+    });
+    await new Promise<void>(resolve => { server.listen(0, '127.0.0.1', resolve); });
+    const address = server.address();
+    if (address === null || typeof address === 'string') throw new Error('no port');
+
+    try {
+      const { stderr, stdout } = await runCommand(['competitions', `http://127.0.0.1:${address.port}/index.php`, '-o', 'csv']);
+      expect(stderr).to.contain('No competition metadata published');
+      expect(stdout).to.equal('');
+    } finally {
+      await new Promise<void>(resolve => { server.close(() => resolve()); });
+    }
+  });
+
   it('should report plainly when no candidate publishes metadata', async () => {
     // BCOEM gates the entry-info page behind a login once the windows close.
     const server = http.createServer((_request, response) => {

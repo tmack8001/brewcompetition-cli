@@ -304,6 +304,37 @@ describe('BCOEM Parser, hostile input', () => {
     expect(asRecord(await parser.parseMetadata(html)).awards_ceremony).to.contain('Homestead 3311');
   });
 
+  it('should read an awards ceremony whose venue name contains a cue word', async () => {
+    // Pins that the parser routes awardsCeremony through extractMoment. Without it
+    // the venue's own words reinterpret the date: "Deadline", "by", "Closed" all
+    // read as closing cues, so the ceremony silently lands in the end column and
+    // the start column is left empty. Real breweries are named this way.
+    for (const venue of ['Deadline Brewing Parlor', 'Brewery by the Bay', 'Closed Loop Taproom']) {
+      const html = page(
+        `<a name="awards-ceremony"></a><h2>Awards Ceremony</h2>` +
+          `<p>${venue}<br />123 Main St<br />Saturday, September 26, 2026 5:00 PM, EDT</p>`
+      );
+      // eslint-disable-next-line no-await-in-loop
+      const row = asRecord(await parser.parseMetadata(html));
+
+      expect(row.awards_ceremony_start_date, venue).to.equal('2026-09-26T21:00:00.000Z');
+      expect(row.awards_ceremony_end_date, venue).to.equal('');
+    }
+  });
+
+  it('should still read a closing cue as an end date for a real window field', async () => {
+    // The moment treatment is specific to the awards ceremony. Shipping states a
+    // window, so "through" must still put its lone date in the end column.
+    const html = page(
+      '<a name="shipping-info"></a><h2>Shipping Info</h2>' +
+        '<p>Entry bottles accepted at our shipping location through Friday, September 18, 2026 5:00 PM, EDT.</p>'
+    );
+    const row = asRecord(await parser.parseMetadata(html));
+
+    expect(row.shipping_window_end_date).to.equal('2026-09-18T21:00:00.000Z');
+    expect(row.shipping_window_start_date).to.equal('');
+  });
+
   it('should read the window sentence even when it is not the first paragraph', async () => {
     // BCOEM renders the window sentence only when the relevant deadline is set, so
     // it is not reliably paragraph zero.

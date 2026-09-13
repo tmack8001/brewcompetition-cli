@@ -36,6 +36,29 @@ async function serve(
 }
 
 /**
+ * Runs something expected to reject and returns the error it rejected with.
+ *
+ * Written as a helper rather than `try { await …; expect.fail() } catch` because
+ * that shape is unsound: `expect.fail` throws a chai AssertionError which the
+ * test's own `catch` then asserts against, and a set of purely negative
+ * assertions passes happily on the string "expected a rejection". One such test
+ * was proven to pass both on a successful fetch and on an unrelated failure.
+ *
+ * @param run the call under test
+ * @returns the rejection reason
+ * @throws when the call resolves instead of rejecting
+ */
+async function rejection(run: () => Promise<unknown>): Promise<Error> {
+  try {
+    await run();
+  } catch (error) {
+    return error as Error;
+  }
+
+  throw new Error('expected the call to reject, but it resolved');
+}
+
+/**
  * True when the request looks like our plain axios client rather than an
  * impersonated browser, which is how these fixtures tell the two apart.
  *
@@ -107,9 +130,7 @@ describe('fetchWithFallback', () => {
     });
 
     try {
-      await fetchHtml(url);
-      expect.fail('expected a rejection');
-    } catch (error) {
+      const error = await rejection(() => fetchHtml(url));
       expect(error).to.be.instanceOf(HttpStatusError);
       expect((error as HttpStatusError).status).to.equal(404);
       expect(error).to.not.be.instanceOf(BotChallengeError);
@@ -124,9 +145,7 @@ describe('fetchWithFallback', () => {
     });
 
     try {
-      await fetchHtml(url);
-      expect.fail('expected a rejection');
-    } catch (error) {
+      const error = await rejection(() => fetchHtml(url));
       expect(error).to.be.instanceOf(HttpStatusError);
       expect((error as HttpStatusError).status).to.equal(500);
     } finally {
@@ -135,28 +154,24 @@ describe('fetchWithFallback', () => {
   });
 
   it('should surface a connection failure as itself without impersonating', async () => {
-    // Nothing is listening on this port; no fingerprint changes that. Asserting the
-    // message alone passed even when ECONNREFUSED was wrongly made retryable,
-    // because the retry path produces a message that also mentions the code - so
-    // the attempt list is what actually pins this.
-    try {
-      await fetchHtml('http://127.0.0.1:1');
-      expect.fail('expected a rejection');
-    } catch (error) {
-      expect(error).to.not.be.instanceOf(BotChallengeError);
-      expect((error as Error).message).to.match(/econnrefused|connect/i);
-      expect((error as Error).message, 'must not have tried impersonation').to.not.contain('impersonation');
-    }
+    // Nothing is listening on this port; no fingerprint changes that. The negative
+    // assertion alone is not enough - it passes even when ECONNREFUSED is wrongly
+    // made retryable - so the code is asserted positively as well.
+    const error = await rejection(() => fetchHtml('http://127.0.0.1:1'));
+
+    expect(error).to.not.be.instanceOf(BotChallengeError);
+    expect(error.message).to.match(/econnrefused/i);
+    expect(error.message, 'must not have tried impersonation').to.not.contain('impersonation');
   });
 
   it('should surface a DNS failure as itself without impersonating', async () => {
-    try {
-      await fetchHtml('http://no-such-host-abcxyz123.invalid/');
-      expect.fail('expected a rejection');
-    } catch (error) {
-      expect((error as Error).message).to.not.contain('impersonation');
-      expect((error as Error).message).to.not.contain('Could not reach');
-    }
+    const error = await rejection(() => fetchHtml('http://no-such-host-abcxyz123.invalid/'));
+
+    // Positively identify the failure. Asserting only the absence of two substrings
+    // passed on a successful fetch and on an unrelated failure mode alike.
+    expect(error.message).to.match(/enotfound|eai_again|getaddrinfo/i);
+    expect(error.message).to.not.contain('impersonation');
+    expect(error.message).to.not.contain('Could not reach');
   });
 
   it('should retry with impersonation and succeed when only the plain client is challenged', async () => {
@@ -209,9 +224,7 @@ describe('fetchWithFallback', () => {
     });
 
     try {
-      await fetchHtml(url);
-      expect.fail('expected a rejection');
-    } catch (error) {
+      const error = await rejection(() => fetchHtml(url));
       expect(error).to.be.instanceOf(BotChallengeError);
       expect((error as Error).message).to.contain('chrome impersonation');
       expect((error as Error).message).to.contain('firefox impersonation');
@@ -228,9 +241,7 @@ describe('fetchWithFallback', () => {
     });
 
     try {
-      await fetchHtml(url);
-      expect.fail('expected a rejection');
-    } catch (error) {
+      const error = await rejection(() => fetchHtml(url));
       expect(error).to.be.instanceOf(HttpStatusError);
       expect((error as HttpStatusError).status).to.equal(403);
       expect((error as Error).message).to.contain('impersonation');
@@ -252,9 +263,7 @@ describe('fetchWithFallback', () => {
     });
 
     try {
-      await fetchHtml(url);
-      expect.fail('expected a rejection');
-    } catch (error) {
+      const error = await rejection(() => fetchHtml(url));
       expect(error).to.be.instanceOf(HttpStatusError);
       expect((error as HttpStatusError).status).to.equal(404);
       expect(error).to.not.be.instanceOf(BotChallengeError);
@@ -313,9 +322,7 @@ describe('fetchWithFallback', () => {
     });
 
     try {
-      await fetchHtml(url);
-      expect.fail('expected a rejection');
-    } catch (error) {
+      const error = await rejection(() => fetchHtml(url));
       expect((error as Error).message).to.contain('Could not reach');
       expect((error as Error).message).to.not.contain('status code 0');
       expect(error).to.not.be.instanceOf(HttpStatusError);
@@ -364,9 +371,7 @@ describe('fetchWithFallback', () => {
     });
 
     try {
-      await fetchHtml(url);
-      expect.fail('expected a rejection');
-    } catch (error) {
+      const error = await rejection(() => fetchHtml(url));
       expect((error as HttpStatusError).status).to.equal(404);
       expect(impersonated).to.equal(1);
     } finally {
@@ -381,9 +386,7 @@ describe('fetchWithFallback', () => {
     });
 
     try {
-      await fetchHtml(url);
-      expect.fail('expected a rejection');
-    } catch (error) {
+      const error = await rejection(() => fetchHtml(url));
       expect((error as Error).message).to.contain('bot protection');
       expect((error as Error).message).to.contain('not publicly readable');
     } finally {
@@ -391,17 +394,17 @@ describe('fetchWithFallback', () => {
     }
   });
 
-  it('should not call a transient status ambiguous the way it does a refusal', async () => {
-    // The "either bot protection or not public" hint belongs to 403 and 503. A 429
-    // surviving every profile is rate limiting, and saying otherwise misleads.
+  it('should report a direct 429 without the refusal hint', async () => {
+    // 429 is not a retryable status, so this never enters the impersonation loop -
+    // it is reported straight from the direct attempt. The hint about a page not
+    // being public belongs to 403 and 503 only. The next test covers the case
+    // where a transient status does survive the whole chain.
     const { stop, url } = await serve((_request, response) => {
       response.writeHead(429).end('slow down');
     });
 
     try {
-      await fetchHtml(url);
-      expect.fail('expected a rejection');
-    } catch (error) {
+      const error = await rejection(() => fetchHtml(url));
       expect((error as HttpStatusError).status).to.equal(429);
       expect((error as Error).message).to.not.contain('not publicly readable');
     } finally {
@@ -423,9 +426,7 @@ describe('fetchWithFallback', () => {
     });
 
     try {
-      await fetchHtml(url);
-      expect.fail('expected a rejection');
-    } catch (error) {
+      const error = await rejection(() => fetchHtml(url));
       expect((error as HttpStatusError).status).to.equal(429);
       expect((error as Error).message).to.contain('impersonation');
       expect((error as Error).message).to.not.contain('not publicly readable');
@@ -445,9 +446,7 @@ describe('fetchWithFallback', () => {
     });
 
     try {
-      await fetchJson(url);
-      expect.fail('expected a rejection');
-    } catch (error) {
+      const error = await rejection(() => fetchJson(url));
       expect(error).to.be.instanceOf(TypeError);
       expect((error as Error).message).to.contain('Expected JSON');
       expect((error as Error).message).to.contain('127.0.0.1');
@@ -479,9 +478,7 @@ describe('fetchWithFallback', () => {
     });
 
     try {
-      await fetchJson(url);
-      expect.fail('expected a rejection');
-    } catch (error) {
+      const error = await rejection(() => fetchJson(url));
       expect(error).to.be.instanceOf(TypeError);
       expect((error as Error).message).to.contain('Expected JSON');
     } finally {

@@ -51,6 +51,8 @@ describe('BCOEM date handling', () => {
         ['AWST', '2026-07-15', 480],
         ['CEST', '2026-07-15', 120],
         ['CET', '2026-01-15', 60],
+        ['EEST', '2026-07-15', 180],
+        ['ChST', '2026-07-15', 600],
         ['IST', '2026-07-15', 330],
         ['KST', '2026-07-15', 540],
         ['MSK', '2026-07-15', 180],
@@ -70,6 +72,19 @@ describe('BCOEM date handling', () => {
       expect(resolveTimezone('+0530')).to.equal('+05:30');
       expect(resolveTimezone('+11')).to.equal('+11:00');
       expect(resolveTimezone('-0930')).to.equal('-09:30');
+    });
+
+    it('should parse a timestamp whose zone is a numeric offset to the right instant', () => {
+      // resolveTimezone has offset tests, but nothing exercised a full timestamp
+      // carrying a numeric zone. Parsing one with moment.tz instead of a fixed
+      // offset yields a silently wrong instant - 5h45m out for +0545 - and a
+      // "no data for +05:45" line on stderr.
+      const kathmandu = parseTimestamps('accepted Friday, August 14, 2026 12:00 AM, +0545');
+      expect(kathmandu).to.have.lengthOf(1);
+      expect(kathmandu[0].date.toISOString()).to.equal('2026-08-13T18:15:00.000Z');
+
+      const saoPaulo = parseTimestamps('accepted Friday, August 14, 2026 5:00 PM, -03');
+      expect(saoPaulo[0].date.toISOString()).to.equal('2026-08-14T20:00:00.000Z');
     });
 
     it('should refuse an unknown abbreviation rather than guessing', () => {

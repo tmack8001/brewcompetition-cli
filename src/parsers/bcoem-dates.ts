@@ -291,7 +291,8 @@ export function extractWindow(
  *
  * @param text the paragraph to read
  * @param order how this install orders `short` dates
- * @returns the instant as the start, with no end
+ * @returns a lone instant as the start with no end; a pair is still read as a
+ *   window, since two stated timestamps are unambiguous whatever the wording
  */
 export function extractMoment(
   text: string,
