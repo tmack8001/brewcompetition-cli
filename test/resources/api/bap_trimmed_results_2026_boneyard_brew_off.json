@@ -1,0 +1,111 @@
+{
+  "results": {
+    "miniBos": {
+      "3NKybRSRXIQ9iuA5ugLT": {
+        "name": "Spiced and Specialty Mead 9 Entries",
+        "positions": {
+          "1": [
+            {
+              "name": "Pillager",
+              "styleSubcategory": "Experimental Mead",
+              "participant": {
+                "name": "Aaron Pigors",
+                "club": "Illiana Beer Rackers Union (IBRU)"
+              }
+            }
+          ],
+          "2": [
+            {
+              "name": "Loki's Etouffee",
+              "styleSubcategory": "Fruit and Spice Mead",
+              "participant": {
+                "name": "Brian Biggs",
+                "club": "Dead Yeast Society [LA]"
+              }
+            }
+          ],
+          "3": [
+            {
+              "name": "The Morrígan",
+              "styleSubcategory": "Experimental Mead",
+              "participant": {
+                "name": "Austin Brown",
+                "club": "Brewers Anonymous"
+              }
+            }
+          ]
+        }
+      },
+      "2bFFClVH0tyCNbtSLMCG": {
+        "name": "Amber Lager 17 Entries",
+        "positions": {
+          "1": [
+            {
+              "name": "Smoke Wagon",
+              "styleSubcategory": "Rauchbier",
+              "participant": {
+                "name": "Taylor Shastid",
+                "club": "Diablo Order of Zymiracle Enthusiasts (DOZE)"
+              }
+            }
+          ],
+          "2": [
+            {
+              "name": "Computer Love",
+              "styleSubcategory": "Altbier",
+              "participant": {
+                "name": "Kevin Lewis",
+                "club": "N/A"
+              }
+            }
+          ],
+          "3": [
+            {
+              "name": "Papa’s Marzen",
+              "styleSubcategory": "Märzen",
+              "participant": {
+                "name": "Keith I",
+                "club": "Big Shoe Brewing"
+              }
+            }
+          ]
+        }
+      },
+      "1kXgsgHGCzI1jtJCpXW0": {
+        "name": "Belgian and Monastic Ales 14 Entries",
+        "positions": {
+          "1": [
+            {
+              "name": "Quad",
+              "styleSubcategory": "Belgian Dark Strong Ale",
+              "participant": {
+                "name": "Mark Kuechler",
+                "club": "Boneyard Union of Zymurgical Zealots (B.U.Z.Z.)"
+              }
+            }
+          ],
+          "2": [
+            {
+              "name": "Old Scratch Johnson",
+              "styleSubcategory": "Belgian Golden Strong Ale",
+              "participant": {
+                "name": "Matt Walsh-Sarnecki",
+                "club": "Cass River Homebrew Club"
+              }
+            }
+          ],
+          "3": [
+            {
+              "name": "Saison 2",
+              "styleSubcategory": "Saison",
+              "participant": {
+                "name": "Ryan Kuhn",
+                "club": "None"
+              }
+            }
+          ]
+        }
+      }
+    }
+  }
+}
