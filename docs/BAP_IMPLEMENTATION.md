@@ -113,23 +113,29 @@ for (const categoryId in results) {
 
 ### From HTML (Fallback)
 
-For saved pages where JavaScript has already rendered the data:
+For saved pages where JavaScript has already rendered the data. The page must be a
+rendered DOM snapshot (for example `chrome --headless --dump-dom
+--virtual-time-budget=20000 <url>`); the bare fetch is a small app shell and is
+rejected with an error (see below). The parser never uses class names, which
+change between BAP builds. It reads the page the way a person does:
 
-```typescript
-$('.MuiCard-root').each((index, card) => {
-  const categoryName = $(card).find('.MuiCardHeader-title').text();
-  
-  $(card).find('.jss95').each((awardIndex, awardDiv) => {
-    const place = $(awardDiv).find('.jss99').attr('title');
-    const paragraphs = $(awardDiv).find('.jss96 p');
-    
-    const entryName = $(paragraphs[0]).text();
-    const style = $(paragraphs[1]).text();
-    const brewer = $(paragraphs[2]).text().split(',')[0];
-    const club = $(paragraphs[3]).text().replace('Club:', '');
-  });
-});
-```
+- Each award row is found by its medal marker, an element titled `#1`, `#2`, `#3`
+  or `#4` (1st, 2nd, 3rd, HM); other numbers are passed through as `#N`. The
+  title is the only place BAP exposes the place;
+  the icon itself has no text. A place that comes before an earlier one in the same
+  category is rejected; ties are allowed.
+- The category is the nearest preceding text block that holds no medal marker
+  (the heading, e.g. `Amber Lager 17 Entries` or `Porter and Stout (10)`).
+  Headings containing `Best of Show` are skipped, as in the API path.
+- Within a row, the paragraphs/headings in document order are: entry name, a style
+  line matching `<code> - <style>`, the brewer line (`Name, city, ST, USA`), an
+  optional `Collaboration with ...` line and a `Club: X` line. Rows containing
+  `No award...`, and custom-award rows whose only text is one line
+  (`name \ style \ brewer \ Club: X`), are skipped; any other row that collapsed
+  to one line throws.
+- A saved page with no medal markers, a row without a style line or a row that
+  lost its medal title usually throws `BapHtmlStructureError`. When the API was tried
+  first (a URL was given) the error is swallowed and the result is empty.
 
 ## Competition Key Extraction
 

@@ -38,6 +38,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `medals` exits non-zero when a competition cannot be read. With a config file, a
   failing competition no longer stops the others printing, and every failure is
   reported.
+- The BAP saved-page fallback found no awards on a freshly saved results page
+  because it selected rows by generated class names. It now reads the page by its
+  content: category headings, the `#N` title on each medal, the style line
+  (`6B - Rauchbier`), the brewer line and the `Club:` line. A saved page
+  that is an unrendered app shell or has an unrecognized structure now throws
+  `BapHtmlStructureError` when no URL is given; with a URL the error is swallowed
+  and the result is empty.
 
 
 ## [1.1.0] - 2026-09-13
