@@ -1,6 +1,7 @@
 import cheerio from 'cheerio';
 
-import { fetchJson } from '../http/fetch.js';
+import { HttpStatusError, fetchJson } from '../http/fetch.js';
+import { isBapHost } from './platform-detector.js';
 import { CompetitionParser, ParsedMetadata, ParsedResults, UnsupportedOperationError } from './types.js';
 
 interface BapEntry {
@@ -14,7 +15,17 @@ interface BapCategory {
   positions?: Record<string, BapEntry[]>;
 }
 
+/** The API reports no competition for the key in the URL. */
+export class BapCompetitionNotFoundError extends Error {
+  constructor(competitionKey: string) {
+    super(`No BAP competition found for key "${competitionKey}"; check that the URL is a competition page`);
+    this.name = 'BapCompetitionNotFoundError';
+  }
+}
+
 export class BAPParser implements CompetitionParser {
+  constructor(private readonly fetcher: typeof fetchJson = fetchJson) {}
+
   async parseMetadata(_html: string): Promise<ParsedMetadata> {
     // BAP metadata parsing - to be implemented based on BAP's structure
     throw new UnsupportedOperationError('BAP metadata parsing not yet implemented');
@@ -23,12 +34,25 @@ export class BAPParser implements CompetitionParser {
   async parseResults(html: string, filters: { brewers: string | undefined, club: string | undefined }, url?: string): Promise<ParsedResults | undefined> {
     const header: string[] = ['Table / Category', 'Place', 'Entry Count', 'Entry Name', 'Style', 'Brewer', 'Club'];
     let data: string[][] = [];
+    let apiRead = false;
+    let apiError: unknown;
 
     // Try to fetch from API first if we have a URL
     if (url) {
       const competitionKey = this.extractCompetitionKey(url);
-      if (competitionKey) {
+      if (!competitionKey) {
+        // The live page is an app shell; the HTML fallback cannot help here
+        throw new Error(`Could not extract a BAP competition key from URL: ${url}`);
+      }
+
+      try {
         data = await this.parseApiData(competitionKey, filters);
+        apiRead = true;
+      } catch (error) {
+        // Not-found is final; other failures fall back to HTML
+        if (error instanceof BapCompetitionNotFoundError) throw error;
+        apiError = error;
+        console.error('Error fetching BAP API data:', error);
       }
     }
 
@@ -38,7 +62,17 @@ export class BAPParser implements CompetitionParser {
     }
 
     if (data.length === 0) {
-      console.error('No results found in BAP format');
+      // The live page is an app shell, so an API failure cannot be recovered from HTML
+      if (apiError) throw apiError;
+
+      if (apiRead) {
+        console.error(filters.brewers || filters.club
+          ? 'Competition read, but no medals matched the given filters'
+          : 'Competition read, but it has no published medals');
+      } else {
+        console.error('No results found in BAP format');
+      }
+
       return undefined;
     }
 
@@ -108,87 +142,111 @@ export class BAPParser implements CompetitionParser {
   }
 
   private extractCompetitionKey(url: string): null | string {
-    // Extract competition key from URL like:
-    // https://beerawardsplatform.com/2025-ash-copper-state-cup/results
-    const match = url.match(/beerawardsplatform\.com\/([^/]+)\//);
-    return match ? match[1] : null;
+    let parsed: URL;
+    try {
+      parsed = new URL(url);
+    } catch {
+      return null;
+    }
+
+    if (!isBapHost(parsed.hostname)) {
+      return null;
+    }
+
+    const segment = parsed.pathname.split('/').find(Boolean);
+    if (!segment) return null;
+
+    try {
+      return decodeURIComponent(segment);
+    } catch {
+      return segment;
+    }
+  }
+
+  private async loadCompetitionId(competitionKey: string): Promise<string> {
+    let info: { competition?: { competitionId?: string } } | undefined;
+    try {
+      info = await this.fetcher<{ competition?: { competitionId?: string } }>(
+        `https://beerawardsplatform.com/api/loadCompetitionInfo?competitionKey=${encodeURIComponent(competitionKey)}&includeEntryCount`
+      );
+    } catch (error) {
+      if (error instanceof HttpStatusError && error.status === 404) {
+        throw new BapCompetitionNotFoundError(competitionKey);
+      }
+
+      throw error;
+    }
+
+    const competitionId = info?.competition?.competitionId;
+    if (!competitionId) {
+      throw new BapCompetitionNotFoundError(competitionKey);
+    }
+
+    return competitionId;
   }
 
   private async parseApiData(competitionKey: string, filters: { brewers: string | undefined, club: string | undefined }): Promise<string[][]> {
     const data: string[][] = [];
 
-    try {
-      // First, get the competition info to extract the competitionId
-      const info = await fetchJson<{ competition?: { competitionId?: string } }>(
-        `https://beerawardsplatform.com/api/loadCompetitionInfo?competitionKey=${competitionKey}&includeEntryCount`
-      );
+    // First, get the competition info to extract the competitionId
+    const competitionId = await this.loadCompetitionId(competitionKey);
 
-      const competitionId = info?.competition?.competitionId;
-      if (!competitionId) {
-        console.error('Could not extract competitionId from BAP API');
-        return data;
+    // Now fetch the results
+    const resultsResponse = await this.fetcher<{ results?: { miniBos?: Record<string, BapCategory> } }>(
+      `https://beerawardsplatform.com/api/getResults?competitionId=${encodeURIComponent(competitionId)}`
+    );
+
+    const results = resultsResponse?.results?.miniBos;
+    if (!results) {
+      return data;
+    }
+
+    // Parse the results
+    for (const categoryId in results) {
+      if (!Object.hasOwn(results, categoryId)) continue;
+
+      const category = results[categoryId];
+      const categoryNameRaw = (category.name || 'Unknown Category').trim();
+
+      // Skip Best of Show for now
+      if (categoryNameRaw.includes('Best of Show')) {
+        continue;
       }
 
-      // Now fetch the results
-      const resultsResponse = await fetchJson<{ results?: { miniBos?: Record<string, BapCategory> } }>(
-        `https://beerawardsplatform.com/api/getResults?competitionId=${competitionId}`
-      );
+      const { categoryName, entryCount } = this.extractCategoryAndEntryCount(categoryNameRaw);
 
-      const results = resultsResponse?.results?.miniBos;
-      if (!results) {
-        console.error('No results found in BAP API response');
-        return data;
-      }
+      const positions = category.positions || {};
 
-      // Parse the results
-      for (const categoryId in results) {
-        if (!Object.hasOwn(results, categoryId)) continue;
+      // Iterate through positions (1, 2, 3, 4)
+      for (const position in positions) {
+        if (!Object.hasOwn(positions, position)) continue;
 
-        const category = results[categoryId];
-        const categoryNameRaw = (category.name || 'Unknown Category').trim();
+        const entries = positions[position];
+        if (!Array.isArray(entries)) continue;
 
-        // Skip Best of Show for now
-        if (categoryNameRaw.includes('Best of Show')) {
-          continue;
-        }
+        for (const entry of entries) {
+          const brewer = (entry.participant?.name || entry.participant?.displayName || '').trim();
+          const club = (entry.participant?.club || '').trim();
+          const entryName = (entry.name || '').trim();
+          const style = (entry.styleSubcategory || '').trim();
 
-        const { categoryName, entryCount } = this.extractCategoryAndEntryCount(categoryNameRaw);
+          // Convert position to standard format: 1st, 2nd, 3rd, HM
+          const place = this.convertMedalPlacement(position);
+          const shouldInclude = this.shouldIncludeEntry(brewer, club, filters);
 
-        const positions = category.positions || {};
-
-        // Iterate through positions (1, 2, 3, 4)
-        for (const position in positions) {
-          if (!Object.hasOwn(positions, position)) continue;
-
-          const entries = positions[position];
-          if (!Array.isArray(entries)) continue;
-
-          for (const entry of entries) {
-            const brewer = (entry.participant?.name || entry.participant?.displayName || '').trim();
-            const club = (entry.participant?.club || '').trim();
-            const entryName = (entry.name || '').trim();
-            const style = (entry.styleSubcategory || '').trim();
-
-            // Convert position to standard format: 1st, 2nd, 3rd, HM
-            const place = this.convertMedalPlacement(position);
-            const shouldInclude = this.shouldIncludeEntry(brewer, club, filters);
-
-            if (shouldInclude) {
-              data.push(this.createResultRow({
-                brewer,
-                categoryName,
-                club,
-                entryCount,
-                entryName,
-                place,
-                style
-              }));
-            }
+          if (shouldInclude) {
+            data.push(this.createResultRow({
+              brewer,
+              categoryName,
+              club,
+              entryCount,
+              entryName,
+              place,
+              style
+            }));
           }
         }
       }
-    } catch (error) {
-      console.error('Error fetching BAP API data:', error);
     }
 
     return data;

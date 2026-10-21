@@ -193,8 +193,8 @@ This information is automatically extracted from all supported platforms and inc
 
 The tool automatically detects the platform based on the URL hostname:
 
-- URLs containing `reggiebeer.com` → Reggie parser
-- URLs containing `beerawardsplatform.com` → BAP parser
+- `reggiebeer.com` and its subdomains → Reggie parser
+- `beerawardsplatform.com` and its subdomains → BAP parser
 - All other URLs → BCOEM parser (default)
 
 ## Advanced Usage

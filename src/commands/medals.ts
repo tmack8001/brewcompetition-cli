@@ -76,7 +76,14 @@ export default class Medals extends Command {
           throw new Error('Invalid config file format.');
         }
 
-        await Promise.all(competitions.map(url => this.fetchMedals(url, flags.output, filters)));
+        // allSettled: one failing competition must not hide the others
+        const settled = await Promise.allSettled(competitions.map(url => this.fetchMedals(url, flags.output, filters)));
+        for (const outcome of settled) {
+          if (outcome.status === 'rejected') {
+            console.error('Error:', outcome.reason);
+            process.exitCode = 1;
+          }
+        }
       } else if (url) {
           await this.fetchMedals(url, flags.output, filters);
         } else {
@@ -84,6 +91,7 @@ export default class Medals extends Command {
         }
     } catch (error) {
         console.error('Error:', error);
+        process.exitCode = 1;
     }
   }
 

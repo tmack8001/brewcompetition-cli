@@ -138,10 +138,20 @@ The competition key is extracted from the URL:
 ```typescript
 // URL: https://beerawardsplatform.com/2025-ash-copper-state-cup/results
 // Key: 2025-ash-copper-state-cup
-
-const match = url.match(/beerawardsplatform\.com\/([^/]+)\//);
-const competitionKey = match ? match[1] : null;
 ```
+
+The key is the first path segment of the parsed URL, so bare competition URLs
+(`/2025-ash-copper-state-cup`), trailing-slash URLs, `/results` URLs and URLs with
+a query string or fragment all work. When a URL is given, `parseResults` throws when:
+
+- the URL yields no key (not a BAP host, or no path segment);
+- the API reports the key as unknown (HTTP 404, or no `competitionId`);
+- the API cannot be read and the saved-HTML fallback finds nothing.
+
+A competition that was read but has no medals, or none matching `--club` /
+`--brewers`, returns `undefined` after saying which. `medals` logs errors and exits
+with status 1; with a config file every competition is still attempted. The key is
+percent-decoded from the path and percent-encoded in the API query string.
 
 ## Place Format
 

@@ -21,11 +21,23 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
--
+- Platform detection matches `beerawardsplatform.com` and `reggiebeer.com` by
+  domain, not substring, so lookalike hosts are not routed to those parsers and a
+  trailing-dot host is.
 
 ### Fixed
 
--
+- `medals` on a bare BAP competition URL (no trailing slash) printed "No results
+  found in BAP format". The competition key is now read from the parsed URL path,
+  so bare, trailing-slash, `/results`, query-string and fragment forms resolve.
+- A BAP URL with no extractable key, or a key BAP does not know (such as
+  `https://beerawardsplatform.com/competitions`), now reports an error naming it.
+  An API failure the saved-HTML fallback cannot cover is reported as that failure.
+  A competition that was read but has no medals matching the filters says so and
+  still exits 0.
+- `medals` exits non-zero when a competition cannot be read. With a config file, a
+  failing competition no longer stops the others printing, and every failure is
+  reported.
 
 
 ## [1.1.0] - 2026-09-13
