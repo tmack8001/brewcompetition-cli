@@ -8,6 +8,7 @@ import path from 'node:path';
 
 import { HttpStatusError, fetchJson } from '../../src/http/fetch.js';
 import { BAPParser, BapCompetitionNotFoundError, BapHtmlStructureError } from '../../src/parsers/bap-parser.js';
+import { brewerOrClubExpectation, cell, expectOnlyClubRows, rowsOf } from './filter-helpers.js';
 
 const readFixture = (name: string) => JSON.parse(fs.readFileSync(path.join(process.cwd(), 'test/resources/api', name), 'utf8'));
 
@@ -71,7 +72,6 @@ function removeParagraphs($: cheerio.CheerioAPI, prefix: string): void {
 // The API keeps double spaces in some category names; a rendered page collapses them.
 const normalize = (rows: string[]): string[] => rows.map(row => row.replaceAll(/\s+/g, ' ')).sort();
 
-const rowsOf = (result: { data: string } | undefined): string[] => (result ? result.data.split('\n') : []);
 
 /**
  * Parses the BAP API fixture for a competition through the real API code path.
@@ -545,6 +545,157 @@ describe('BAP Parser', () => {
     });
   });
 
+
+  describe('Diacritic-insensitive club filter (saved HTML)', () => {
+    const none = { brewers: undefined, club: undefined };
+
+    it('matches an accented published club with an unaccented filter', async () => {
+      const accented = html.replaceAll('Arizona Society of Homebrewers', 'Arizöna Society of Homebrewers');
+      const full = await parser.parseResults(accented, none);
+      const result = await parser.parseResults(accented, { brewers: undefined, club: 'Arizona Society of Homebrewers' });
+
+      expectOnlyClubRows(full, result, 'Arizöna Society of Homebrewers');
+    });
+
+    it('matches an unaccented published club with an accented filter', async () => {
+      const full = await parser.parseResults(html, none);
+      const result = await parser.parseResults(html, { brewers: undefined, club: 'Arizöna Society of Homebrewers' });
+
+      expectOnlyClubRows(full, result, 'Arizona Society of Homebrewers');
+    });
+
+    it('matches regardless of case and spacing', async () => {
+      const full = await parser.parseResults(html, none);
+      const result = await parser.parseResults(html, { brewers: undefined, club: '  ARIZONA SOCIETY  OF HOMEBREWERS ' });
+
+      expectOnlyClubRows(full, result, 'Arizona Society of Homebrewers');
+    });
+
+    it('returns nothing for a non-matching club', async () => {
+      const result = await parser.parseResults(html, { brewers: undefined, club: 'No Such Club' });
+
+      expect(rowsOf(result)).to.be.empty;
+    });
+
+    it('does not treat a filter that is a prefix of the club as a match', async () => {
+      const result = await parser.parseResults(html, { brewers: undefined, club: 'Arizona Society of' });
+
+      expect(rowsOf(result)).to.be.empty;
+    });
+
+    it('does not treat a filter that extends the club name as a match', async () => {
+      const result = await parser.parseResults(html, { brewers: undefined, club: 'Arizona Society of Homebrewers Extra' });
+
+      expect(rowsOf(result)).to.be.empty;
+    });
+
+    it('does not let a blank club filter match entries', async () => {
+      const result = await parser.parseResults(html, { brewers: undefined, club: ' \u0301 ' });
+
+      expect(rowsOf(result)).to.be.empty;
+    });
+  });
+
+  describe('Diacritic-insensitive filters (API path)', () => {
+    const base = 'https://beerawardsplatform.com/2025-ash-copper-state-cup/results';
+    const info = fs.readFileSync(path.join(process.cwd(), 'test/resources/api/bap_competition_info.json'), 'utf8');
+    const results = fs.readFileSync(path.join(process.cwd(), 'test/resources/api/bap_results.json'), 'utf8');
+    const none = { brewers: undefined, club: undefined };
+    const originalGet = axios.get;
+
+    // Serves the fixtures in place of the BAP API; resultsBody is the getResults payload.
+    function stubApi(resultsBody: string): void {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      (axios as any).get = async (url: string) => ({
+        data: JSON.parse(url.includes('loadCompetitionInfo') ? info : resultsBody),
+        headers: {},
+        status: 200,
+      });
+    }
+
+    afterEach(() => {
+      axios.get = originalGet;
+    });
+
+    it('serves the API rows, not the saved page', async () => {
+      stubApi(results);
+      const viaApi = await parser.parseResults('', none, base);
+
+      expect(rowsOf(viaApi)).to.not.be.empty;
+    });
+
+    it('matches an unaccented filter against an accented published club', async () => {
+      stubApi(results);
+      const full = await parser.parseResults('', none, base);
+      const result = await parser.parseResults('', { brewers: undefined, club: 'The Bru Club' }, base);
+
+      expectOnlyClubRows(full, result, 'The Brü Club');
+    });
+
+    it('matches an accented filter against an unaccented published club', async () => {
+      stubApi(results.replaceAll('The Brü Club', 'The Bru Club'));
+      const full = await parser.parseResults('', none, base);
+      const result = await parser.parseResults('', { brewers: undefined, club: 'The Brü Club' }, base);
+
+      expectOnlyClubRows(full, result, 'The Bru Club');
+    });
+
+    it('returns nothing for a non-matching club', async () => {
+      stubApi(results);
+      const result = await parser.parseResults('', { brewers: undefined, club: 'No Such Club' }, base);
+
+      expect(rowsOf(result)).to.be.empty;
+    });
+
+    it('does not treat a prefix of the club as a match', async () => {
+      stubApi(results);
+      const result = await parser.parseResults('', { brewers: undefined, club: 'The Bru' }, base);
+
+      expect(rowsOf(result)).to.be.empty;
+    });
+
+    it('includes entries matching the brewer or the club', async () => {
+      stubApi(results);
+      const full = await parser.parseResults('', none, base);
+      const { brewer, expected } = brewerOrClubExpectation(full, 5, 'The Brü Club');
+      const result = await parser.parseResults('', { brewers: brewer, club: 'The Brü Club' }, base);
+
+      expect(rowsOf(result)).to.deep.equal(expected);
+    });
+
+    it('matches an accented brewer filter against the published name, and vice versa', async () => {
+      stubApi(results);
+      const plain = await parser.parseResults('', { brewers: 'Christiån Chandler', club: undefined }, base);
+      expect(rowsOf(plain)).to.not.be.empty;
+      expect(rowsOf(plain).every(row => row.includes('Christian Chandler'))).to.equal(true);
+
+      stubApi(results.replaceAll('Christian Chandler', 'Christiån Chandler'));
+      const accented = await parser.parseResults('', { brewers: 'christian chandler', club: undefined }, base);
+      expect(rowsOf(accented)).to.deep.equal(rowsOf(plain).map(row => row.replaceAll('Christian Chandler', 'Christiån Chandler')));
+    });
+  });
+
+  describe('Brewers filter (saved HTML)', () => {
+    const none = { brewers: undefined, club: undefined };
+    const club = 'Arizona Society of Homebrewers';
+
+    it('keeps only the named brewer', async () => {
+      const result = await parser.parseResults(html, { brewers: 'christian  CHANDLER', club: undefined });
+
+      expect(rowsOf(result)).to.not.be.empty;
+      expect(rowsOf(result).every(row => cell(row, 5) === 'Christian Chandler')).to.equal(true);
+    });
+
+    it('includes entries matching the brewer or the club', async () => {
+      const full = await parser.parseResults(html, none);
+      const clubOnly = await parser.parseResults(html, { brewers: undefined, club });
+      const result = await parser.parseResults(html, { brewers: 'Jeremy L. Jones', club });
+      const expected = rowsOf(full).filter(row => cell(row, 5) === 'Jeremy L. Jones' || row.endsWith(`|${club}`));
+
+      expect(expected.length).to.be.greaterThan(rowsOf(clubOnly).length);
+      expect(rowsOf(result)).to.deep.equal(expected);
+    });
+  });
 
   describe('HTML fallback without class names', () => {
     for (const page of RENDERED_PAGES) {

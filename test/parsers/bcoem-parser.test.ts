@@ -4,6 +4,7 @@ import path from 'node:path';
 
 import { BCOEMParser } from '../../src/parsers/bcoem-parser.js';
 import { extractGlanceWindows, extractSections, findSection } from '../../src/parsers/bcoem-sections.js';
+import { brewerOrClubExpectation, expectOnlyClubRows, rowsOf } from './filter-helpers.js';
 
 function fixture(name: string): string {
   return fs.readFileSync(path.join('test', 'resources', 'metadata', name), 'utf8');
@@ -383,5 +384,78 @@ describe('BCOEM Parser, hostile input', () => {
     );
 
     expect(asRecord(await parser.parseMetadata(html)).num_required).to.contain('Per Entry: 3');
+  });
+});
+
+describe('BCOEM results club filter', () => {
+  const parser = new BCOEMParser();
+  const html = fs.readFileSync(path.join('test', 'resources', 'results', 'bcoem_results.html'), 'utf8');
+  const none = { brewers: undefined, club: undefined };
+
+  it('matches an accented published club with an unaccented filter', async () => {
+    const full = await parser.parseResults(html, none);
+    const result = await parser.parseResults(html, { brewers: undefined, club: 'The Bru Club' });
+
+    expectOnlyClubRows(full, result, 'The Brü Club');
+  });
+
+  it('matches an unaccented published club with an accented filter', async () => {
+    const unaccented = html.replaceAll('The Brü Club', 'The Bru Club');
+    const full = await parser.parseResults(unaccented, none);
+    const result = await parser.parseResults(unaccented, { brewers: undefined, club: 'The Brü Club' });
+
+    expectOnlyClubRows(full, result, 'The Bru Club');
+  });
+
+  it('matches the same spelling, ignoring case and spacing', async () => {
+    const full = await parser.parseResults(html, none);
+    const result = await parser.parseResults(html, { brewers: undefined, club: '  the  BRÜ club ' });
+
+    expectOnlyClubRows(full, result, 'The Brü Club');
+  });
+
+  it('returns nothing for a non-matching club', async () => {
+    const result = await parser.parseResults(html, { brewers: undefined, club: 'No Such Club' });
+
+    expect(rowsOf(result)).to.be.empty;
+  });
+
+  it('does not treat a filter that is a prefix of the club as a match', async () => {
+    const result = await parser.parseResults(html, { brewers: undefined, club: 'The Bru' });
+
+    expect(rowsOf(result)).to.be.empty;
+  });
+
+  it('does not treat a filter that extends the club name as a match', async () => {
+    const result = await parser.parseResults(html, { brewers: undefined, club: 'The Bru Club Extra' });
+
+    expect(rowsOf(result)).to.be.empty;
+  });
+
+  it('does not let a blank club filter match entries with an empty club', async () => {
+    const emptyClub = html.replaceAll('The Brü Club', '');
+    const result = await parser.parseResults(emptyClub, { brewers: undefined, club: ` ${String.fromCodePoint(0x3_01)} ` });
+
+    expect(rowsOf(result)).to.be.empty;
+  });
+
+  it('matches accent-bearing brewer names', async () => {
+    const full = await parser.parseResults(html, none);
+    const brewer = rowsOf(full)[0].split('|')[3];
+    const accentedName = brewer.replace('e', 'é');
+    expect(accentedName).to.not.equal(brewer);
+    const accented = html.replaceAll(brewer, accentedName);
+    const result = await parser.parseResults(accented, { brewers: brewer, club: undefined });
+
+    expect(rowsOf(result)).to.not.be.empty;
+    expect(rowsOf(result).every(row => row.includes(accentedName))).to.equal(true);
+  });
+
+  it('includes entries matching the brewer or the club', async () => {
+    const full = await parser.parseResults(html, none);
+    const { brewer, expected } = brewerOrClubExpectation(full, 3, 'The Brü Club');
+    const result = await parser.parseResults(html, { brewers: brewer, club: 'The Brü Club' });
+
+    expect(rowsOf(result)).to.deep.equal(expected);
   });
 });

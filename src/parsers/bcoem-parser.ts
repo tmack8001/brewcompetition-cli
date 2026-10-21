@@ -2,6 +2,7 @@ import cheerio from 'cheerio';
 
 import { detectShortDateOrder, extractMoment, extractWindow, parseTimestamps } from './bcoem-dates.js';
 import { BcoemField, extractGlanceWindows, extractSections, findBottleRequirement, findGlanceWindow, sectionParagraph, sectionWindowText } from './bcoem-sections.js';
+import { shouldIncludeEntry } from './filters.js';
 import { CompetitionParser, ParsedMetadata, ParsedResults } from './types.js';
 
 /**
@@ -169,7 +170,7 @@ export class BCOEMParser implements CompetitionParser {
                 const brewer = this.removeMhpBadge($(cells[1]).text().trim());
                 const club = $(cells[4]).text().trim();
 
-                const shouldInclude = this.shouldIncludeEntry(brewer, club, filters);
+                const shouldInclude = shouldIncludeEntry(brewer, club, filters);
 
                 if (shouldInclude) {
                     const rowData: string[] = [
@@ -215,27 +216,5 @@ export class BCOEMParser implements CompetitionParser {
 
     private sanitizeForCsv(text: string): string {
         return text.replaceAll(',', '');
-    }
-
-    private shouldIncludeEntry(brewer: string, club: string, filters: { brewers: string | undefined, club: string | undefined }): boolean {
-        // If no filters, include everything
-        if (!filters.brewers && !filters.club) {
-            return true;
-        }
-
-        // If brewer filter is set, check if this brewer matches
-        if (filters.brewers) {
-            const brewerList = filters.brewers.split(',').map(b => b.trim());
-            if (brewerList.includes(brewer)) {
-                return true;
-            }
-        }
-
-        // If club filter is set, check if this club matches
-        if (filters.club && club === filters.club) {
-            return true;
-        }
-
-        return false;
     }
 }
