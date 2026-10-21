@@ -66,7 +66,7 @@ GET https://beerawardsplatform.com/api/getResults?competitionId={id}
     "miniBos": {
       "categoryId": {
         "id": "categoryId",
-        "name": "Porter and Stout (10)",
+        "name": "Spiced and Specialty Mead 9 Entries",
         "positions": {
           "1": [
             {
@@ -169,14 +169,23 @@ BAP uses position numbers (1, 2, 3, 4) which are converted to standardized forma
 
 ## Entry Count Extraction
 
-BAP includes entry counts in the category name format: `"Category Name (14)"`. The parser extracts this information:
+BAP puts the entry count at the end of the category name, and has used two forms:
+
+- `"Porter and Stout (10)"` (older)
+- `"Spiced and Specialty Mead 9 Entries"` (current; `"High Gravity 1 Entry"` when there is one)
+
+Both are supported. The count is removed from the name and reported in its own column:
 
 ```typescript
-const categoryNameRaw = category.name || 'Unknown Category';
-const entryCountMatch = categoryNameRaw.match(/\((\d+)\)$/);
-const entryCount = entryCountMatch ? entryCountMatch[1].trim() : '';
-const categoryName = categoryNameRaw.replace(/\s*\(\d+\)$/, '').trim();
+const BAP_ENTRY_COUNT_SUFFIX = /\s*(?:\((\d+)\)|(?<!\S)(\d+)\s+entr(?:y|ies))\s*$/i;
+const match = categoryNameRaw.match(BAP_ENTRY_COUNT_SUFFIX);
+const entryCount = match ? (match[1] ?? match[2]) : '';
+const categoryName = categoryNameRaw.replace(BAP_ENTRY_COUNT_SUFFIX, '').trim();
 ```
+
+The `N Entries` form needs whitespace before the number (`Porter9 Entries` is left alone). A name with no count gets an empty `Entry Count`. Commas are stripped from every field, so `Pale, Amber, and Brown American Ales 15 Entries` becomes category `Pale Amber and Brown American Ales`, count `15`.
+
+Not handled (BAP does not produce them): `1,234 Entries` and `(10 Entries)`.
 
 This entry count is included as a dedicated column in the output, making it easy to see how competitive each category was.
 
