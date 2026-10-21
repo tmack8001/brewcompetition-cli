@@ -24,6 +24,8 @@ export class BapCompetitionNotFoundError extends Error {
   }
 }
 
+const BAP_ENTRY_COUNT_SUFFIX = /\s*(?:\((\d+)\)|(?<!\S)(\d+)\s+entr(?:y|ies))\s*$/i;
+
 export class BAPParser implements CompetitionParser {
   constructor(private readonly fetcher: typeof fetchJson = fetchJson) {}
 
@@ -134,10 +136,10 @@ export class BAPParser implements CompetitionParser {
   }
 
   private extractCategoryAndEntryCount(categoryNameRaw: string): { categoryName: string, entryCount: string } {
-    // Extract entry count from category name (format: "Category Name (14)")
-    const entryCountMatch = categoryNameRaw.match(/\((\d+)\)$/);
-    const entryCount = entryCountMatch ? entryCountMatch[1].trim() : '';
-    const categoryName = categoryNameRaw.replace(/\s*\(\d+\)$/, '').trim();
+    // "Name (14)", "Name 14 Entries" or "Name 1 Entry"
+    const match = categoryNameRaw.match(BAP_ENTRY_COUNT_SUFFIX);
+    const entryCount = match ? (match[1] ?? match[2]) : '';
+    const categoryName = categoryNameRaw.replace(BAP_ENTRY_COUNT_SUFFIX, '').trim();
 
     return { categoryName, entryCount };
   }

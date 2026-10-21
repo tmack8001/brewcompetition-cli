@@ -43,6 +43,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   published as "The Brü Club" and vice versa. Matching is still whole-name. A
   blank filter value matches nothing.
 
+- BAP category names written as "Spiced and Specialty Mead 9 Entries" left
+  `Entry Count` empty and the count in the category name. This form and the older
+  "Porter and Stout (10)" are both read, including "1 Entry".
+
 
 ## [1.1.0] - 2026-09-13
 
