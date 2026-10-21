@@ -1,3 +1,5 @@
+import type { CheerioAPI, Element } from 'cheerio';
+
 import cheerio from 'cheerio';
 
 import { HttpStatusError, fetchJson } from '../http/fetch.js';
@@ -21,6 +23,21 @@ export class BapCompetitionNotFoundError extends Error {
   constructor(competitionKey: string) {
     super(`No BAP competition found for key "${competitionKey}"; check that the URL is a competition page`);
     this.name = 'BapCompetitionNotFoundError';
+  }
+}
+
+const PLACE_TITLE = /^#[1-9]\d*$/;
+const STYLE_PREFIX = /^[\dA-Z]{1,6}\s+-\s+(?=\S)/;
+const CUSTOM_AWARD_SEPARATOR = ' \\ ';
+const NO_AWARD = /^no award/i;
+const ENTRIES_SUFFIX = /\s+(\d+)\s+entr(?:y|ies)\s*$/i;
+
+const collapse = (text: string): string => text.replaceAll(/\s+/g, ' ').trim();
+
+export class BapHtmlStructureError extends Error {
+  constructor(message: string) {
+    super(message);
+    this.name = 'BapHtmlStructureError';
   }
 }
 
@@ -61,7 +78,12 @@ export class BAPParser implements CompetitionParser {
 
     // Fall back to HTML parsing if API didn't work
     if (data.length === 0) {
-      data = this.parseHtmlData(html, filters);
+      try {
+        data = this.parseHtmlData(html, filters);
+      } catch (error) {
+        // With a URL the API may legitimately have matched nothing, so only a saved page fails hard.
+        if (!(error instanceof BapHtmlStructureError) || !url) throw error;
+      }
     }
 
     if (data.length === 0) {
@@ -135,6 +157,15 @@ export class BAPParser implements CompetitionParser {
     ];
   }
 
+  private describeMissingRows($: CheerioAPI): string {
+    $('script,style,noscript').remove();
+    const visibleText = collapse($('body').text());
+
+    return visibleText.length < 200
+      ? 'BAP HTML has no award rows and almost no visible text: it looks like the unrendered app shell. Save the rendered DOM instead (for example headless Chrome with --dump-dom --virtual-time-budget=20000).'
+      : 'BAP HTML has no award rows (no medal marker titled "#1", "#2", ...); the page structure is not recognized.';
+  }
+
   private extractCategoryAndEntryCount(categoryNameRaw: string): { categoryName: string, entryCount: string } {
     // "Name (14)", "Name 14 Entries" or "Name 1 Entry"
     const match = categoryNameRaw.match(BAP_ENTRY_COUNT_SUFFIX);
@@ -166,6 +197,40 @@ export class BAPParser implements CompetitionParser {
     }
   }
 
+  private findHeading(
+    $: CheerioAPI,
+    row: Element,
+    hasMedal: (element: Element) => boolean
+  ): { element: Element; text: string } | undefined {
+    let node: Element | null = row;
+    while (node) {
+      for (const sibling of $(node).prevAll().toArray()) {
+        if (hasMedal(sibling)) continue;
+        const text = collapse(
+          $(sibling).find('*').addBack().not('script,style,noscript').contents().toArray()
+            .map(child => (child.type === 'text' ? child.data : ''))
+            .join(' ')
+        );
+        if (!text) continue;
+        if ($(sibling).find('p,h1,h2,h3,h4,h5,h6').toArray().some(line => this.looksLikeAwardLine($(line).text()))) {
+          throw new BapHtmlStructureError(`BAP award row without a #N medal title: ${JSON.stringify(text)}`);
+        }
+
+        return { element: sibling, text };
+      }
+
+      node = node.parent as Element | null;
+    }
+
+    return undefined;
+  }
+
+  private isStandaloneNotice(row: Element, lines: string[], $: CheerioAPI): boolean {
+    return lines.length === 1
+      && collapse($(row).text()) === lines[0]
+      && (NO_AWARD.test(lines[0]) || lines[0].includes(CUSTOM_AWARD_SEPARATOR));
+  }
+
   private async loadCompetitionId(competitionKey: string): Promise<string> {
     let info: { competition?: { competitionId?: string } } | undefined;
     try {
@@ -186,6 +251,11 @@ export class BAPParser implements CompetitionParser {
     }
 
     return competitionId;
+  }
+
+  private looksLikeAwardLine(text: string): boolean {
+    const line = collapse(text);
+    return line.startsWith('Club:') || NO_AWARD.test(line) || STYLE_PREFIX.test(line);
   }
 
   private async parseApiData(competitionKey: string, filters: { brewers: string | undefined, club: string | undefined }): Promise<string[][]> {
@@ -259,75 +329,78 @@ export class BAPParser implements CompetitionParser {
     const $ = cheerio.load(html);
     const data: string[][] = [];
 
-    // BAP uses MUI cards with specific class structure (for saved HTML pages)
-    $('.MuiCard-root').each((_index, card) => {
-      // Get category name from card header
-      const categoryNameRaw = $(card).find('.MuiCardHeader-title').text().trim();
+    const isMedal = (element: Element): boolean => PLACE_TITLE.test(element.attribs?.title ?? '');
+    const medals = $('[title]').toArray().filter(element => isMedal(element));
 
-      if (!categoryNameRaw || categoryNameRaw.includes('Best of Show')) {
-        return; // Skip BOS for now or handle separately
+    if (medals.length === 0) {
+      throw new BapHtmlStructureError(this.describeMissingRows($));
+    }
+
+    const hasMedal = (element: Element): boolean => isMedal(element) || $(element).find('[title]').toArray().some(child => isMedal(child));
+    const lastPlaceByHeading = new Map<Element, number>();
+
+    for (const medal of medals) {
+      const row = medal.parent as Element | null;
+      if (!row) throw new BapHtmlStructureError('BAP medal marker has no enclosing award row');
+
+      const heading = this.findHeading($, row, hasMedal);
+      if (!heading) throw new BapHtmlStructureError('BAP award row has no category heading before it');
+
+      const placeNumber = Number(medal.attribs.title.slice(1));
+      const previous = lastPlaceByHeading.get(heading.element) ?? 0;
+      if (placeNumber < previous) {
+        throw new BapHtmlStructureError(`BAP places under "${heading.text}" are out of order (#${placeNumber} after #${previous})`);
       }
 
-      const { categoryName, entryCount } = this.extractCategoryAndEntryCount(categoryNameRaw);
+      lastPlaceByHeading.set(heading.element, placeNumber);
 
-      // Each award is in a div with class jss95
-      $(card).find('.jss95').each((_awardIndex, awardDiv) => {
-        // Get place from the title attribute of the medal icon container
-        const placeDiv = $(awardDiv).find('.jss99');
-        const placeRaw = placeDiv.attr('title') || '';
+      if (heading.text.includes('Best of Show')) continue;
 
-        // Convert place to standard format: 1st, 2nd, 3rd, HM
-        const place = this.convertMedalPlacement(placeRaw);
+      const lines = $(row).find('h1,h2,h3,h4,h5,h6,p').toArray()
+        .map(element => collapse($(element).text()))
+        .filter(Boolean);
 
-        // Check if this is a "No award" entry
-        const noAward = $(awardDiv).find('em').text();
-        if (noAward.includes('No award')) {
-          return;
-        }
+      if (this.isStandaloneNotice(row, lines, $)) continue;
 
-        // Get entry details from jss96 div
-        const detailsDiv = $(awardDiv).find('.jss96');
-        const paragraphs = detailsDiv.find('p');
+      const { brewer, club, style } = this.readAwardLines(lines, heading.text);
 
-        if (paragraphs.length < 2) return;
+      const { categoryName, entryCount } = this.extractCategoryAndEntryCount(
+        heading.text.replace(ENTRIES_SUFFIX, ' ($1)')
+      );
 
-        const entryName = $(paragraphs[0]).text().trim();
-        const style = $(paragraphs[1]).text().trim();
-
-        // Brewer and club info - can be in multiple paragraphs
-        let brewer = '';
-        let club = '';
-
-        for (let i = 2; i < paragraphs.length; i++) {
-          const text = $(paragraphs[i]).text().trim();
-          if (text.startsWith('Club:')) {
-            club = text.replace('Club:', '').trim();
-          } else if (text.startsWith('Collaboration with')) {
-            // Skip collaboration line for now
-            continue;
-          } else if (!brewer) {
-            // Extract just the brewer name (before the comma and location)
-            brewer = text.split(',')[0].trim();
-          }
-        }
-
-        const shouldInclude = shouldIncludeEntry(brewer, club, filters);
-
-        if (shouldInclude) {
-          data.push(this.createResultRow({
-            brewer,
-            categoryName,
-            club,
-            entryCount,
-            entryName,
-            place,
-            style
-          }));
-        }
-      });
-    });
+      if (shouldIncludeEntry(brewer, club, filters)) {
+        data.push(this.createResultRow({
+          brewer,
+          categoryName,
+          club,
+          entryCount,
+          entryName: lines[0],
+          place: this.convertMedalPlacement(medal.attribs.title),
+          style
+        }));
+      }
+    }
 
     return data;
+  }
+
+  private readAwardLines(lines: string[], headingText: string): { brewer: string; club: string; style: string } {
+    const styleIndex = lines.findIndex((line, index) => index > 0 && STYLE_PREFIX.test(line));
+    if (styleIndex === -1) {
+      throw new BapHtmlStructureError(`BAP award row under "${headingText}" has no style line like "6B - Rauchbier": ${JSON.stringify(lines)}`);
+    }
+
+    let brewer = '';
+    let club = '';
+    for (const line of lines.slice(styleIndex + 1)) {
+      if (line.startsWith('Club:')) {
+        club = line.slice('Club:'.length).trim();
+      } else if (!line.startsWith('Collaboration with') && !brewer) {
+        brewer = line.split(',')[0].trim();
+      }
+    }
+
+    return { brewer, club, style: lines[styleIndex].replace(STYLE_PREFIX, '') };
   }
 
   private sanitizeForCsv(text: string): string {

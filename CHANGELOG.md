@@ -42,7 +42,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   dash variants and repeated whitespace, so `--club "The Bru Club"` finds entries
   published as "The Brü Club" and vice versa. Matching is still whole-name. A
   blank filter value matches nothing.
-
+- The BAP saved-page fallback found no awards on a freshly saved results page
+  because it selected rows by generated class names. It now reads the page by its
+  content: category headings, the `#N` title on each medal, the style line
+  (`6B - Rauchbier`), the brewer line and the `Club:` line. A saved page
+  that is an unrendered app shell or has an unrecognized structure now throws
+  `BapHtmlStructureError` when no URL is given; with a URL the error is swallowed
+  and the result is empty.
 - BAP category names written as "Spiced and Specialty Mead 9 Entries" left
   `Entry Count` empty and the count in the category name. This form and the older
   "Porter and Stout (10)" are both read, including "1 Entry".
