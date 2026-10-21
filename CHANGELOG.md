@@ -38,6 +38,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `medals` exits non-zero when a competition cannot be read. With a config file, a
   failing competition no longer stops the others printing, and every failure is
   reported.
+- The `--club` and `--brewers` filters now ignore diacritics, case, apostrophe and
+  dash variants and repeated whitespace, so `--club "The Bru Club"` finds entries
+  published as "The Brü Club" and vice versa. Matching is still whole-name. A
+  blank filter value matches nothing.
 
 
 ## [1.1.0] - 2026-09-13
