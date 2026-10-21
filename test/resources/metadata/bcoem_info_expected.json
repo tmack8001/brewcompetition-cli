@@ -1,0 +1,65 @@
+{
+  "bcoem_info.html": {
+    "data": "Registration is closed.||||||Entry registration is closed.|||Number of Bottles Required Per Entry: 2|||||||Collision Bend Brewing Company - Euclid 1261 Babbitt Rd, Euclid, OH 44132 Saturday, September 20, 2025 4:30 PM, EDT|2025-09-20T20:30:00.000Z|",
+    "header": "entrant_registration|entrant_registration_start_date|entrant_registration_end_date|volunteer_registration|volunteer_registration_start_date|volunteer_registration_end_date|entry_registration|entry_registration_start_date|entry_registration_end_date|num_required|drop_off_window|drop_off_window_start_date|drop_off_window_end_date|shipping_window|shipping_window_start_date|shipping_window_end_date|awards_ceremony|awards_ceremony_start_date|awards_ceremony_end_date",
+    "glance": []
+  },
+  "bcoem_info_closed.html": {
+    "data": "Registration is closed.||||||Entry registration is closed.|||Number of Bottles Required Per Entry: 2|||||||Online Saturday, August 8, 2026 5:00 PM, EDT|2026-08-08T21:00:00.000Z|",
+    "header": "entrant_registration|entrant_registration_start_date|entrant_registration_end_date|volunteer_registration|volunteer_registration_start_date|volunteer_registration_end_date|entry_registration|entry_registration_start_date|entry_registration_end_date|num_required|drop_off_window|drop_off_window_start_date|drop_off_window_end_date|shipping_window|shipping_window_start_date|shipping_window_end_date|awards_ceremony|awards_ceremony_start_date|awards_ceremony_end_date",
+    "glance": []
+  },
+  "bcoem_info_intl_open.html": {
+    "data": "You will be able to create your account beginning Monday 8 June, 2026 09:00, CEST through Friday 18 September, 2026 17:00, CEST.|2026-06-08T07:00:00.000Z|2026-09-18T15:00:00.000Z|Judges and stewards may register beginning Monday 8 June, 2026 09:00, CEST through Friday 25 September, 2026 17:00, CEST.|2026-06-08T07:00:00.000Z|2026-09-25T15:00:00.000Z|You will be able to add your entries to the system beginning Saturday 4 July, 2026 10:00, CEST through Friday 18 September, 2026 17:00, CEST.|2026-07-04T08:00:00.000Z|2026-09-18T15:00:00.000Z|Number of Bottles Required Per Entry: 2|Entry bottles accepted at our drop-off locations Friday 14 August, 2026 00:00, CEST — Friday 18 September, 2026 17:00, CEST.|2026-08-13T22:00:00.000Z|2026-09-18T15:00:00.000Z|Entry bottles accepted at our shipping location Friday 14 August, 2026 00:00, CEST — Friday 18 September, 2026 17:00, CEST.|2026-08-13T22:00:00.000Z|2026-09-18T15:00:00.000Z|Braukollektiv Taproom Aachener Straße 17, 50674 Köln Saturday 3 October, 2026 18:00, CEST|2026-10-03T16:00:00.000Z|",
+    "header": "entrant_registration|entrant_registration_start_date|entrant_registration_end_date|volunteer_registration|volunteer_registration_start_date|volunteer_registration_end_date|entry_registration|entry_registration_start_date|entry_registration_end_date|num_required|drop_off_window|drop_off_window_start_date|drop_off_window_end_date|shipping_window|shipping_window_start_date|shipping_window_end_date|awards_ceremony|awards_ceremony_start_date|awards_ceremony_end_date",
+    "glance": []
+  },
+  "bcoem_info_landing.html": {
+    "data": "Open Wednesday, June 10, 2026 12:00 AM, EDT — Close Friday, September 18, 2026 1:00 PM, EDT|2026-06-10T04:00:00.000Z|2026-09-18T17:00:00.000Z|Open Wednesday, June 10, 2026 12:00 AM, EDT — Close Friday, September 25, 2026 1:00 PM, EDT|2026-06-10T04:00:00.000Z|2026-09-25T17:00:00.000Z|Open Saturday, July 4, 2026 10:00 AM, EDT — Close Friday, September 18, 2026 5:00 PM, EDT|2026-07-04T14:00:00.000Z|2026-09-18T21:00:00.000Z|Please submit two (2) 12 to 22 oz bottles or cans for each entry.|Entry bottles accepted at our drop-off locations Friday, August 14, 2026 12:00 AM, EDT — Friday, September 18, 2026 5:00 PM, EDT.|2026-08-14T04:00:00.000Z|2026-09-18T21:00:00.000Z|Entry bottles accepted at our shipping location Friday, August 14, 2026 12:00 AM, EDT — Friday, September 18, 2026 5:00 PM, EDT.|2026-08-14T04:00:00.000Z|2026-09-18T21:00:00.000Z|Union Mills Homestead 3311 Littlestown Pike, Westminster, MD 21158 Saturday, September 26, 2026 5:00 PM, EDT|2026-09-26T21:00:00.000Z|",
+    "header": "entrant_registration|entrant_registration_start_date|entrant_registration_end_date|volunteer_registration|volunteer_registration_start_date|volunteer_registration_end_date|entry_registration|entry_registration_start_date|entry_registration_end_date|num_required|drop_off_window|drop_off_window_start_date|drop_off_window_end_date|shipping_window|shipping_window_start_date|shipping_window_end_date|awards_ceremony|awards_ceremony_start_date|awards_ceremony_end_date",
+    "glance": [
+      [
+        "judging",
+        "Open Friday, September 25, 2026 5:00 PM, EDT — Close Saturday, September 26, 2026 1:00 PM, EDT",
+        "2026-09-25T21:00:00.000Z",
+        "2026-09-26T17:00:00.000Z"
+      ],
+      [
+        "entry registration",
+        "Open Saturday, July 4, 2026 10:00 AM, EDT — Close Friday, September 18, 2026 5:00 PM, EDT",
+        "2026-07-04T14:00:00.000Z",
+        "2026-09-18T21:00:00.000Z"
+      ],
+      [
+        "account registration",
+        "Open Wednesday, June 10, 2026 12:00 AM, EDT — Close Friday, September 18, 2026 1:00 PM, EDT",
+        "2026-06-10T04:00:00.000Z",
+        "2026-09-18T17:00:00.000Z"
+      ],
+      [
+        "judge registration",
+        "Open Wednesday, June 10, 2026 12:00 AM, EDT — Close Friday, September 25, 2026 1:00 PM, EDT",
+        "2026-06-10T04:00:00.000Z",
+        "2026-09-25T17:00:00.000Z"
+      ],
+      [
+        "steward registration",
+        "Open Wednesday, June 10, 2026 12:00 AM, EDT — Close Friday, September 25, 2026 1:00 PM, EDT",
+        "2026-06-10T04:00:00.000Z",
+        "2026-09-25T17:00:00.000Z"
+      ],
+      [
+        "entry drop-off",
+        "Open Friday, August 14, 2026 12:00 AM, EDT — Close Friday, September 18, 2026 5:00 PM, EDT",
+        "2026-08-14T04:00:00.000Z",
+        "2026-09-18T21:00:00.000Z"
+      ],
+      [
+        "entry shipping",
+        "Open Friday, August 14, 2026 12:00 AM, EDT — Close Friday, September 18, 2026 5:00 PM, EDT",
+        "2026-08-14T04:00:00.000Z",
+        "2026-09-18T21:00:00.000Z"
+      ]
+    ]
+  }
+}
