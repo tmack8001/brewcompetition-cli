@@ -38,6 +38,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `medals` exits non-zero when a competition cannot be read. With a config file, a
   failing competition no longer stops the others printing, and every failure is
   reported.
+- BAP category names written as "Spiced and Specialty Mead 9 Entries" left
+  `Entry Count` empty and the count in the category name. This form and the older
+  "Porter and Stout (10)" are both read, including "1 Entry".
 
 
 ## [1.1.0] - 2026-09-13

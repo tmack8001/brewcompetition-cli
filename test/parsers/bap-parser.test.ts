@@ -1,3 +1,4 @@
+import axios from 'axios';
 import { expect } from 'chai';
 import fs from 'node:fs';
 import path from 'node:path';
@@ -13,6 +14,16 @@ function fixtureFetcher(requested: string[]): typeof fetchJson {
     return u.includes('loadCompetitionInfo') ? readFixture('bap_competition_info.json') : readFixture('bap_results.json');
   }) as typeof fetchJson;
 }
+
+const split = (name: string) =>
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  (new BAPParser() as any).extractCategoryAndEntryCount(name) as { categoryName: string; entryCount: string };
+
+const entry = (name: string, brewer: string, club: string) => ({
+  name,
+  participant: { club, name: brewer },
+  styleSubcategory: 'Some Style',
+});
 
 describe('BAP Parser', () => {
   let parser: BAPParser;
@@ -368,6 +379,123 @@ describe('BAP Parser', () => {
       } finally {
         console.error = original;
       }
+    });
+  });
+
+  describe('Entry count in category names', () => {
+    it('should read the parenthesised form', () => {
+      expect(split('Porter and Stout (10)')).to.deep.equal({ categoryName: 'Porter and Stout', entryCount: '10' });
+    });
+
+    it('should read the "N Entries" form', () => {
+      expect(split('Spiced and Specialty Mead 9 Entries')).to.deep.equal({ categoryName: 'Spiced and Specialty Mead', entryCount: '9' });
+    });
+
+    it('should read the singular "1 Entry" form', () => {
+      expect(split('High Gravity 1 Entry')).to.deep.equal({ categoryName: 'High Gravity', entryCount: '1' });
+    });
+
+    it('should read a multi-digit count and keep commas in the name for later sanitising', () => {
+      expect(split('Pale, Amber, and Brown American Ales 15 Entries')).to.deep.equal({
+        categoryName: 'Pale, Amber, and Brown American Ales',
+        entryCount: '15',
+      });
+    });
+
+    it('should leave a name without a count alone', () => {
+      expect(split('Mixed Styles')).to.deep.equal({ categoryName: 'Mixed Styles', entryCount: '' });
+    });
+
+    it('should not take a number that is part of the name for a count', () => {
+      expect(split('Category 2')).to.deep.equal({ categoryName: 'Category 2', entryCount: '' });
+      expect(split('Table 5 Entries Review (3)')).to.deep.equal({ categoryName: 'Table 5 Entries Review', entryCount: '3' });
+    });
+
+    it('should require a space between the count and the word Entries', () => {
+      expect(split('Porter9 Entries')).to.deep.equal({ categoryName: 'Porter9 Entries', entryCount: '' });
+      expect(split('Porter 9Entries')).to.deep.equal({ categoryName: 'Porter 9Entries', entryCount: '' });
+    });
+
+    it('should accept any whitespace around the count and ignore trailing whitespace', () => {
+      expect(split('Mead 9\tEntries')).to.deep.equal({ categoryName: 'Mead', entryCount: '9' });
+      expect(split('Mead\u00A09\u00A0Entries')).to.deep.equal({ categoryName: 'Mead', entryCount: '9' });
+      expect(split('Mead 9 Entries  ')).to.deep.equal({ categoryName: 'Mead', entryCount: '9' });
+      expect(split('Mead (9)  ')).to.deep.equal({ categoryName: 'Mead', entryCount: '9' });
+    });
+
+    it('should read the parenthesised form with no space before it', () => {
+      expect(split('Porter(10)')).to.deep.equal({ categoryName: 'Porter', entryCount: '10' });
+    });
+
+    it('should not take a differently worded count for an entry count', () => {
+      expect(split('Mead 9 Entrants')).to.deep.equal({ categoryName: 'Mead 9 Entrants', entryCount: '' });
+    });
+
+    it('should skip a Best of Show card in the saved-HTML path', async () => {
+      const card =
+        '<div class="MuiCard-root"><div class="MuiCardHeader-title">Best of Show 3 Entries</div>' +
+        '<div class="jss95"><div class="jss99" title="1"></div><div class="jss96"><p>Skipped</p><p>Braggot</p><p>Pat Brewer, AZ</p><p>Club: ASH</p></div></div></div>';
+      const result = await parser.parseResults(card, { brewers: undefined, club: undefined });
+      expect(result).to.equal(undefined);
+    });
+
+    it('should fill the Entry Count column from the saved page (parenthesised)', async () => {
+      const result = await parser.parseResults(html, { brewers: undefined, club: 'Arizona Society of Homebrewers' });
+      const [row] = result!.data.split('\n');
+      const cells = row.split('|');
+      expect(cells[0]).to.not.match(/\(\d+\)/);
+      expect(cells[2]).to.match(/^\d+$/);
+    });
+
+    it('should fill the Entry Count column from a "N Entries" card', async () => {
+      const card =
+        '<div class="MuiCard-root"><div class="MuiCardHeader-title">Spiced and Specialty Mead 9 Entries</div>' +
+        '<div class="jss95"><div class="jss99" title="1"></div><div class="jss96"><p>My Mead</p><p>Braggot</p><p>Pat Brewer, AZ</p><p>Club: ASH</p></div></div></div>';
+      const result = await parser.parseResults(card, { brewers: undefined, club: undefined });
+      expect(result?.data).to.equal('Spiced and Specialty Mead|1st|9|My Mead|Braggot|Pat Brewer|ASH');
+    });
+  });
+  describe('Entry count through the API path (stubbed axios)', () => {
+    const miniBos = {
+      a: { name: 'Spiced and Specialty Mead 9 Entries', positions: { 1: [entry('Mead, One', 'Pat, Brewer', 'The Brü Club')] } },
+      b: { name: 'Pale, Amber, and Brown American Ales 15 Entries', positions: { 2: [entry('APA', 'Ross', 'The Brü Club')] } },
+      c: { name: 'Porter and Stout (10)', positions: { 3: [entry('Porter', 'Sam', 'The Brü Club')] } },
+      d: { name: 'High Gravity 1 Entry', positions: { 4: [entry('Barleywine', 'Lee', 'The Brü Club')] } },
+      e: { name: 'Mystery Table', positions: { 1: [entry('Odd', 'Kim', 'The Brü Club')] } },
+      f: { name: 'Cider\t8\tEntries', positions: { 1: [entry('Cyser', 'Jo', 'The Brü Club')] } },
+      g: { name: 'Wheat\u00A05\u00A0Entries', positions: { 1: [entry('Hefe', 'Al', 'The Brü Club')] } },
+      h: { name: 'Best of Show - Beer 3 Entries', positions: { 1: [entry('Skipped', 'Nobody', 'The Brü Club')] } },
+    };
+
+    let originalAdapter: typeof axios.defaults.adapter;
+    before(() => {
+      originalAdapter = axios.defaults.adapter;
+      axios.defaults.adapter = (async (config: { url?: string }) => ({
+        config,
+        data: String(config.url).includes('loadCompetitionInfo')
+          ? { competition: { competitionId: 'abc' } }
+          : { results: { miniBos } },
+        headers: {},
+        status: 200,
+        statusText: 'OK',
+      })) as never;
+    });
+
+    after(() => {
+      axios.defaults.adapter = originalAdapter;
+    });
+
+    it('should emit numeric counts, comma-free names and the count-less category as full rows', async () => {
+      const result = await parser.parseResults('', { brewers: undefined, club: undefined }, 'https://beerawardsplatform.com/k/results');
+      expect(result?.data.split('\n')).to.deep.equal([
+        'Spiced and Specialty Mead|1st|9|Mead One|Some Style|Pat Brewer|The Brü Club',
+        'Pale Amber and Brown American Ales|2nd|15|APA|Some Style|Ross|The Brü Club',
+        'Porter and Stout|3rd|10|Porter|Some Style|Sam|The Brü Club',
+        'High Gravity|HM|1|Barleywine|Some Style|Lee|The Brü Club',
+        'Mystery Table|1st||Odd|Some Style|Kim|The Brü Club',
+        'Cider|1st|8|Cyser|Some Style|Jo|The Brü Club',
+        'Wheat|1st|5|Hefe|Some Style|Al|The Brü Club',
+      ]);
     });
   });
 });
