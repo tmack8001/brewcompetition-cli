@@ -1,6 +1,7 @@
-import type { CheerioAPI, Element } from 'cheerio';
+import type { CheerioAPI } from 'cheerio';
+import type { Element } from 'domhandler';
 
-import cheerio from 'cheerio';
+import * as cheerio from 'cheerio';
 
 import { HttpStatusError, fetchJson } from '../http/fetch.js';
 import { shouldIncludeEntry } from './filters.js';

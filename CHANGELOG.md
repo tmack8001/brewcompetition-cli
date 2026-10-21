@@ -27,6 +27,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- `medals` and `competitions` crashed with `The requested module 'cheerio' does not provide an
+  export named 'default'` on a fresh install, because `^1.0.0-rc.12` resolves to
+  cheerio 1.x, which has no default export. The parsers now use the namespace
+  import, which works on both rc.12 and 1.x. `Element` is now typed from `domhandler`,
+  since 1.x no longer re-exports it from cheerio.
 - `medals` on a bare BAP competition URL (no trailing slash) printed "No results
   found in BAP format". The competition key is now read from the parsed URL path,
   so bare, trailing-slash, `/results`, query-string and fragment forms resolve.

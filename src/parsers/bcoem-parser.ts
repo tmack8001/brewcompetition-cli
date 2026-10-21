@@ -1,4 +1,4 @@
-import cheerio from 'cheerio';
+import * as cheerio from 'cheerio';
 
 import { detectShortDateOrder, extractMoment, extractWindow, parseTimestamps } from './bcoem-dates.js';
 import { BcoemField, extractGlanceWindows, extractSections, findBottleRequirement, findGlanceWindow, sectionParagraph, sectionWindowText } from './bcoem-sections.js';

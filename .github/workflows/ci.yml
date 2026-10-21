@@ -38,6 +38,9 @@ jobs:
     - name: Build
       run: npm run build
     
+    - name: Smoke test a clean install (no lockfile)
+      run: npm run smoke:install
+
     - name: Test CLI installation
       run: |
         npm pack
