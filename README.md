@@ -3,7 +3,7 @@
 [![latest release](https://img.shields.io/npm/v/brewcompetition-cli.svg)](https://www.npmjs.com/package/brewcompetition-cli)
 [![Build status](https://github.com/tmack8001/brewcompetition-cli/workflows/build/badge.svg)](https://github.com/tmack8001/brewcompetition-cli/actions)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
-[![Node.js Version](https://img.shields.io/badge/node-%3E%3D20.0.0-brightgreen)](https://nodejs.org/)
+[![Node.js Version](https://img.shields.io/badge/node-%3E%3D20.18.1-brightgreen)](https://nodejs.org/)
 [![Contributors](https://img.shields.io/github/contributors/tmack8001/brewcompetition-cli.svg)](https://github.com/tmack8001/brewcompetition-cli/contributors)
 
 
@@ -45,6 +45,8 @@ A command-line tool for fetching medal winners and competition metadata from mul
 The CLI automatically detects which platform to use based on the competition URL.
 
 ## Installation
+
+> **Warning:** Node.js 20 reached end of life on 2026-04-30 and no longer receives security fixes. Node.js 22 or 24 is recommended. See [Node.js support](#nodejs-support).
 
 ```bash
 npm install -g brewcompetition-cli
@@ -275,8 +277,12 @@ npm run lint
 
 ## Requirements
 
-- Node.js >= 20.0.0
+- Node.js >= 20.18.1 (22 or 24 recommended; see [Node.js support](#nodejs-support))
 - npm or yarn package manager
+
+### Node.js support
+
+The minimum is Node.js 20.18.1, the floor required by the dependencies a fresh install resolves (`cheerio` 1.2 and `undici` 7). Node.js 20 reached end of life on 2026-04-30 and no longer receives upstream security fixes; use Node.js 22 (supported until 2027-04-30) or 24 (supported until 2028-04-30). CI runs 20.18.1, the latest 20.x, 22, 24 and, as an allowed-to-fail job, 26. Raising the floor to 22 would be a major release; see [docs/RELEASING.md](docs/RELEASING.md#runtime-support-policy).
 
 ## Contributing
 

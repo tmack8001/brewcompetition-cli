@@ -26,7 +26,7 @@ This document describes how to create and publish releases of Brew Competition C
 
 ```bash
 # Verify Node.js version
-node --version  # Should be >= 20.0.0
+node --version  # Should be >= 20.18.1
 
 # Verify npm is installed
 npm --version
@@ -148,6 +148,7 @@ Applied so far:
 | Release | Change | Rationale |
 | --- | --- | --- |
 | 1.1.0 | Node 18 → 20 | Node 18 reached end of life 2025-04-30 |
+| next minor | Node 20.0.0 → 20.18.1 | Node 20 reached end of life 2026-04-30; 20.18.1 is the floor of the dependencies a fresh install resolves (`cheerio` 1.2, `undici` 7) |
 
 ### Pre-Release Versions
 
@@ -606,7 +607,7 @@ jobs:
       - uses: actions/checkout@v3
       - uses: actions/setup-node@v3
         with:
-          node-version: 20
+          node-version: 24
           registry-url: 'https://registry.npmjs.org'
       - run: npm ci
       - run: npm test
