@@ -1,5 +1,5 @@
-import fs from 'fs';
-import path from 'path';
+import fs from 'node:fs';
+import path from 'node:path';
 import { ReggieParser } from '../dist/parsers/reggie-parser.js';
 
 const htmlPath = path.join(process.cwd(), 'test/resources/results/reggie_results.html');

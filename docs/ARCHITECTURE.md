@@ -225,7 +225,7 @@ export enum Platform {
 ## Performance Considerations
 
 ### Caching
-The tool uses `node-persist` for caching competition data, reducing redundant network requests.
+The tool does not cache competition data; each run fetches the pages it needs.
 
 ### Parallel Processing
 When using config files with multiple competitions, requests are processed in parallel using `Promise.all()`.
