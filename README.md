@@ -282,7 +282,7 @@ npm run lint
 
 ### Node.js support
 
-The minimum is Node.js 20.18.1, the floor required by the dependencies a fresh install resolves (`cheerio` 1.2 and `undici` 7). Node.js 20 reached end of life on 2026-04-30 and no longer receives upstream security fixes; use Node.js 22 (supported until 2027-04-30) or 24 (supported until 2028-04-30). CI runs 20.18.1, the latest 20.x, 22, 24 and, as an allowed-to-fail job, 26. Raising the floor to 22 would be a major release; see [docs/RELEASING.md](docs/RELEASING.md#runtime-support-policy).
+The minimum is Node.js 20.18.1, the floor required by the dependencies a fresh install resolves (`cheerio` 1.2 and `undici` 7). Node.js 20 reached end of life on 2026-04-30 and no longer receives upstream security fixes; use Node.js 22 (supported until 2027-04-30) or 24 (supported until 2028-04-30). CI runs the supported lines only: 22, 24 and 26 (Node 20 is no longer tested, so `engines` still admits it on a best-effort basis). Raising the floor to 22 would be a major release; see [docs/RELEASING.md](docs/RELEASING.md#runtime-support-policy).
 
 ## Contributing
 

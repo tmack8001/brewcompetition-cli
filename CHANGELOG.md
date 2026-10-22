@@ -26,8 +26,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   reached end of life on 2026-04-30, so this is a minor change under the
   [Runtime Support Policy](docs/RELEASING.md#runtime-support-policy). Node 22 or 24
   is recommended.
-- CI tests Node 20.18.1, the latest 20.x, 22 and 24, plus 26 as an allowed-to-fail
-  job; release and rollback workflows run on Node 24.
+- CI tests the supported Node.js lines only (22, 24 and 26) on all three operating
+  systems; end-of-life Node 20 is no longer tested. Release and rollback workflows
+  run on Node 24.
 - Platform detection matches `beerawardsplatform.com` and `reggiebeer.com` by
   domain, not substring, so lookalike hosts are not routed to those parsers and a
   trailing-dot host is.
