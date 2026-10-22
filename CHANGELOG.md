@@ -21,6 +21,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- Raised the minimum Node.js to 20.18.1 (`engines.node`), the floor required by the
+  dependencies a fresh install resolves (`cheerio` 1.2, `undici` 7). Node 20
+  reached end of life on 2026-04-30, so this is a minor change under the
+  [Runtime Support Policy](docs/RELEASING.md#runtime-support-policy). Node 22 or 24
+  is recommended.
+- CI tests Node 20.18.1, the latest 20.x, 22 and 24, plus 26 as an allowed-to-fail
+  job; release and rollback workflows run on Node 24.
 - Platform detection matches `beerawardsplatform.com` and `reggiebeer.com` by
   domain, not substring, so lookalike hosts are not routed to those parsers and a
   trailing-dot host is.
@@ -32,6 +39,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   cheerio 1.x, which has no default export. The parsers now use the namespace
   import, which works on both rc.12 and 1.x. `Element` is now typed from `domhandler`,
   since 1.x no longer re-exports it from cheerio.
+- `competitions` on BCOEM no longer reads the "At a Glance" cards by CSS class.
+  Cards are found by their heading and `Open`/`Close` (or `Start`/`End`) items, so
+  a theme that renames or drops the classes keeps its registration, drop-off and
+  shipping windows. A window that cannot be tied to exactly one heading and one
+  list is left out and the prose is used, as on builds without the cards. A card
+  that carries a second heading of its own is left out the same way.
 - `medals` on a bare BAP competition URL (no trailing slash) printed "No results
   found in BAP format". The competition key is now read from the parsed URL path,
   so bare, trailing-slash, `/results`, query-string and fragment forms resolve.
@@ -57,6 +70,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - BAP category names written as "Spiced and Specialty Mead 9 Entries" left
   `Entry Count` empty and the count in the category name. This form and the older
   "Porter and Stout (10)" are both read, including "1 Entry".
+- The BCOEM results parser selected tables by the `bcoem-winner-table` class. It now
+  recognises a medal table by its header (Place, Brewer, Entry Name or Name, Style,
+  Club) and names it by the closest heading in front of it, so restyled pages parse
+  the same. A page with no medal table, a table with no heading, or a row that does
+  not match its header now throws `BcoemHtmlStructureError` instead of printing
+  "Table not found" and exiting 0.
+- BCOEM Best of Show tables on newer builds (Bootstrap 5 markup, no
+  `bcoem-winner-table` wrapper) were dropped, along with any Best of Show medal won
+  by the club. They are now included, as they already were on older builds.
+- `--brewers` on a BCOEM page missed entries with a co-brewer, because the cell text
+  "Pat SmithCo-Brewer: Sam Smith" was compared whole. The brewer named before the
+  "Co-Brewer:" line is now what is matched; the output cell is unchanged.
 
 
 ## [1.1.0] - 2026-09-13

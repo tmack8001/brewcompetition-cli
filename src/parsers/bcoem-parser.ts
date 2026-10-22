@@ -1,8 +1,6 @@
-import * as cheerio from 'cheerio';
-
 import { detectShortDateOrder, extractMoment, extractWindow, parseTimestamps } from './bcoem-dates.js';
+import { parseBcoemResults } from './bcoem-results.js';
 import { BcoemField, extractGlanceWindows, extractSections, findBottleRequirement, findGlanceWindow, sectionParagraph, sectionWindowText } from './bcoem-sections.js';
-import { shouldIncludeEntry } from './filters.js';
 import { CompetitionParser, ParsedMetadata, ParsedResults } from './types.js';
 
 /**
@@ -131,90 +129,6 @@ export class BCOEMParser implements CompetitionParser {
     }
 
     async parseResults(html: string, filters: { brewers: string | undefined, club: string | undefined }): Promise<ParsedResults | undefined> {
-        const $ = cheerio.load(html)
-        const tableSelector = '.bcoem-winner-table';
-        const table = $(tableSelector)
-
-        if (!table || table.length === 0) {
-            console.error('Table not found');
-            return;
-        }
-
-        const header: string[] = [];
-        const data: string[][] = [];
-
-        $(`${tableSelector}`).each((_index, element) => {
-            const tableNameRaw: string = $(element).find(`h3`).text().trim();
-            if (tableNameRaw.includes("Brewers") || tableNameRaw.includes("Clubs")) {
-                return;
-            }
-
-            const { entryCount, tableName } = this.extractCategoryAndEntryCount(tableNameRaw);
-
-            if (header.length === 0) {
-                header.push("Table / Category", "Place", "Entry Count");
-            }
-
-            if (header.length < 7) {
-                $(element).find(`table thead tr th`).each((thIndex, thElement) => {
-                    if (thIndex > 0) { // Skip "Place" as we already added it
-                        header.push($(thElement).text().trim());
-                    }
-                });
-            }
-
-            $(element).find(`table tbody tr`).each((_rowIndex, row) => {
-                const cells = $(row).find('td');
-                
-                // Extract brewer and club for filtering
-                const brewer = this.removeMhpBadge($(cells[1]).text().trim());
-                const club = $(cells[4]).text().trim();
-
-                const shouldInclude = shouldIncludeEntry(brewer, club, filters);
-
-                if (shouldInclude) {
-                    const rowData: string[] = [
-                        tableName,
-                        // Add place (first cell)
-                        this.sanitizeForCsv(this.removeMhpBadge($(cells[0]).text().trim())),
-                        // Add entry count
-                        entryCount
-                    ];
-
-                    // Add remaining cells (brewer, entry name, style, club)
-                    for (let i = 1; i < cells.length; i++) {
-                        const cellText = $(cells[i]).text().trim();
-                        rowData.push(this.sanitizeForCsv(this.removeMhpBadge(cellText)));
-                    }
-
-                    data.push(rowData);
-                }
-            });
-        })
-
-        const headerCsv = header.join('|');
-        const dataCsv = data.map(row => row.join('|')).join('\n');
-
-        return {
-            data: dataCsv,
-            header: headerCsv,
-        };
-    }
-
-    private extractCategoryAndEntryCount(tableNameRaw: string): { entryCount: string, tableName: string } {
-        // Extract entry count from table name (format: "Table 1: Category (7 entries)")
-        const entryCountMatch = tableNameRaw.match(/\((\d+)\s+entries\)$/);
-        const entryCount = entryCountMatch ? entryCountMatch[1].trim() : '';
-        const tableName = tableNameRaw.replace(/\s*\(\d+\s+entries\)$/, '').trim();
-
-        return { entryCount, tableName };
-    }
-
-    private removeMhpBadge(text: string): string {
-        return text.replaceAll(' MHP', '');
-    }
-
-    private sanitizeForCsv(text: string): string {
-        return text.replaceAll(',', '');
+        return parseBcoemResults(html, filters);
     }
 }

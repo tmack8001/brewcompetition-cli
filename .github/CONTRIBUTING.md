@@ -10,7 +10,7 @@ Be respectful, inclusive, and constructive in all interactions. We're all here t
 
 ### Prerequisites
 
-- Node.js >= 20.0.0
+- Node.js >= 20.18.1 (22 or 24 recommended)
 - npm or yarn
 - Git
 
