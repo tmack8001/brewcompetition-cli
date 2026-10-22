@@ -20,7 +20,7 @@ on:
         type: boolean
         default: true
       publish_npm:
-        description: 'Publish to npm (needs the NPM_TOKEN secret)'
+        description: 'Publish to npm (stages on npm; needs the NPM_TOKEN stage-only token in the npm-publish environment)'
         type: boolean
         default: false
       retry_tag:
@@ -28,9 +28,9 @@ on:
         type: string
         default: ''
 
+# Least privilege by default; each job asks for what it needs.
 permissions:
-  contents: write
-  id-token: write
+  contents: read
 
 concurrency:
   group: release
@@ -39,7 +39,12 @@ concurrency:
 jobs:
   release:
     name: Cut release
+    # Only the maintainer may dispatch a release. Write access to the repository
+    # is enough to dispatch a workflow, so this is not left to the Actions UI.
+    if: github.triggering_actor == 'tmack8001'
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
 
     steps:
       - name: Refuse to release from a branch other than main
@@ -48,7 +53,7 @@ jobs:
           echo "::error::Releases are cut from main. This run is on ${{ github.ref }}."
           exit 1
 
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
         with:
           fetch-depth: 0
           ref: ${{ inputs.retry_tag != '' && inputs.retry_tag || github.ref }}
@@ -66,7 +71,7 @@ jobs:
           git checkout "$DISPATCH_SHA" -- .github
           git --no-pager diff --stat HEAD -- .github | tail -1
 
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@v5
         with:
           node-version: 24.x
           registry-url: 'https://registry.npmjs.org'
@@ -205,16 +210,16 @@ jobs:
             gh release create "$TAG" --title "$TAG" --notes-file release-notes.md ./*.tgz
           fi
 
-      - name: Publish to npm
+      # Hand the tarball to the publish_npm job. npm credentials live only in that
+      # job's protected environment, never in this one.
+      - name: Keep the tarball for publishing
         if: inputs.dry_run == false && inputs.publish_npm == true
-        env:
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
-        run: |
-          if [ -z "$NODE_AUTH_TOKEN" ]; then
-            echo "::error::publish_npm was requested but the NPM_TOKEN secret is not set."
-            exit 1
-          fi
-          npm publish --access public --provenance
+        uses: actions/upload-artifact@v5
+        with:
+          name: package-tarball
+          path: '*.tgz'
+          if-no-files-found: error
+          retention-days: 1
 
       - name: Point at the rollback workflow
         if: inputs.dry_run == false
@@ -222,3 +227,57 @@ jobs:
           TAG: ${{ steps.target.outputs.tag }}
         run: |
           echo "::notice::$TAG released. If it is broken, run the 'Rollback release' workflow - npm unpublish is only possible for 72 hours."
+
+  # The only job that can see NPM_TOKEN. It is bound to the `npm-publish`
+  # environment, which is configured (Settings -> Environments) to allow only
+  # main, require approval from the maintainer, and hold the secret. Checks here
+  # are a second lock: they hold even if the environment is misconfigured.
+  publish_npm:
+    name: Stage on npm
+    needs: release
+    if: >-
+      inputs.dry_run == false &&
+      inputs.publish_npm == true &&
+      github.triggering_actor == 'tmack8001' &&
+      github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    environment: npm-publish
+    permissions:
+      contents: read
+      id-token: write # npm --provenance
+
+    steps:
+      - uses: actions/download-artifact@v5
+        with:
+          name: package-tarball
+
+      # `npm stage` needs npm CLI 11.15+ and Node 22.14+.
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 22.x
+          registry-url: 'https://registry.npmjs.org'
+
+      - name: Update npm for staged publishing
+        run: npm install -g npm@^11.15
+
+      - name: Stage the tarball on npm
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+        run: |
+          if [ -z "$NODE_AUTH_TOKEN" ]; then
+            echo "::error::publish_npm was requested but the NPM_TOKEN secret is not set in the npm-publish environment."
+            exit 1
+          fi
+          set -- ./*.tgz
+          [ "$#" -eq 1 ] || { echo "::error::Expected exactly one tarball, found $#."; exit 1; }
+          npm stage publish "$1" --access public --provenance
+          {
+            echo "## Staged on npm, not yet live"
+            echo
+            echo "The token is stage-only, so \`$1\` is waiting for approval. As a maintainer with 2FA:"
+            echo
+            echo '```'
+            echo "npm stage list"
+            echo "npm stage approve <stage-id> --otp <code>"
+            echo '```'
+          } >> "$GITHUB_STEP_SUMMARY"

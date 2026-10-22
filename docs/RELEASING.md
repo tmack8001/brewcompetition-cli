@@ -173,7 +173,7 @@ tarball, and optionally publishes to npm.
 | --- | --- |
 | `bump` | `patch`, `minor` or `major`. See [Version Numbering](#version-numbering) — dropping an already-EOL Node version is minor. |
 | `dry_run` | On by default. Computes the version and notes, pushes nothing. Run it once this way and read the job summary. |
-| `publish_npm` | Publishes to npm. Requires the `NPM_TOKEN` secret. |
+| `publish_npm` | Publishes to npm from a separate job. Requires the `NPM_TOKEN` secret in the `npm-publish` environment (see [Protecting the npm token](#protecting-the-npm-token)). |
 | `retry_tag` | Recovery. Give an existing tag (e.g. `v1.1.0`) to re-run notes, assets and publishing for it without bumping anything. |
 
 The workflow refuses to run when:
@@ -618,6 +618,37 @@ jobs:
 ```
 
 **Note**: Granular tokens expire after 90 days. Set a calendar reminder to rotate your token.
+
+## Protecting the npm token
+
+The repository is public, so `NPM_TOKEN` is never a repository secret. It lives only in a
+GitHub **environment** named `npm-publish`, and only the `publish_npm` job (Release) and the
+`npm_actions` job (Rollback release) are bound to it. Neither runs on a dry run.
+
+One-time setup (Settings → Environments → New environment → `npm-publish`):
+
+1. **Deployment branches and tags**: select *Selected branches and tags* and allow only `main`.
+2. **Required reviewers**: add `tmack8001`, so each npm publish needs an explicit approval.
+3. **Environment secrets**: add `NPM_TOKEN` here: a granular token set to *Read and write (stage only)*, 90 days max. npm is removing direct publishing with bypass-2FA tokens (January 2027), so CI only *stages* a version.
+   Do not also add it as a repository secret.
+
+Publishing is two steps. The Release workflow runs `npm stage publish`, which uploads the version
+but does not make it live. A maintainer then promotes it with 2FA:
+
+```bash
+npm stage list
+npm stage approve <stage-id> --otp <code>   # or: npm stage reject <stage-id>
+```
+
+A stage-only token can also deprecate versions and move dist-tags, so the rollback workflow's
+`demote_npm_latest` and `deprecate_npm` still work. `unpublish_npm` may not; if npm rejects it, run
+`npm unpublish` locally with 2FA.
+
+The workflows add a second lock that holds even if the environment is misconfigured: both
+are gated on `github.triggering_actor == 'tmack8001'`, and the npm jobs also require
+`github.ref == 'refs/heads/main'`. Anyone else with write access can still open the Actions
+tab but the jobs will be skipped. If maintainership changes, update the username in
+`.github/workflows/release.yml` and `rollback-release.yml`.
 
 ## Resources
 
