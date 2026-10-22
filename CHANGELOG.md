@@ -21,6 +21,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- Raised the minimum Node.js to 20.18.1 (`engines.node`), the floor required by the
+  dependencies a fresh install resolves (`cheerio` 1.2, `undici` 7). Node 20
+  reached end of life on 2026-04-30, so this is a minor change under the
+  [Runtime Support Policy](docs/RELEASING.md#runtime-support-policy). Node 22 or 24
+  is recommended.
+- CI tests Node 20.18.1, the latest 20.x, 22 and 24, plus 26 as an allowed-to-fail
+  job; release and rollback workflows run on Node 24.
 - Platform detection matches `beerawardsplatform.com` and `reggiebeer.com` by
   domain, not substring, so lookalike hosts are not routed to those parsers and a
   trailing-dot host is.

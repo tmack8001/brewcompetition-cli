@@ -27,7 +27,7 @@ No coding knowledge is required to use the tool. Basic command-line familiarity 
 
 ### What are the system requirements?
 
-- Node.js version 20.0.0 or higher
+- Node.js 20.18.1 or higher (22 or 24 recommended; Node 20 is end-of-life)
 - npm or yarn package manager
 - Internet connection (for fetching competition results)
 
