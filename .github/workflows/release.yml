@@ -80,6 +80,10 @@ jobs:
           npm test
           npm run build
 
+      - name: Smoke test a clean install (no lockfile)
+        if: inputs.retry_tag == ''
+        run: npm run smoke:install
+
       # --- new release: bump, roll the changelog, tag -------------------------
 
       - name: Check the changelog has something to release

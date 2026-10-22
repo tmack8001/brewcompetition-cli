@@ -34,6 +34,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- `medals` and `competitions` crashed with `The requested module 'cheerio' does not provide an
+  export named 'default'` on a fresh install, because `^1.0.0-rc.12` resolves to
+  cheerio 1.x, which has no default export. The parsers now use the namespace
+  import, which works on both rc.12 and 1.x. `Element` is now typed from `domhandler`,
+  since 1.x no longer re-exports it from cheerio.
 - `competitions` on BCOEM no longer reads the "At a Glance" cards by CSS class.
   Cards are found by their heading and `Open`/`Close` (or `Start`/`End`) items, so
   a theme that renames or drops the classes keeps its registration, drop-off and

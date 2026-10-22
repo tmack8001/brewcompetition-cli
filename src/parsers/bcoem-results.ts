@@ -1,6 +1,6 @@
-import type { Element } from 'cheerio';
+import type { Element } from 'domhandler';
 
-import cheerio from 'cheerio';
+import * as cheerio from 'cheerio';
 
 import { shouldIncludeEntry } from './filters.js';
 import { ParsedResults } from './types.js';

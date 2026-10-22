@@ -1,4 +1,6 @@
-import cheerio, { Element } from 'cheerio';
+import type { Element } from 'domhandler';
+
+import * as cheerio from 'cheerio';
 
 import { ShortDateOrder, detectShortDateOrder, formatInZone, parseTimestamps, resolveTimezone } from './bcoem-dates.js';
 

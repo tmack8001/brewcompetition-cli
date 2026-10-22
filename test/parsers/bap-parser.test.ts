@@ -1,4 +1,4 @@
-import type { Element } from 'cheerio';
+import type { Element } from 'domhandler';
 
 import axios from 'axios';
 import { expect } from 'chai';
