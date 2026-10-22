@@ -155,10 +155,10 @@ Very fast! Most competitions are processed in under 2 seconds. Batch processing 
 
 ## Troubleshooting
 
-### I'm getting "Table not found" errors
+### I'm getting "No BCOEM medal table found" errors
 
 This usually means:
-1. The HTML structure differs from expected
+1. The page layout is not recognised (a BCOEM results page has tables headed Place, Brewer, Entry Name, Style and Club)
 2. Results haven't been published yet
 3. The URL is incorrect
 

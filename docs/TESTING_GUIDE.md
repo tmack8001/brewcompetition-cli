@@ -170,9 +170,9 @@ brewcompetition medals https://beerawardsplatform.com/competition/results --outp
 
 ## Troubleshooting
 
-### "Table not found" error
-- The parser couldn't find results tables in the HTML
-- Check the HTML structure and update selectors in the parser
+### "No BCOEM medal table found" error
+- The parser couldn't find a table headed Place, Brewer, Entry Name, Style and Club
+- Check the page's table headers; the parser reads headers and headings, not class names
 - Verify the URL is correct and results are published
 
 ### Empty results
