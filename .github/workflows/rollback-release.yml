@@ -55,17 +55,24 @@ on:
         type: string
         default: 'This release has a defect; please upgrade.'
 
+# Only tmack8001 may run this, and every step that touches npm runs in a job bound
+# to the `npm-publish` environment (main only, approval required, holds NPM_TOKEN).
+# Read-only inspection and GitHub-side cleanup never see the npm token.
 permissions:
-  contents: write
+  contents: read
 
 concurrency:
   group: release
   cancel-in-progress: false
 
 jobs:
-  rollback:
-    name: Roll back
+  inspect:
+    name: Inspect
+    if: github.triggering_actor == 'tmack8001'
     runs-on: ubuntu-latest
+    outputs:
+      package: ${{ steps.state.outputs.package }}
+      versions: ${{ steps.state.outputs.versions }}
 
     steps:
       - name: Confirm the version was typed twice
@@ -92,11 +99,9 @@ jobs:
           echo "::error::No action selected. Choose at least one rollback action."
           exit 1
 
-      - uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
+      - uses: actions/checkout@v5
 
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@v5
         with:
           node-version: 24.x
           registry-url: 'https://registry.npmjs.org'
@@ -145,15 +150,51 @@ jobs:
             echo '```'
           } >> "$GITHUB_STEP_SUMMARY"
 
-      - name: Require an npm token for npm actions
-        if: >-
-          inputs.dry_run == false &&
-          (inputs.demote_npm_latest || inputs.deprecate_npm || inputs.unpublish_npm)
+      # NPM_TOKEN is only reachable from the npm_actions job, which is behind a
+      # protected environment and is skipped on a dry run. Say what it would do.
+      - name: Report the npm actions a dry run would take
+        if: inputs.dry_run && (inputs.demote_npm_latest || inputs.deprecate_npm || inputs.unpublish_npm)
+        env:
+          PKG: ${{ steps.state.outputs.package }}
+          VERSION: ${{ inputs.version }}
+          VERSIONS: ${{ steps.state.outputs.versions }}
+          DEMOTE: ${{ inputs.demote_npm_latest }}
+          DEPRECATE: ${{ inputs.deprecate_npm }}
+          UNPUBLISH: ${{ inputs.unpublish_npm }}
+        run: |
+          if [ "$DEMOTE" = "true" ]; then
+            PREV=$(python3 .github/scripts/npm_versions.py previous "$VERSION" "$VERSIONS")
+            echo "::notice::Dry run: would run npm dist-tag add $PKG@$PREV latest"
+          fi
+          [ "$DEPRECATE" = "true" ] && echo "::notice::Dry run: would run npm deprecate $PKG@$VERSION"
+          [ "$UNPUBLISH" = "true" ] && echo "::notice::Dry run: would run npm unpublish $PKG@$VERSION"
+          exit 0
+
+  npm_actions:
+    name: Roll back on npm
+    needs: inspect
+    if: >-
+      inputs.dry_run == false &&
+      github.triggering_actor == 'tmack8001' &&
+      github.ref == 'refs/heads/main' &&
+      (inputs.demote_npm_latest || inputs.deprecate_npm || inputs.unpublish_npm)
+    runs-on: ubuntu-latest
+    environment: npm-publish
+
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 24.x
+          registry-url: 'https://registry.npmjs.org'
+
+      - name: Require an npm token
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
         run: |
           if [ -z "$NODE_AUTH_TOKEN" ]; then
-            echo "::error::An npm action was requested but the NPM_TOKEN secret is not set."
+            echo "::error::An npm action was requested but the NPM_TOKEN secret is not set in the npm-publish environment."
             exit 1
           fi
 
@@ -161,55 +202,57 @@ jobs:
         if: inputs.demote_npm_latest
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
-          PKG: ${{ steps.state.outputs.package }}
+          PKG: ${{ needs.inspect.outputs.package }}
           VERSION: ${{ inputs.version }}
-          VERSIONS: ${{ steps.state.outputs.versions }}
-          DRY: ${{ inputs.dry_run }}
+          VERSIONS: ${{ needs.inspect.outputs.versions }}
         run: |
           PREV=$(python3 .github/scripts/npm_versions.py previous "$VERSION" "$VERSIONS")
           echo "Demoting latest: $VERSION -> $PREV"
-          if [ "$DRY" = "true" ]; then
-            echo "::notice::Dry run: would run npm dist-tag add $PKG@$PREV latest"
-          else
-            npm dist-tag add "$PKG@$PREV" latest
-            echo "- Moved npm \`latest\` to \`$PREV\`" >> "$GITHUB_STEP_SUMMARY"
-          fi
+          npm dist-tag add "$PKG@$PREV" latest
+          echo "- Moved npm \`latest\` to \`$PREV\`" >> "$GITHUB_STEP_SUMMARY"
 
       - name: Deprecate the version on npm
         if: inputs.deprecate_npm
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
-          PKG: ${{ steps.state.outputs.package }}
+          PKG: ${{ needs.inspect.outputs.package }}
           VERSION: ${{ inputs.version }}
           REASON: ${{ inputs.reason }}
-          DRY: ${{ inputs.dry_run }}
         run: |
-          if [ "$DRY" = "true" ]; then
-            echo "::notice::Dry run: would run npm deprecate $PKG@$VERSION"
-          else
-            npm deprecate "$PKG@$VERSION" "$REASON"
-            echo "- Deprecated \`$PKG@$VERSION\` on npm" >> "$GITHUB_STEP_SUMMARY"
-          fi
+          npm deprecate "$PKG@$VERSION" "$REASON"
+          echo "- Deprecated \`$PKG@$VERSION\` on npm" >> "$GITHUB_STEP_SUMMARY"
 
       - name: Unpublish the version from npm
         if: inputs.unpublish_npm
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
-          PKG: ${{ steps.state.outputs.package }}
+          PKG: ${{ needs.inspect.outputs.package }}
           VERSION: ${{ inputs.version }}
-          DRY: ${{ inputs.dry_run }}
         run: |
           echo "::warning::Unpublishing burns $VERSION permanently - npm will never accept that number again. It also only works within 72 hours of publishing."
-          if [ "$DRY" = "true" ]; then
-            echo "::notice::Dry run: would run npm unpublish $PKG@$VERSION"
+          if npm unpublish "$PKG@$VERSION"; then
+            echo "- Unpublished \`$PKG@$VERSION\` from npm" >> "$GITHUB_STEP_SUMMARY"
           else
-            if npm unpublish "$PKG@$VERSION"; then
-              echo "- Unpublished \`$PKG@$VERSION\` from npm" >> "$GITHUB_STEP_SUMMARY"
-            else
-              echo "::error::Unpublish failed - most likely past the 72 hour window. Use deprecate_npm instead."
-              exit 1
-            fi
+            echo "::error::Unpublish failed - most likely past the 72 hour window. Use deprecate_npm instead."
+            exit 1
           fi
+
+  github_actions:
+    name: Roll back on GitHub
+    needs: [inspect, npm_actions]
+    # Run after the npm job whether it ran or was skipped, but not if it failed.
+    if: >-
+      always() &&
+      needs.inspect.result == 'success' &&
+      (needs.npm_actions.result == 'success' || needs.npm_actions.result == 'skipped')
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          fetch-depth: 0
 
       - name: Delete the GitHub release
         if: inputs.delete_github_release
