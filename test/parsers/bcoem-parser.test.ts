@@ -1,4 +1,5 @@
 import { expect } from 'chai';
+import * as cheerio from 'cheerio';
 import fs from 'node:fs';
 import path from 'node:path';
 
@@ -457,5 +458,221 @@ describe('BCOEM results club filter', () => {
     const result = await parser.parseResults(html, { brewers: brewer, club: 'The Brü Club' });
 
     expect(rowsOf(result)).to.deep.equal(expected);
+  });
+});
+
+type AttributeVariant = 'decoy' | 'original' | 'scrambled' | 'stripped';
+
+const ATTRIBUTE_VARIANTS: AttributeVariant[] = ['original', 'stripped', 'scrambled', 'decoy'];
+
+/**
+ * Rewrites the class and id attributes of a saved page.
+ *
+ * @param html the saved page
+ * @param variant how to rewrite them
+ * @returns the rewritten page
+ */
+function withAttributes(html: string, variant: AttributeVariant): string {
+  if (variant === 'original') return html;
+
+  const $ = cheerio.load(html);
+  $('*').each((index, node) => {
+    const { attribs } = node as { attribs: Record<string, string> };
+    delete attribs.class;
+    delete attribs.id;
+
+    if (variant === 'scrambled') {
+      attribs.class = `zz${(index * 7919) % 1009} qq${index}`;
+      attribs.id = `x${index}`;
+    } else if (variant === 'decoy') {
+      attribs.class = 'glance-header glance-card-body card-body card-title';
+      attribs.id = 'at-a-glance';
+    }
+  });
+
+  return $.html();
+}
+
+describe('BCOEM metadata does not depend on class or id attributes', () => {
+  const expected = JSON.parse(fixture('bcoem_info_expected.json')) as Record<
+    string,
+    { data: string; glance: unknown[]; header: string }
+  >;
+  const parser = new BCOEMParser();
+
+  for (const [name, want] of Object.entries(expected)) {
+    for (const variant of ATTRIBUTE_VARIANTS) {
+      it(`${name} parses identically with ${variant} attributes`, async () => {
+        const html = withAttributes(fixture(name), variant);
+        const got = await parser.parseMetadata(html);
+
+        expect(got.header).to.equal(want.header);
+        expect(got.data).to.equal(want.data);
+        expect(
+          [...extractGlanceWindows(html)].map(([title, window]) => [
+            title,
+            window.summary,
+            window.open?.toISOString(),
+            window.close?.toISOString(),
+          ])
+        ).to.deep.equal(want.glance);
+      });
+    }
+  }
+
+  it('reads cards from bare headings and lists in any markup', () => {
+    const html = `<main><div><h3>Entry Registration</h3><ul>
+      <li><strong>Open</strong> - 07/04/2026 10:00 AM, EDT</li>
+      <li><strong>Close</strong> - 09/18/2026 5:00 PM, EDT</li></ul></div>
+      <section><h4>Judging</h4><ol><li><strong>Start</strong> - 09/25/2026 5:00 PM, EDT</li></ol></section></main>`;
+    const windows = extractGlanceWindows(html);
+
+    expect([...windows.keys()]).to.deep.equal(['entry registration', 'judging']);
+    expect(windows.get('entry registration')?.open?.toISOString()).to.equal('2026-07-04T14:00:00.000Z');
+    expect(windows.get('judging')?.close).to.equal(undefined);
+  });
+
+  it('leaves out a window it cannot attribute to a single heading', () => {
+    const html = `<div><h5>Entry Registration</h5><h5>Account Registration</h5>
+      <ul><li><strong>Open</strong> - 07/04/2026 10:00 AM, EDT</li></ul></div>`;
+
+    expect(extractGlanceWindows(html).size).to.equal(0);
+  });
+
+  it('leaves out a window with no heading at all', () => {
+    const html = '<ul><li><strong>Open</strong> - 07/04/2026 10:00 AM, EDT</li></ul>';
+
+    expect(extractGlanceWindows(html).size).to.equal(0);
+  });
+
+  it('reads headings given as h1, h6 or role=heading', () => {
+    const html = `<div><h1>Entry Registration</h1><ul><li><strong>Open</strong> - 07/04/2026 10:00 AM, EDT</li></ul></div>
+      <div><h6>Judging</h6><ul><li><strong>Start</strong> - 09/25/2026 5:00 PM, EDT</li></ul></div>
+      <div><p role="heading">Entry Shipping</p><ul><li><strong>End</strong> - 09/18/2026 5:00 PM, EDT</li></ul></div>`;
+
+    expect([...extractGlanceWindows(html).keys()]).to.deep.equal(['entry registration', 'judging', 'entry shipping']);
+  });
+
+  it('collapses whitespace and case in the title', () => {
+    const html = '<div><h5>  Entry\n   Registration </h5><ul><li><strong>Open</strong> - 07/04/2026 10:00 AM, EDT</li></ul></div>';
+
+    expect([...extractGlanceWindows(html).keys()]).to.deep.equal(['entry registration']);
+  });
+
+  it('skips a card with an empty heading', () => {
+    const html = '<div><h5> </h5><ul><li><strong>Open</strong> - 07/04/2026 10:00 AM, EDT</li></ul></div>';
+
+    expect(extractGlanceWindows(html).size).to.equal(0);
+  });
+
+  it('does not borrow a neighbouring card heading for a card that has none', () => {
+    const html = `<div><div><h5>Entry Registration</h5><ul><li><strong>Open</strong> - 07/04/2026 10:00 AM, EDT</li></ul></div>
+      <div><ul><li><strong>Close</strong> - 09/25/2026 5:00 PM, EDT</li></ul></div></div>`;
+    const windows = extractGlanceWindows(html);
+
+    expect([...windows.keys()]).to.deep.equal(['entry registration']);
+    expect(windows.get('entry registration')?.close).to.equal(undefined);
+    expect(windows.get('entry registration')?.open?.toISOString()).to.equal('2026-07-04T14:00:00.000Z');
+  });
+
+  it('does not attribute a card to a page-level heading shared by several lists', () => {
+    const html = `<section><h2>At a Glance</h2><div><ul><li><strong>Open</strong> - 07/04/2026 10:00 AM, EDT</li></ul></div>
+      <div><ul><li><strong>Close</strong> - 09/25/2026 5:00 PM, EDT</li></ul></div></section>`;
+
+    expect(extractGlanceWindows(html).size).to.equal(0);
+  });
+
+  it('does not climb past a wrapper holding several headings', () => {
+    const html = `<div><div><div><ul><li><strong>Open</strong> - 07/04/2026 10:00 AM, EDT</li></ul></div>
+      <h5>Entry Registration</h5><h5>Judging</h5></div></div>`;
+
+    expect(extractGlanceWindows(html).size).to.equal(0);
+  });
+
+  it('takes the first Open and first Close of a card', () => {
+    const html = `<div><h5>Entry Registration</h5><ul>
+      <li><strong>Open</strong> - 07/04/2026 10:00 AM, EDT</li>
+      <li><strong>Open</strong> - 07/05/2026 10:00 AM, EDT</li>
+      <li><strong>Close</strong> - 09/18/2026 5:00 PM, EDT</li>
+      <li><strong>Close</strong> - 09/19/2026 5:00 PM, EDT</li></ul></div>`;
+    const window = extractGlanceWindows(html).get('entry registration');
+
+    expect(window?.open?.toISOString()).to.equal('2026-07-04T14:00:00.000Z');
+    expect(window?.close?.toISOString()).to.equal('2026-09-18T21:00:00.000Z');
+  });
+
+  it('labels an item by its first strong', () => {
+    const html = '<div><h5>Judging</h5><ul><li><strong>Begin</strong> - <strong>Open</strong> 09/20/2026 5:00 PM, EDT</li></ul></div>';
+
+    expect(extractGlanceWindows(html).size).to.equal(0);
+  });
+
+  it('reads a card whose close is stated before its open', () => {
+    const html = '<div><h5>Entry Shipping</h5><ul><li><strong>Close</strong> - 09/18/2026 5:00 PM, EDT</li><li><strong>Open</strong> - 08/18/2026 5:00 PM, EDT</li></ul></div>';
+    const window = extractGlanceWindows(html).get('entry shipping');
+
+    expect(window?.summary.startsWith('Open')).to.equal(true);
+    expect(window?.close?.toISOString()).to.equal('2026-09-18T21:00:00.000Z');
+  });
+
+  it('ignores labels other than open, start, close and end', () => {
+    const html = `<div><h5>Entry Shipping</h5><ul><li><strong>Begin</strong> - 08/18/2026 5:00 PM, EDT</li>
+      <li><strong>Total</strong> - 09/18/2026 5:00 PM, EDT</li></ul></div>`;
+
+    expect(extractGlanceWindows(html).size).to.equal(0);
+  });
+
+  it('lets a later card replace an earlier one of the same title', () => {
+    const html = `<div><h5>Judging</h5><ul><li><strong>Start</strong> - 09/25/2026 5:00 PM, EDT</li></ul></div>
+      <div><h5>Judging</h5><ul><li><strong>Start</strong> - 10/25/2026 5:00 PM, EDT</li></ul></div>`;
+    const windows = extractGlanceWindows(html);
+
+    expect(windows.size).to.equal(1);
+    expect(windows.get('judging')?.open?.toISOString()).to.equal('2026-10-25T21:00:00.000Z');
+  });
+
+  it('leaves out a card whose open and close sit in separate lists', () => {
+    const html = `<div><h5>Entry Registration</h5>
+      <ul><li><strong>Open</strong> - 07/04/2026 10:00 AM, EDT</li></ul>
+      <ul><li><strong>Close</strong> - 09/18/2026 5:00 PM, EDT</li></ul></div>`;
+
+    expect(extractGlanceWindows(html).size).to.equal(0);
+  });
+
+  it('finds a heading nested in a wrapper inside the card', () => {
+    const html = `<div><div><div><h5>Entry Registration</h5></div></div>
+      <ul><li><strong>Open</strong> - 07/04/2026 10:00 AM, EDT</li></ul></div>`;
+
+    expect([...extractGlanceWindows(html).keys()]).to.deep.equal(['entry registration']);
+  });
+
+  it('reads a label padded with whitespace, and ignores a strong after the first', () => {
+    const html = `<div><h5>Entry Registration</h5><ul>
+      <li><strong> Open </strong> - <strong>Close</strong> 07/04/2026 10:00 AM, EDT</li></ul></div>`;
+    const window = extractGlanceWindows(html).get('entry registration');
+
+    expect(window?.open?.toISOString()).to.equal('2026-07-04T14:00:00.000Z');
+    expect(window?.close).to.equal(undefined);
+  });
+
+  it('does not count strong-labelled items that are not windows as part of a card', () => {
+    const html = `<div><h5>Entries</h5><ul><li><strong>Total</strong> - 29</li></ul>
+      <h5>Judging</h5><ul><li><strong>Start</strong> - 09/25/2026 5:00 PM, EDT</li></ul></div>`;
+
+    expect(extractGlanceWindows(html).size).to.equal(0);
+  });
+
+  it('reads day-first dates from the order the page uses', () => {
+    const html = `<div><h5>Judging</h5><ul>
+      <li><strong>Start</strong> - 05/09/2026 5:00 PM, EDT</li>
+      <li><strong>End</strong> - 25/09/2026 5:00 PM, EDT</li></ul></div>`;
+
+    expect(extractGlanceWindows(html).get('judging')?.open?.toISOString()).to.equal('2026-09-05T21:00:00.000Z');
+  });
+
+  it('ignores labelled items without a timestamp', () => {
+    const html = '<div><h5>Entries</h5><ul><li><strong>Total</strong> - 29</li><li><strong>Open</strong> - soon</li></ul></div>';
+
+    expect(extractGlanceWindows(html).size).to.equal(0);
   });
 });

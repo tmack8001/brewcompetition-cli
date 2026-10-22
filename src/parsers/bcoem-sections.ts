@@ -1,4 +1,4 @@
-import cheerio from 'cheerio';
+import cheerio, { Element } from 'cheerio';
 
 import { ShortDateOrder, detectShortDateOrder, formatInZone, parseTimestamps, resolveTimezone } from './bcoem-dates.js';
 
@@ -314,8 +314,20 @@ function cardTimestamp(text: string, order: ShortDateOrder): { date: Date; zone:
   return { date: stamps[0].date, zone: zone ?? 'UTC' };
 }
 
+const HEADING_SELECTOR = 'h1, h2, h3, h4, h5, h6, [role="heading"]';
+
+const OPEN_LABELS = new Set(['open', 'start']);
+const CLOSE_LABELS = new Set(['close', 'end']);
+
 /**
  * Reads the "At a Glance" cards, if the page has them.
+ *
+ * A card is found the way a reader sees it: a list whose items are labelled
+ * `Open`/`Close` (or `Start`/`End`) with a timestamp, under a heading naming the
+ * window. The card is the nearest element around such an item that holds a
+ * heading. It must hold exactly one heading and exactly one such list; otherwise
+ * the item cannot be attributed to a card and is left out rather than guessed
+ * at. No class or id is consulted.
  *
  * @param html the entry-info page source
  * @returns card title (lowercased) to window; empty on builds without the grid
@@ -323,25 +335,45 @@ function cardTimestamp(text: string, order: ShortDateOrder): { date: Date; zone:
 export function extractGlanceWindows(html: string): Map<string, GlanceWindow> {
   const $ = cheerio.load(html);
   const order = detectShortDateOrder(html);
+
+  const labelOf = (item: Element) => collapse($(item).find('strong').first().text()).toLowerCase();
+  const labelled = $('li')
+    .toArray()
+    .filter(item => OPEN_LABELS.has(labelOf(item)) || CLOSE_LABELS.has(labelOf(item)));
+
+  const cards = new Map<Element, { heading: string; items: { label: string; text: string }[] }>();
+
+  for (const item of labelled) {
+    const label = labelOf(item);
+
+    for (const ancestor of $(item).parents().toArray()) {
+      const headings = $(ancestor).find(HEADING_SELECTOR);
+      if (headings.length === 0) continue;
+      if (headings.length > 1) break;
+
+      const sameList = labelled.filter(other => $.contains(ancestor, other)).every(other => other.parent === item.parent);
+      const heading = collapse(headings.first().text()).toLowerCase();
+      if (!sameList || !heading) break;
+
+      const card = cards.get(ancestor) ?? { heading, items: [] };
+      card.items.push({ label, text: collapse($(item).text()) });
+      cards.set(ancestor, card);
+      break;
+    }
+  }
+
   const windows = new Map<string, GlanceWindow>();
 
-  $('.glance-header').each((_index, element) => {
-    const title = collapse($(element).text()).toLowerCase();
-    if (!title) return;
-
-    const body = $(element).closest('.glance-card-body');
+  for (const { heading, items } of cards.values()) {
     let open: { date: Date; zone: string } | undefined;
     let close: { date: Date; zone: string } | undefined;
 
-    body.find('li').each((_i, item) => {
-      const text = collapse($(item).text());
-      const label = collapse($(item).find('strong').first().text()).toLowerCase();
+    for (const { label, text } of items) {
+      if (OPEN_LABELS.has(label)) open ??= cardTimestamp(text, order);
+      if (CLOSE_LABELS.has(label)) close ??= cardTimestamp(text, order);
+    }
 
-      if (label === 'open' || label === 'start') open ??= cardTimestamp(text, order);
-      if (label === 'close' || label === 'end') close ??= cardTimestamp(text, order);
-    });
-
-    if (!open && !close) return;
+    if (!open && !close) continue;
 
     // Rendered in the competition's own zone, carrying the abbreviation. Using
     // the machine's zone made this column depend on where the CLI happened to run.
@@ -350,8 +382,8 @@ export function extractGlanceWindows(html: string): Map<string, GlanceWindow> {
       close ? `Close ${formatInZone(close.date, close.zone)}` : '',
     ].filter(Boolean);
 
-    windows.set(title, { close: close?.date, open: open?.date, summary: parts.join(' — ') });
-  });
+    windows.set(heading, { close: close?.date, open: open?.date, summary: parts.join(' — ') });
+  }
 
   return windows;
 }

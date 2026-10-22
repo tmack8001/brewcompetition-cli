@@ -34,6 +34,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- `competitions` on BCOEM no longer reads the "At a Glance" cards by CSS class.
+  Cards are found by their heading and `Open`/`Close` (or `Start`/`End`) items, so
+  a theme that renames or drops the classes keeps its registration, drop-off and
+  shipping windows. A window that cannot be tied to exactly one heading and one
+  list is left out and the prose is used, as on builds without the cards. A card
+  that carries a second heading of its own is left out the same way.
 - `medals` on a bare BAP competition URL (no trailing slash) printed "No results
   found in BAP format". The competition key is now read from the parsed URL path,
   so bare, trailing-slash, `/results`, query-string and fragment forms resolve.
