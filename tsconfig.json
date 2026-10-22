@@ -7,10 +7,8 @@
     "strict": true,
     "target": "es2022",
     "skipLibCheck": true,
+    "types": ["node"],
     "moduleResolution": "node16"
   },
-  "include": ["./src/**/*"],
-  "ts-node": {
-    "esm": true
-  }
+  "include": ["./src/**/*"]
 }

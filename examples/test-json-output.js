@@ -1,5 +1,5 @@
-import fs from 'fs';
-import path from 'path';
+import fs from 'node:fs';
+import path from 'node:path';
 import { BAPParser } from '../dist/parsers/bap-parser.js';
 
 const htmlPath = path.join(process.cwd(), 'test/resources/results/bap_results.html');

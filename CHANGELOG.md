@@ -32,6 +32,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Platform detection matches `beerawardsplatform.com` and `reggiebeer.com` by
   domain, not substring, so lookalike hosts are not routed to those parsers and a
   trailing-dot host is.
+- Replaced `ts-node` (unmaintained; the source of the `--experimental-loader` and
+  `DEP0180` warnings) with `tsx` for the test run and `bin/dev`.
+- Moved linting to ESLint 10 with `eslint-config-oclif` 7 (flat config), which
+  supports current TypeScript; the previous config warned on TypeScript 5.4 and
+  newer. Built with TypeScript 6.
+- Updated dependencies, including `mocha` 12 and `chai` 6. Production dependencies
+  audit clean. `@oclif/*` stays on the current majors because the next ones require
+  Node 22.
+- Regenerated `package-lock.json` and `yarn.lock` against the public npm registry;
+  they previously pointed at an internal mirror, so `npm ci` hung outside it.
 
 ### Fixed
 
@@ -83,6 +93,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `--brewers` on a BCOEM page missed entries with a co-brewer, because the cell text
   "Pat SmithCo-Brewer: Sam Smith" was compared whole. The brewer named before the
   "Co-Brewer:" line is now what is matched; the output cell is unchanged.
+
+### Removed
+
+- Unused dependencies: `node-persist`, `json2csv`, `node-localstorage`, `shx` and
+  their `@types/*` packages. The build script now clears `dist/` with Node itself.
 
 
 ## [1.1.0] - 2026-09-13

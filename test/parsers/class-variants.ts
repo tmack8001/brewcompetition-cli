@@ -1,6 +1,6 @@
-import type { Element } from 'cheerio';
+import type { Element } from 'domhandler';
 
-import cheerio from 'cheerio';
+import * as cheerio from 'cheerio';
 
 export type ClassVariant = 'misleading' | 'original' | 'scrambled' | 'stripped' | 'unattributed';
 

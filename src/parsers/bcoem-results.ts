@@ -117,7 +117,7 @@ function readColumns(labels: string[]): Columns | undefined {
   const club = names.indexOf('club');
   const hasEntry = names.includes('entry name') || names.includes('name');
 
-  if (names[0] !== 'place' || brewer < 0 || club < 0 || !hasEntry || !names.includes('style')) return undefined;
+  if (names[0] !== 'place' || brewer === -1 || club === -1 || !hasEntry || !names.includes('style')) return undefined;
 
   return { brewer, club, labels: display };
 }

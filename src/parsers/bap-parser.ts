@@ -29,7 +29,7 @@ export class BapCompetitionNotFoundError extends Error {
 
 const PLACE_TITLE = /^#[1-9]\d*$/;
 const STYLE_PREFIX = /^[\dA-Z]{1,6}\s+-\s+(?=\S)/;
-const CUSTOM_AWARD_SEPARATOR = ' \\ ';
+const CUSTOM_AWARD_SEPARATOR = String.raw` \ `;
 const NO_AWARD = /^no award/i;
 const ENTRIES_SUFFIX = /\s+(\d+)\s+entr(?:y|ies)\s*$/i;
 

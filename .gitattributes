@@ -20,7 +20,7 @@ CONTRIBUTING.md text eol=lf
 # Config files
 .gitignore text eol=lf
 .gitattributes text eol=lf
-.eslintrc.json text eol=lf
+eslint.config.mjs text eol=lf
 .prettierrc.json text eol=lf
 .mocharc.json text eol=lf
 tsconfig.json text eol=lf

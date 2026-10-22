@@ -140,6 +140,8 @@ async function impitClient(profile: ImpersonationProfile) {
   // single command fetches. Note this does not share cookies: impit keeps no
   // cookie jar unless one is passed, and none is.
   const cached = clients.get(profile);
+  // Type position only: `Response` is just named in a signature, never used as a value.
+  // eslint-disable-next-line n/no-unsupported-features/node-builtins
   if (cached) return cached as { fetch(url: string, init?: { headers?: Record<string, string> }): Promise<Response> };
 
   let Impit;
