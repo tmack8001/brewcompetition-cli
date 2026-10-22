@@ -51,6 +51,7 @@ src/
 │   ├── platform-detector.ts  # URL-based platform detection
 │   ├── parser-factory.ts  # Factory for creating parsers
 │   ├── bcoem-parser.ts    # BCOEM implementation
+│   ├── bcoem-results.ts   # BCOEM medal tables, read by header and heading
 │   ├── bcoem-sections.ts  # BCOEM entry-info page section extraction
 │   ├── bcoem-dates.ts     # BCOEM date, window and timezone parsing
 │   ├── reggie-parser.ts   # Reggie implementation

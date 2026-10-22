@@ -65,6 +65,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - BAP category names written as "Spiced and Specialty Mead 9 Entries" left
   `Entry Count` empty and the count in the category name. This form and the older
   "Porter and Stout (10)" are both read, including "1 Entry".
+- The BCOEM results parser selected tables by the `bcoem-winner-table` class. It now
+  recognises a medal table by its header (Place, Brewer, Entry Name or Name, Style,
+  Club) and names it by the closest heading in front of it, so restyled pages parse
+  the same. A page with no medal table, a table with no heading, or a row that does
+  not match its header now throws `BcoemHtmlStructureError` instead of printing
+  "Table not found" and exiting 0.
+- BCOEM Best of Show tables on newer builds (Bootstrap 5 markup, no
+  `bcoem-winner-table` wrapper) were dropped, along with any Best of Show medal won
+  by the club. They are now included, as they already were on older builds.
+- `--brewers` on a BCOEM page missed entries with a co-brewer, because the cell text
+  "Pat SmithCo-Brewer: Sam Smith" was compared whole. The brewer named before the
+  "Co-Brewer:" line is now what is matched; the output cell is unchanged.
 
 
 ## [1.1.0] - 2026-09-13

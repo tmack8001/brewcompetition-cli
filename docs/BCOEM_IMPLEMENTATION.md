@@ -9,7 +9,7 @@ The BCOEM parser is the original implementation that handles competitions hosted
 BCOEM is an open-source competition management system:
 - **Repository**: https://github.com/geoffhumphrey/brewcompetitiononlineentry
 - **Rendering**: Server-side HTML generation
-- **Structure**: Traditional table-based layout with semantic CSS classes
+- **Structure**: Traditional table-based layout; class names differ between builds and are not relied on
 - **Data**: Fully rendered in initial HTML response
 
 ## HTML Structure
@@ -19,7 +19,7 @@ BCOEM uses a consistent, well-structured HTML format:
 ### Results Tables
 
 ```html
-<div class="bcoem-winner-table">
+<div>
   <h3>01: Light Lager</h3>
   <table>
     <thead>
@@ -122,36 +122,30 @@ trails whichever section came before.
 
 ### Results Parsing
 
-The parser uses the `.bcoem-winner-table` class as the primary selector:
+`parseBcoemResults` (`src/parsers/bcoem-results.ts`) reads the page as a person
+would and never selects on a class or id. Class names differ between BCOEM builds
+(the older wrapper class is absent from the Best of Show tables of newer ones) and
+are free for a site to restyle.
 
-```typescript
-$('.bcoem-winner-table').each((index, element) => {
-  const tableNameRaw = $(element).find('h3').text().trim();
-  
-  // Skip aggregate tables (Brewers, Clubs)
-  if (tableNameRaw.includes("Brewers") || tableNameRaw.includes("Clubs")) {
-    return;
-  }
-  
-  // Extract entry count from table name (format: "Table 1: Category (7 entries)")
-  const entryCountMatch = tableNameRaw.match(/\((\d+)\s+entries\)$/);
-  const entryCount = entryCountMatch ? entryCountMatch[1].trim() : '';
-  const tableName = tableNameRaw.replace(/\s*\(\d+\s+entries\)$/, '').trim();
-  
-  // Extract headers
-  $(element).find('table thead tr th').each((index, element) => {
-    header.push($(element).text().trim());
-  });
-  
-  // Extract data rows
-  $(element).find('table tbody tr').each((index, row) => {
-    const cells = $(row).find('td');
-    // cells[0] = Place, cells[1] = Brewer, cells[2] = Entry Name, 
-    // cells[3] = Style, cells[4] = Club
-    // Entry count is added as a separate column
-  });
-});
-```
+- A medal table is any `<table>` whose header row reads Place first, then Brewer,
+  Entry Name (or Name), Style and Club in any order. The brewer and club columns
+  are found by their header text.
+- Standings tables (best brewer, best club) have ordinal or score columns instead
+  of an entry and are not medal tables, so they are left out by structure rather
+  than by a heading containing "Brewers" or "Clubs".
+- A table is named by the closest heading (`h1`-`h6` or `role="heading"`) in front
+  of it that follows the previous table. "Table 3: Czech Lager (12 entries)"
+  becomes the category "Table 3: Czech Lager" with an entry count of 12.
+- The output header is the first medal table's header, preceded by
+  `Table / Category` and `Entry Count`. Every other medal table must have the
+  same columns.
+- `--brewers` is matched against the brewer named in the cell, not the
+  "Co-Brewer:" line that follows it.
+
+A page with no medal table, a medal table with no heading, or a row whose cell
+count differs from its header or whose place is empty, or a medal table whose
+columns differ from the first's, throws
+`BcoemHtmlStructureError`.
 
 ### Metadata Parsing
 
@@ -204,19 +198,14 @@ renders "Registration is closed." and nothing more - so extraction returns
 BCOEM appends " MHP" (Master Homebrewer Program) to brewer names:
 
 ```typescript
-const cellText = $(element).text().trim().replaceAll(',', '');
-rowData.push(cellText.replaceAll(' MHP', ''));
+const removeMhpBadge = (text: string) => text.replaceAll(' MHP', '');
 ```
 
 ### Aggregate Tables
 
-BCOEM includes summary tables for "Top Brewers" and "Top Clubs" which are skipped:
-
-```typescript
-if (tableName.includes("Brewers") || tableName.includes("Clubs")) {
-  return; // Skip aggregate tables
-}
-```
+BCOEM includes summary tables for "Top Brewers" and "Top Clubs". Their headers
+(Place, Brewer or Club, then 1st, 2nd, 3rd and so on, and Score) are not those of a
+medal table, so they are skipped.
 
 ### Comma Handling
 
@@ -350,10 +339,10 @@ Falls back to system timezone if abbreviation not found.
 ## Error Handling
 
 The parser gracefully handles:
-- Missing tables (returns undefined)
+- Missing tables (throws `BcoemHtmlStructureError`)
 - Missing metadata sections (leaves the column empty)
 - Sections that state no dates (leaves the date columns empty)
-- Empty results (logs error message)
+- Filters that match nothing (returns the header and no rows)
 
 A competition whose entry-info page is gated behind a login - which BCOEM does
 once the windows have closed - yields no metadata from any candidate URL. The
@@ -372,7 +361,8 @@ See `test/resources/metadata/README.md` for what each fixture pins and how to
 capture another.
 
 Tests verify:
-- Results parsing with filters
+- Results parsing with filters, on saved pages with the class attribute stripped, scrambled and set to misleading names, and with every attribute removed
+- Results output equal to the previous class-selecting parser's on trimmed saved pages of both markup generations, apart from the Best of Show rows it dropped and the `--brewers` co-brewer match
 - Metadata extraction on both builds
 - Date parsing, including midnight and open-ended windows
 - Section scoping (a short section does not absorb the next one)
