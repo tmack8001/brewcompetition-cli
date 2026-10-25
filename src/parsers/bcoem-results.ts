@@ -41,7 +41,7 @@ const collapse = (text: string): string => text.replaceAll(/\s+/g, ' ').trim();
  * @param html the saved results page
  * @param filters the --brewers / --club values
  * @returns the pipe-delimited header and rows
- * @throws BcoemHtmlStructureError when no medal table is found or one cannot be read
+ * @throws {BcoemHtmlStructureError} when no medal table is found or one cannot be read
  */
 export function parseBcoemResults(html: string, filters: Filters): ParsedResults {
   const $ = cheerio.load(html);

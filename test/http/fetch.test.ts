@@ -46,7 +46,7 @@ async function serve(
  *
  * @param run the call under test
  * @returns the rejection reason
- * @throws when the call resolves instead of rejecting
+ * @throws {Error} when the call resolves instead of rejecting
  */
 async function rejection(run: () => Promise<unknown>): Promise<Error> {
   try {

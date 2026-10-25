@@ -8,7 +8,7 @@ import moment from 'moment-timezone';
  * rather than `Europe/Dublin`.
  *
  * Two pairs are deliberately reordered against upstream. A North American
- * *standard* abbreviation always denotes a fixed offset, and a DST zone only ever
+ * standard abbreviation always denotes a fixed offset, and a DST zone only ever
  * emits it while sitting at that offset - so resolving `MST` to Phoenix and `CST`
  * to Regina is correct for Denver and Chicago too, while the reverse silently
  * shifts an Arizona or Saskatchewan competition by an hour every summer.
