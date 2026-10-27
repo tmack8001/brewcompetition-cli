@@ -10,7 +10,7 @@ Be respectful, inclusive, and constructive in all interactions. We're all here t
 
 ### Prerequisites
 
-- Node.js >= 20.18.1 (22 or 24 recommended)
+- Node.js >= 20.18.1 to run the CLI (22 or 24 recommended). To develop, use Node.js 22.22.2 or newer: dev-tooling dependencies (`hosted-git-info`, `npm-package-arg`, `proc-log`) declare `^22.22.2 || ^24.15.0 || >=26.0.0`, so older 22.x installs warn or fail under `--engine-strict`. `.nvmrc` pins 22.23.4, the newest 22.x at the time of writing (`nvm use`).
 - npm or yarn
 - Git
 

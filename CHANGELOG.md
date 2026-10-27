@@ -21,6 +21,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- Added `.nvmrc` pinning Node.js 22.23.4 for development and documented that
+  contributors need Node.js 22.22.2 or newer (dev-tooling dependencies require it).
+  The runtime floor (`engines.node`) and the CI matrix are unchanged.
 - Raised the minimum Node.js to 20.18.1 (`engines.node`), the floor required by the
   dependencies a fresh install resolves (`cheerio` 1.2, `undici` 7). Node 20
   reached end of life on 2026-04-30, so this is a minor change under the
