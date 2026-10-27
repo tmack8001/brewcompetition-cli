@@ -154,6 +154,60 @@
           ]
         }
       }
+    },
+    "bos": {
+      "positions": {
+        "1": [
+          {
+            "name": "Bamberg",
+            "styleSubcategory": "Rauchbier",
+            "participant": {
+              "name": "Stephen Schmitt",
+              "club": "The Brü Club"
+            }
+          }
+        ],
+        "2": [
+          {
+            "name": "Tripel",
+            "styleSubcategory": "Belgian Tripel",
+            "participant": {
+              "name": "Stephen Schmitt",
+              "club": "The Brü Club"
+            }
+          }
+        ],
+        "3": [
+          {
+            "name": "CDL",
+            "styleSubcategory": "Czech Dark Lager",
+            "participant": {
+              "name": "Ross Stuart",
+              "club": "Arizona Society of Homebrewers"
+            }
+          }
+        ],
+        "4": [
+          {
+            "name": "Bob's Your Scottish Uncle Ale",
+            "styleSubcategory": "Scottish Export",
+            "participant": {
+              "name": "Wayne Feller",
+              "club": "Arizona Society of Homebrewers"
+            }
+          }
+        ]
+      }
+    },
+    "custom": {
+      "awards": [
+        {
+          "name": "Best of Show - Mead & Cider",
+          "positions": [
+            "ONE BAAAAD APPLE.... \\ M2A - Cyser \\ Scott Estlund, Mosinee, WI, USA \\ Club: The Brü Club"
+          ]
+        }
+      ]
     }
   }
 }

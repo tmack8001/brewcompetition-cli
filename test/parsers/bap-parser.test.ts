@@ -100,6 +100,34 @@ async function parseViaApi(url: string, resultsFixture: string, filters = NO_FIL
   }
 }
 
+/**
+ * Runs something while collecting what it writes to stderr.
+ *
+ * @param action the work to run
+ * @returns what it returned and the console.error messages
+ */
+async function captureStderr<T>(action: () => Promise<T>): Promise<{ messages: string[]; value: T }> {
+  const messages: string[] = [];
+  const original = console.error;
+  console.error = (...args: unknown[]) => { messages.push(args.join(' ')); };
+  try {
+    return { messages, value: await action() };
+  } finally {
+    console.error = original;
+  }
+}
+
+/**
+ * Defers a call, so a test can hand it to captureStderr without a nested callback.
+ *
+ * @param fn the function
+ * @param args its arguments
+ * @returns a function that makes the call
+ */
+const later = <A extends unknown[], R>(fn: (...args: A) => R, ...args: A) => () => fn(...args);
+
+const skipNotices = (messages: string[]): string[] => messages.filter(message => message.startsWith('Skipping BAP custom award'));
+
 const parse = async (html: string): Promise<string[]> => rowsOf(await new BAPParser().parseResults(html, NO_FILTERS));
 
 /**
@@ -124,15 +152,29 @@ const RENDERED_PAGES = [
   {
     api: 'bap_trimmed_results_2026_ash_copper_state_cup.json',
     html: 'bap_rendered_2026_ash_copper_state_cup.html',
-    rows: 13,
+    rows: 18,
     url: 'https://beerawardsplatform.com/2026-ash-copper-state-cup/results',
   },
   {
     api: 'bap_trimmed_results_2026_boneyard_brew_off.json',
     html: 'bap_rendered_2026_boneyard_brew_off.html',
-    rows: 9,
+    rows: 12,
     url: 'https://beerawardsplatform.com/the-2026-boneyard-brew-off/results',
   },
+];
+
+const COPPER_BOS_ROWS = [
+  'Best of Show|1st||Bamberg|Rauchbier|Stephen Schmitt|The Brü Club',
+  'Best of Show|2nd||Tripel|Belgian Tripel|Stephen Schmitt|The Brü Club',
+  'Best of Show|3rd||CDL|Czech Dark Lager|Ross Stuart|Arizona Society of Homebrewers',
+  'Best of Show|HM||Bob\'s Your Scottish Uncle Ale|Scottish Export|Wayne Feller|Arizona Society of Homebrewers',
+];
+const OLD_WORDING = 'Dan Acheson / Club: Urban Knaves of Grain - ZE FRAHNCH (C1D – French Cider)';
+const COPPER_CUSTOM_ROW = 'Best of Show - Mead & Cider|1st||ONE BAAAAD APPLE....|Cyser|Scott Estlund|The Brü Club';
+const BONEYARD_BOS_ROWS = [
+  'Best of Show|1st||One Bad Apple...|Cyser|Scott Estlund|The Brü Club',
+  'Best of Show|2nd||Smoke Wagon|Rauchbier|Taylor Shastid|Diablo Order of Zymiracle Enthusiasts (DOZE)',
+  'Best of Show|3rd||Bigwig IPA|Specialty IPA|Danny Sack|Evanston Homebrew Club',
 ];
 
 function describeAshPage(variant: ClassVariant): void {
@@ -150,9 +192,9 @@ function describeAshPage(variant: ClassVariant): void {
       expect(rows.filter(row => row.startsWith('American Ales|'))).to.have.length(4);
     });
 
-    it('skips Best of Show sections and positions with no award', () => {
-      expect(rows.some(row => row.includes('Bamberg'))).to.equal(false);
-      expect(rows.some(row => row.includes('ONE BAAAAD APPLE'))).to.equal(false);
+    it('reads Best of Show and its custom award, and skips positions with no award', () => {
+      expect(rows.filter(row => row.startsWith('Best of Show|'))).to.deep.equal(COPPER_BOS_ROWS);
+      expect(rows).to.include(COPPER_CUSTOM_ROW);
       expect(rows.filter(row => row.startsWith('Amber and Dark European Lager|'))).to.have.length(3);
     });
 
@@ -164,7 +206,20 @@ function describeAshPage(variant: ClassVariant): void {
       const html = withClasses(readResource('results', 'bap_rendered_2026_ash_copper_state_cup.html'), variant);
       const result = await new BAPParser().parseResults(html, { brewers: undefined, club: 'The Brü Club' });
 
-      expect(rowsOf(result)).to.deep.equal(['Mead and Cider|1st|14|One Baaaad Apple....|Cyser|Scott Estlund|The Brü Club']);
+      expect(normalize(rowsOf(result))).to.deep.equal(normalize([
+        ...COPPER_BOS_ROWS.filter(row => row.endsWith('|The Brü Club')),
+        COPPER_CUSTOM_ROW,
+        'Mead and Cider|1st|14|One Baaaad Apple....|Cyser|Scott Estlund|The Brü Club',
+      ]));
+    });
+
+    it('drops Best of Show rows that the club filter excludes', async () => {
+      const html = withClasses(readResource('results', 'bap_rendered_2026_ash_copper_state_cup.html'), variant);
+      const result = await new BAPParser().parseResults(html, { brewers: undefined, club: 'Arizona Society of Homebrewers' });
+      const bos = rowsOf(result).filter(row => row.startsWith('Best of Show'));
+
+      expect(bos).to.deep.equal(COPPER_BOS_ROWS.filter(row => row.endsWith('|Arizona Society of Homebrewers')));
+      expect(bos).to.have.length(2);
     });
   });
 }
@@ -177,6 +232,13 @@ function describeBoneyardPage(variant: ClassVariant): void {
 
       expect(rows).to.include('Amber Lager|1st|17|Smoke Wagon|Rauchbier|Taylor Shastid|Diablo Order of Zymiracle Enthusiasts (DOZE)');
       expect(rows).to.include('Spiced and Specialty Mead|3rd|9|The Morrígan|Experimental Mead|Austin Brown|Brewers Anonymous');
+    });
+
+    it('reads the Best of Show card with a blank entry count', async () => {
+      const html = withClasses(readResource('results', 'bap_rendered_2026_boneyard_brew_off.html'), variant);
+      const rows = rowsOf(await new BAPParser().parseResults(html, NO_FILTERS));
+
+      expect(rows.filter(row => row.startsWith('Best of Show|'))).to.deep.equal(BONEYARD_BOS_ROWS);
     });
   });
 }
@@ -296,7 +358,7 @@ describe('BAP Parser', () => {
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         (local as any).parseApiData = async (competitionKey: string) => {
           seen.push(competitionKey);
-          return [['Cat', '1st', '9', 'Beer', 'Style', 'Brewer', 'Club']];
+          return { items: [{ award: false, row: ['Cat', '1st', '9', 'Beer', 'Style', 'Brewer', 'Club'] }], skipped: [] };
         };
 
         const result = await local.parseResults('<html></html>', { brewers: undefined, club: undefined }, base);
@@ -434,60 +496,39 @@ describe('BAP Parser', () => {
         if (u.includes('loadCompetitionInfo')) return readFixture('bap_competition_info.json');
         throw new HttpStatusError(u, 500);
       }) as typeof fetchJson;
-      const original = console.error;
-      console.error = () => {};
-      let thrown: unknown;
-      try {
-        await new BAPParser(fetcher).parseResults('<html><div id="root"></div></html>', noFilters, url);
-      } catch (error) {
-        thrown = error;
-      } finally {
-        console.error = original;
-      }
+      const parser = new BAPParser(fetcher);
+      const { value: thrown } = await captureStderr(later(rejection, parser.parseResults('<html><div id="root"></div></html>', noFilters, url)));
 
-      expect(thrown, 'expected a rejection').to.be.instanceOf(HttpStatusError);
+      expect(thrown).to.be.instanceOf(HttpStatusError);
       expect((thrown as HttpStatusError).status).to.equal(500);
     });
 
     it('should say the filters matched nothing when the competition was read', async () => {
-      const messages: string[] = [];
-      const original = console.error;
-      console.error = (...args: unknown[]) => { messages.push(args.join(' ')); };
-      try {
-        const result = await new BAPParser(fixtureFetcher([])).parseResults('', { brewers: 'Nobody At All', club: undefined }, url);
-        expect(result).to.equal(undefined);
-      } finally {
-        console.error = original;
-      }
+      const { messages, value: result } = await captureStderr(() => new BAPParser(fixtureFetcher([])).parseResults('', { brewers: 'Nobody At All', club: undefined }, url));
+      expect(result).to.equal(undefined);
 
-      expect(messages).to.deep.equal(['Competition read, but no medals matched the given filters']);
+      // The fixture's two custom awards use another wording, which is reported even when the filters drop everything
+      expect(messages.filter(message => message.startsWith('Skipping BAP custom award'))).to.have.length(2);
+      expect(messages.filter(message => !message.startsWith('Skipping BAP custom award'))).to.deep.equal([
+        'Competition read, but no medals matched the given filters (2 custom award lines were skipped for an unrecognized format; see above)',
+      ]);
     });
 
     it('should say the filters matched nothing for a club filter too', async () => {
-      const messages: string[] = [];
-      const original = console.error;
-      console.error = (...args: unknown[]) => { messages.push(args.join(' ')); };
-      try {
-        await new BAPParser(fixtureFetcher([])).parseResults('', { brewers: undefined, club: 'No Such Club' }, url);
-      } finally {
-        console.error = original;
-      }
+      const { messages } = await captureStderr(() => new BAPParser(fixtureFetcher([])).parseResults('', { brewers: undefined, club: 'No Such Club' }, url));
 
-      expect(messages).to.deep.equal(['Competition read, but no medals matched the given filters']);
+      // The fixture's two custom awards use another wording, which is reported even when the filters drop everything
+      expect(messages.filter(message => message.startsWith('Skipping BAP custom award'))).to.have.length(2);
+      expect(messages.filter(message => !message.startsWith('Skipping BAP custom award'))).to.deep.equal([
+        'Competition read, but no medals matched the given filters (2 custom award lines were skipped for an unrecognized format; see above)',
+      ]);
     });
 
     it('should treat a results response with no medal list as published-nothing, not as a failure', async () => {
-      const messages: string[] = [];
       const fetcher = (async (u: string) =>
         u.includes('loadCompetitionInfo') ? readFixture('bap_competition_info.json') : { results: {} }) as typeof fetchJson;
-      const original = console.error;
-      console.error = (...args: unknown[]) => { messages.push(args.join(' ')); };
-      try {
-        const result = await new BAPParser(fetcher).parseResults('', noFilters, url);
-        expect(result).to.equal(undefined);
-      } finally {
-        console.error = original;
-      }
+      const { messages, value: result } = await captureStderr(() => new BAPParser(fetcher).parseResults('', noFilters, url));
+      expect(result).to.equal(undefined);
 
       expect(messages).to.deep.equal(['Competition read, but it has no published medals']);
     });
@@ -505,17 +546,10 @@ describe('BAP Parser', () => {
     });
 
     it('should say there are no published medals when the competition was read and nothing was asked for', async () => {
-      const messages: string[] = [];
       const fetcher = (async (u: string) =>
         u.includes('loadCompetitionInfo') ? readFixture('bap_competition_info.json') : { results: { miniBos: {} } }) as typeof fetchJson;
-      const original = console.error;
-      console.error = (...args: unknown[]) => { messages.push(args.join(' ')); };
-      try {
-        const result = await new BAPParser(fetcher).parseResults('', noFilters, url);
-        expect(result).to.equal(undefined);
-      } finally {
-        console.error = original;
-      }
+      const { messages, value: result } = await captureStderr(() => new BAPParser(fetcher).parseResults('', noFilters, url));
+      expect(result).to.equal(undefined);
 
       expect(messages).to.deep.equal(['Competition read, but it has no published medals']);
     });
@@ -534,14 +568,8 @@ describe('BAP Parser', () => {
     it('should fall back to saved HTML when the API fails transiently', async () => {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const fetcher = (async (u: string) => { throw new HttpStatusError(u, 500); }) as any;
-      const original = console.error;
-      console.error = () => {};
-      try {
-        const result = await new BAPParser(fetcher).parseResults(html, noFilters, url);
-        expect(result?.data).to.include('Christian Chandler');
-      } finally {
-        console.error = original;
-      }
+      const { value: result } = await captureStderr(() => new BAPParser(fetcher).parseResults(html, noFilters, url));
+      expect(result?.data).to.include('Christian Chandler');
     });
   });
 
@@ -714,6 +742,40 @@ describe('BAP Parser', () => {
       }
     }
 
+    for (const page of RENDERED_PAGES) {
+      it(`${page.html}: yields the same Brü Club rows as the API path, Best of Show included`, async () => {
+        const filters = { brewers: undefined, club: 'The Brü Club' };
+        const fromHtml = await new BAPParser().parseResults(readResource('results', page.html), filters);
+        const fromApi = await parseViaApi(page.url, page.api, filters);
+
+        expect(rowsOf(fromHtml).some(row => row.startsWith('Best of Show'))).to.equal(true);
+        expect(normalize(rowsOf(fromHtml))).to.deep.equal(normalize(rowsOf(fromApi)));
+      });
+    }
+
+    it('gives the Brü Club the Best of Show rows of both real competitions', async () => {
+      const copper = await parseViaApi(RENDERED_PAGES[0].url, RENDERED_PAGES[0].api, { brewers: undefined, club: 'The Brü Club' });
+      const boneyard = await parseViaApi(RENDERED_PAGES[1].url, RENDERED_PAGES[1].api, { brewers: undefined, club: 'The Brü Club' });
+
+      expect(rowsOf(copper).filter(row => row.startsWith('Best of Show'))).to.deep.equal([
+        COPPER_BOS_ROWS[0],
+        COPPER_BOS_ROWS[1],
+        COPPER_CUSTOM_ROW,
+      ]);
+      expect(rowsOf(boneyard).filter(row => row.startsWith('Best of Show'))).to.deep.equal([BONEYARD_BOS_ROWS[0]]);
+    });
+
+    it('skips the old fixture custom awards (another wording) with a notice on both paths', async () => {
+      const fromHtml = await captureStderr(() => new BAPParser().parseResults(readResource('results', 'bap_results.html'), NO_FILTERS));
+      expect(fromHtml.messages).to.have.length(2);
+      expect(fromHtml.messages[0]).to.include('Skipping BAP custom award "Best of Show - Beer"');
+      expect(fromHtml.messages[1]).to.include('Skipping BAP custom award "Best of Show - Mead & Cider"');
+
+      const fromApi = await captureStderr(() => parseViaApi('https://beerawardsplatform.com/2025-ash-copper-state-cup/results', 'bap_results.json'));
+      expect(fromApi.messages.map(message => message.match(/award "([^"]+)"/)?.[1])).to.deep.equal(['Best of Show - Mead & Cider', 'Best of Show - Beer']);
+      expect(fromApi.messages.every(message => message.includes('unrecognized format'))).to.equal(true);
+    });
+
     it('keeps the old saved fixture in agreement with its API response', async () => {
       const fromHtml = await new BAPParser().parseResults(readResource('results', 'bap_results.html'), NO_FILTERS);
       const fromApi = await parseViaApi(
@@ -769,14 +831,12 @@ describe('BAP Parser', () => {
       it('reports an unusable page as empty when a URL is given and the API read nothing', async () => {
         const originalAdapter = axios.defaults.adapter;
         axios.defaults.adapter = async config => ({ config, data: { competition: { competitionId: 'id' }, results: { miniBos: {} } }, headers: {}, status: 200, statusText: 'OK' });
-        const originalError = console.error;
-        console.error = () => {};
 
         try {
-          const result = await new BAPParser().parseResults('<html><body></body></html>', NO_FILTERS, 'https://beerawardsplatform.com/x/results');
-          expect(result).to.equal(undefined);
+          const reader = new BAPParser();
+          const { value } = await captureStderr(later(reader.parseResults.bind(reader), '<html><body></body></html>', NO_FILTERS, 'https://beerawardsplatform.com/x/results'));
+          expect(value).to.equal(undefined);
         } finally {
-          console.error = originalError;
           axios.defaults.adapter = originalAdapter;
         }
       });
@@ -855,13 +915,89 @@ describe('BAP Parser', () => {
         expect(await parse(html)).to.include('Amber Lager|1st|17|Smoke Wagon|Rauchbier|Taylor Shastid|Diablo Order of Zymiracle Enthusiasts (DOZE)');
       });
 
-      it('skips a custom award whose single line lists its fields', async () => {
+      it('reads a custom award under any heading, using the heading as the category', async () => {
         const html = rendered.replace('Best of Show - Mead &amp; Cider', 'Mead &amp; Cider Champion');
         expect(html).to.not.equal(rendered);
 
         const rows = await parse(html);
-        expect(rows).to.have.length(13);
-        expect(rows.some(row => row.includes('ONE BAAAAD APPLE'))).to.equal(false);
+        expect(rows).to.have.length(18);
+        expect(rows).to.include('Mead & Cider Champion|1st||ONE BAAAAD APPLE....|Cyser|Scott Estlund|The Brü Club');
+        expect(rows.join('\n')).to.not.include('Best of Show - Mead');
+      });
+
+      it('reads a custom award without a club', async () => {
+        const html = rendered.replace('\\ Club: The Brü Club', '');
+        expect(html).to.not.equal(rendered);
+
+        expect(await parse(html)).to.include('Best of Show - Mead & Cider|1st||ONE BAAAAD APPLE....|Cyser|Scott Estlund|');
+      });
+
+      it('skips a custom award line in another wording under a Best of Show heading, with a notice', async () => {
+        const html = rendered.replace(/ONE BAAAAD APPLE[^<]*/, OLD_WORDING);
+
+        const { messages, value } = await captureStderr(later(parse, html));
+        expect(value).to.have.length(17);
+        expect(value.join('\n')).to.not.include('Dan Acheson');
+        expect(skipNotices(messages)).to.have.length(1);
+        expect(messages[0]).to.include('"Best of Show - Mead & Cider"');
+      });
+
+      it('still rejects a damaged one-line row, under a "Best of Show" heading or any other', async () => {
+        for (const heading of ['Best of Show - Mead Champion', 'Mead Champion']) {
+          const html = rendered.replace('Best of Show - Mead &amp; Cider', heading).replace(/ONE BAAAAD APPLE[^<]*/, 'Scott Estlund won this one');
+
+          // eslint-disable-next-line no-await-in-loop
+          expect(await rejection(parse(html))).to.be.instanceOf(BapHtmlStructureError);
+        }
+      });
+
+      it('reads an old-wording line under any heading as a custom award, skipping it with a notice', async () => {
+        const html = rendered.replace('Best of Show - Mead &amp; Cider', 'Mead Champion').replace(/ONE BAAAAD APPLE[^<]*/, OLD_WORDING);
+
+        const { messages, value } = await captureStderr(later(parse, html));
+        expect(value).to.have.length(17);
+        expect(skipNotices(messages)).to.have.length(1);
+      });
+
+      it('warns, and still returns every readable row, for an old-wording line that names the requested club', async () => {
+        const line = 'Scott Estlund / Club: The Bru Club / ONE BAAAAD APPLE (M2A – Cyser';
+        const html = rendered.replace(/ONE BAAAAD APPLE[^<]*/, line);
+        const reader = new BAPParser();
+
+        const { messages, value } = await captureStderr(later(reader.parseResults.bind(reader), html, { brewers: undefined, club: 'The Brü Club' }));
+        expect(rowsOf(value)).to.include('Mead and Cider|1st|14|One Baaaad Apple....|Cyser|Scott Estlund|The Brü Club');
+        expect(messages).to.have.length(1);
+        expect(messages[0]).to.match(/^WARNING: BAP custom award "Best of Show - Mead & Cider".*could NOT be read and is missing from this output/);
+        expect(messages[0]).to.include(line);
+      });
+
+      it('names a custom award without the count its heading shows', async () => {
+        for (const heading of ['Best of Show - Mead &amp; Cider 4 Entries', 'Best of Show - Mead &amp; Cider (4)']) {
+          const html = rendered.replace('Best of Show - Mead &amp; Cider', heading);
+          expect(html).to.not.equal(rendered);
+
+          // eslint-disable-next-line no-await-in-loop
+          expect(await parse(html)).to.include(COPPER_CUSTOM_ROW);
+        }
+      });
+
+      it('leaves out a Best of Show card or custom row that repeats a "Best of Show..." table row, keeping the table row', async () => {
+        const winner = '<p>Winner</p><p>28A - Braggot</p><p>Pat Brewer, AZ</p><p>Club: ASH</p>';
+        const row = (heading: string) => `<div><p>${heading}</p><div><span title="#1"></span><div>${winner}</div></div></div>`;
+        const custom = '<div><p>Best of Show - Beer</p><div><span title="#1"></span><div><p>Winner \\ 28A - Braggot \\ Pat Brewer, AZ, USA \\ Club: ASH</p></div></div></div>';
+
+        expect(await parse(`<div>${row('Best of Show - Beer 3 Entries')}${custom}</div>`)).to.deep.equal(['Best of Show - Beer|1st|3|Winner|Braggot|Pat Brewer|ASH']);
+        expect(await parse(`<div>${row('Best of Show - Beer 3 Entries')}${custom.replace('Winner', 'WINNER')}</div>`)).to.have.length(1);
+        expect(await parse(`<div>${custom}${row('Best of Show - Beer 3 Entries')}</div>`)).to.deep.equal(['Best of Show - Beer|1st|3|Winner|Braggot|Pat Brewer|ASH']);
+        expect(await parse(`<div>${row('Best of Show 3 Entries')}${row('Best of Show - Beer 3 Entries')}</div>`)).to.have.length(2);
+      });
+
+      it('skips a "No award" custom position', async () => {
+        const html = rendered.replace(/ONE BAAAAD APPLE[^<]*/, 'No award');
+
+        const rows = await parse(html);
+        expect(rows).to.have.length(17);
+        expect(rows.join('\n')).to.not.include('Best of Show - Mead');
       });
 
       it('rejects a title-less row that has only a Club line and no style line', async () => {
@@ -1002,12 +1138,36 @@ describe('BAP Parser', () => {
       expect(split('Mead 9 Entrants')).to.deep.equal({ categoryName: 'Mead 9 Entrants', entryCount: '' });
     });
 
-    it('should skip a Best of Show card in the saved-HTML path', async () => {
+    it('should read a Best of Show card in the saved-HTML path, with no entry count', async () => {
       const card =
         '<div><p>Best of Show 3 Entries</p>' +
-        '<div><span title="#1"></span><div><p>Skipped</p><p>28A - Braggot</p><p>Pat Brewer, AZ</p><p>Club: ASH</p></div></div></div>';
+        '<div><span title="#1"></span><div><p>Winner</p><p>28A - Braggot</p><p>Pat Brewer, AZ</p><p>Club: ASH</p></div></div></div>';
       const result = await parser.parseResults(card, { brewers: undefined, club: undefined });
-      expect(result).to.equal(undefined);
+      expect(result?.data).to.equal('Best of Show|1st||Winner|Braggot|Pat Brewer|ASH');
+    });
+
+    it('should read each place of a multi-place custom award in the saved-HTML path', async () => {
+      const line = (name: string) => `<p>${name} \\ 6B - Rauchbier \\ Pat Brewer, Town, ST, USA \\ Club: ASH</p>`;
+      const card =
+        '<div><p>Cup</p>' +
+        `<div><span title="#1"></span><div>${line('First')}</div></div>` +
+        '<div><span title="#2"></span><div><p>No award</p></div></div>' +
+        `<div><span title="#3"></span><div>${line('Third')}</div></div></div>`;
+      const result = await parser.parseResults(card, { brewers: undefined, club: undefined });
+
+      expect(result?.data).to.equal('Cup|1st||First|Rauchbier|Pat Brewer|ASH\nCup|3rd||Third|Rauchbier|Pat Brewer|ASH');
+    });
+
+    it('should keep the count on a table whose heading only starts with "Best of Show"', async () => {
+      const section = (heading: string, name: string) =>
+        `<div><p>${heading}</p><div><span title="#1"></span><div><p>${name}</p><p>28A - Braggot</p><p>Pat Brewer, AZ</p><p>Club: ASH</p></div></div></div>`;
+      const page = `<div>${section('Best of Show 3 Entries', 'Overall')}${section('Best of Show - Beer 3 Entries', 'Table')}</div>`;
+      const result = await parser.parseResults(page, { brewers: undefined, club: undefined });
+
+      expect(result?.data.split('\n')).to.deep.equal([
+        'Best of Show|1st||Overall|Braggot|Pat Brewer|ASH',
+        'Best of Show - Beer|1st|3|Table|Braggot|Pat Brewer|ASH',
+      ]);
     });
 
     it('should fill the Entry Count column from the saved page (parenthesised)', async () => {
@@ -1035,7 +1195,8 @@ describe('BAP Parser', () => {
       e: { name: 'Mystery Table', positions: { 1: [entry('Odd', 'Kim', 'The Brü Club')] } },
       f: { name: 'Cider\t8\tEntries', positions: { 1: [entry('Cyser', 'Jo', 'The Brü Club')] } },
       g: { name: 'Wheat\u00A05\u00A0Entries', positions: { 1: [entry('Hefe', 'Al', 'The Brü Club')] } },
-      h: { name: 'Best of Show - Beer 3 Entries', positions: { 1: [entry('Skipped', 'Nobody', 'The Brü Club')] } },
+      // A table that merely has "Best of Show" in its name is still a table: its medals are not dropped
+      h: { name: 'Best of Show - Beer 3 Entries', positions: { 1: [entry('Kept', 'Nobody', 'The Brü Club')] } },
     };
 
     let originalAdapter: typeof axios.defaults.adapter;
@@ -1066,7 +1227,338 @@ describe('BAP Parser', () => {
         'Mystery Table|1st||Odd|Some Style|Kim|The Brü Club',
         'Cider|1st|8|Cyser|Some Style|Jo|The Brü Club',
         'Wheat|1st|5|Hefe|Some Style|Al|The Brü Club',
+        'Best of Show - Beer|1st|3|Kept|Some Style|Nobody|The Brü Club',
       ]);
+    });
+  });
+
+  describe('Best of Show through the API path (stubbed axios)', () => {
+    const miniBos = { a: { name: 'Porter (10)', positions: { 1: [entry('Mini', 'Pat', 'The Brü Club')] } } };
+    const OTHER = 'Zed Brewer, Town, ST, USA';
+    const award = (name: string, positions: unknown) => ({ name, positions });
+
+    const run = async (results: unknown, filters: { brewers: string | undefined, club: string | undefined } = NO_FILTERS) => {
+      const original = axios.defaults.adapter;
+      axios.defaults.adapter = (async (config: { url?: string }) => ({
+        config,
+        data: String(config.url).includes('loadCompetitionInfo') ? { competition: { competitionId: 'abc' } } : { results },
+        headers: {},
+        status: 200,
+        statusText: 'OK',
+      })) as never;
+      try {
+        return rowsOf(await new BAPParser().parseResults('', filters, 'https://beerawardsplatform.com/k/results'));
+      } finally {
+        axios.defaults.adapter = original;
+      }
+    };
+
+    it('emits bos positions as "Best of Show" with a blank entry count, 4th as HM', async () => {
+      const bos = { positions: {
+        1: [entry('A, One', 'Pat, Brewer', 'The Brü Club')],
+        2: [entry('B', 'Lee', 'Club B')],
+        3: [entry('C', 'Kim', '')],
+        4: [entry('D', 'Al', 'Club D')],
+      } };
+
+      expect(await run({ bos, miniBos })).to.deep.equal([
+        'Porter|1st|10|Mini|Some Style|Pat|The Brü Club',
+        'Best of Show|1st||A One|Some Style|Pat Brewer|The Brü Club',
+        'Best of Show|2nd||B|Some Style|Lee|Club B',
+        'Best of Show|3rd||C|Some Style|Kim|',
+        'Best of Show|HM||D|Some Style|Al|Club D',
+      ]);
+    });
+
+    it('emits Best of Show when the only content is a custom award', async () => {
+      const custom = { awards: [award('Best of Show - Mead & Cider', ['E \\ M2A - Cyser \\ Pat Brewer, Town, WI, USA \\ Club: X'])] };
+      expect(await run({ custom })).to.deep.equal(['Best of Show - Mead & Cider|1st||E|Cyser|Pat Brewer|X']);
+      expect(await run({ bos: { positions: { 1: [entry('A', 'Pat', 'X')] } } })).to.deep.equal(['Best of Show|1st||A|Some Style|Pat|X']);
+    });
+
+    it('reads custom positions in order, stripping the style id, commas and the city', async () => {
+      const custom = { awards: [award('Best of Show - Beer, Big', [
+        'First, Beer \\ 6B - Rauchbier \\ Pat Brewer, Town, ST, USA \\ Club: The Brü Club',
+        'Second \\ 26C - Belgian Tripel \\ Lee Brewer \\ Club: Club B',
+        'Third \\ M2A - Cyser \\ Kim, Town, ST, USA',
+        'Fourth \\ 3D - Czech Dark Lager \\ Al, Town, ST, USA \\ Club: Club D',
+      ])] };
+
+      expect(await run({ custom })).to.deep.equal([
+        'Best of Show - Beer Big|1st||First Beer|Rauchbier|Pat Brewer|The Brü Club',
+        'Best of Show - Beer Big|2nd||Second|Belgian Tripel|Lee Brewer|Club B',
+        'Best of Show - Beer Big|3rd||Third|Cyser|Kim|',
+        'Best of Show - Beer Big|HM||Fourth|Czech Dark Lager|Al|Club D',
+      ]);
+    });
+
+    it('numbers a custom place by its index, so a "No award" position leaves a gap', async () => {
+      const custom = { awards: [award('Cup', ['No award', 'Two \\ 6B - Rauchbier \\ Pat, T, ST, USA \\ Club: X', 'no award given'])] };
+
+      const { messages, value } = await captureStderr(() => run({ custom }));
+      expect(value).to.deep.equal(['Cup|2nd||Two|Rauchbier|Pat|X']);
+      expect(messages.filter(message => message.startsWith('Skipping BAP custom award'))).to.deep.equal([]);
+    });
+
+    it('skips a custom string in another wording with a notice naming the award and the text', async () => {
+      const old = 'Dan Acheson / Club: Urban Knaves of Grain - ZE FRAHNCH (C1D – French Cider)';
+      const custom = { awards: [award('Best of Show - Mead & Cider', [old]), award('Cup', ['Ok \\ 6B - Rauchbier \\ Pat, T, ST, USA \\ Club: X'])] };
+
+      const { messages, value } = await captureStderr(() => run({ custom, miniBos }));
+      expect(value).to.deep.equal(['Porter|1st|10|Mini|Some Style|Pat|The Brü Club', 'Cup|1st||Ok|Rauchbier|Pat|X']);
+      expect(messages).to.have.length(1);
+      expect(messages[0]).to.include('"Best of Show - Mead & Cider"').and.to.include(old);
+    });
+
+    it('rejects each malformed custom shape instead of guessing', async () => {
+      const malformed = [
+        'only one part',
+        'a \\ b',
+        'a \\ 6B - Style \\ Pat, T \\ Club: X \\ extra',
+        'a \\ NoStyleId \\ Pat, T, ST, USA \\ Club: X',
+        'a \\ 6B - Style \\ Pat, T, ST, USA \\ NotAClub',
+        ' \\ 6B - Style \\ Pat, T, ST, USA',
+        'a \\ 6B - Style \\  \\ Club: X',
+        'a \\ 6B - Style \\ , Town \\ Club: X',
+        String.raw`a \ 6B - Style \ Pat, T \ Club: X \ Club: Y`,
+        String.raw`a \ 6B - Style \ Pat, T, ST, USA \ club: X`, // the label is case-sensitive
+      ];
+      const custom = { awards: [award('Cup', malformed)] };
+
+      const { messages, value } = await captureStderr(() => run({ custom }));
+      expect(value).to.deep.equal([]);
+      expect(messages.filter(message => message.startsWith('Skipping BAP custom award "Cup"'))).to.have.length(malformed.length);
+    });
+
+    it('ignores absent, empty and oddly shaped bos and custom data', async () => {
+      for (const extra of [{}, { bos: {}, custom: {} }, { bos: { positions: {} }, custom: { awards: [] } }, { bos: { positions: { 1: [] } } },
+        ...[5, {}, [null], [5], 'none'].map(awards => ({ custom: { awards } })), { custom: { awards: [award('Cup', undefined), award('Cup', 'x'), award('Cup', [null, 5])] } }]) {
+        // eslint-disable-next-line no-await-in-loop
+        expect(await run({ miniBos, ...extra })).to.deep.equal(['Porter|1st|10|Mini|Some Style|Pat|The Brü Club']);
+      }
+    });
+
+    it('applies the club filter to bos and custom rows alike', async () => {
+      const bos = { positions: { 1: [entry('A', 'Pat', 'The Brü Club')], 2: [entry('B', 'Lee', 'Club B')] } };
+      const custom = { awards: [award('Cup', [`C \\ 6B - Rauchbier \\ ${OTHER} \\ Club: Club B`, 'D \\ 6B - Rauchbier \\ Pat, T, ST, USA \\ Club: The Bru Club'])] };
+
+      expect(await run({ bos, custom }, { brewers: undefined, club: 'The Brü Club' })).to.deep.equal([
+        'Best of Show|1st||A|Some Style|Pat|The Brü Club',
+        'Cup|2nd||D|Rauchbier|Pat|The Bru Club',
+      ]);
+      expect(await run({ bos, custom }, { brewers: undefined, club: 'Nobody Club' })).to.deep.equal([]);
+    });
+
+    it('applies the brewers filter to bos and custom rows', async () => {
+      const bos = { positions: { 1: [entry('A', 'Pat', 'X')], 2: [entry('B', 'Lee', 'X')] } };
+      const custom = { awards: [award('Cup', [`C \\ 6B - Rauchbier \\ ${OTHER}`, 'D \\ 6B - Rauchbier \\ Lee, T, ST, USA'])] };
+
+      expect(await run({ bos, custom }, { brewers: 'Lee', club: undefined })).to.deep.equal([
+        'Best of Show|2nd||B|Some Style|Lee|X',
+        'Cup|2nd||D|Rauchbier|Lee|',
+      ]);
+    });
+
+    it('skips a blank custom position without a notice, still using up its place', async () => {
+      const custom = { awards: [award('Cup', ['', '  No award', 'Three \\ 6B - Rauchbier \\ Pat, T, ST, USA'])] };
+
+      const { messages, value } = await captureStderr(() => run({ custom }));
+      expect(value).to.deep.equal(['Cup|3rd||Three|Rauchbier|Pat|']);
+      expect(skipNotices(messages)).to.deep.equal([]);
+    });
+
+    it('ignores positions and entries that are not entries', async () => {
+      const bos = { positions: { 1: null, 2: {}, 3: [null, 'x', 7, entry('Ok', 'Pat', 'X')] } };
+      const table = { a: null, b: { name: 'Bitter (5)', positions: { 1: [null, entry('B', 'Lee', 'X')] } } };
+
+      expect(await run({ bos, miniBos: table })).to.deep.equal(['Bitter|1st|5|B|Some Style|Lee|X', 'Best of Show|3rd||Ok|Some Style|Pat|X']);
+    });
+
+    it('names a custom award from its trimmed name, or "Unknown Award" when it has none or not a string', async () => {
+      const line = 'E \\ 6B - Rauchbier \\ Pat, T, ST, USA';
+      const custom = { awards: [award('  Cup ', [line]), { positions: [line] }, award(5, [line]), award(' '.repeat(3), [line])] };
+
+      expect(await run({ custom })).to.deep.equal([
+        'Cup|1st||E|Rauchbier|Pat|',
+        'Unknown Award|1st||E|Rauchbier|Pat|',
+        'Unknown Award|1st||E|Rauchbier|Pat|',
+        'Unknown Award|1st||E|Rauchbier|Pat|',
+      ]);
+    });
+
+    it('strips commas from the custom club and style, and collapses whitespace inside the parts', async () => {
+      const custom = { awards: [award('Cup', ['  Big   Beer \\ 6B -   St, Dry \\  Pat   Q,  T, ST, USA  \\  Club:   Foo, Inc  '])] };
+
+      expect(await run({ custom })).to.deep.equal(['Cup|1st||Big Beer|St Dry|Pat Q|Foo Inc']);
+    });
+
+    it('emits tied Best of Show entries and identical rows once each', async () => {
+      const same = entry('Same', 'Pat', 'X');
+      const bos = { positions: { 1: [same, same], 2: [entry('Two', 'Lee', 'X'), entry('Three', 'Kim', 'X')] } };
+
+      expect(await run({ bos })).to.deep.equal([
+        'Best of Show|1st||Same|Some Style|Pat|X',
+        'Best of Show|1st||Same|Some Style|Pat|X',
+        'Best of Show|2nd||Two|Some Style|Lee|X',
+        'Best of Show|2nd||Three|Some Style|Kim|X',
+      ]);
+    });
+
+    const old = 'Stephen Schmitt / Club: The Brü Club / BAMBERG (6B – Rauchbier';
+    const unrecognized = { awards: [award('Best of Show - Beer', [old])] };
+    const OTHER_CLUB = { brewers: undefined, club: 'Other Club' };
+
+    it('unrecognized line naming the --club or --brewers: warns that the medal is missing and returns the other rows', async () => {
+      for (const filters of [{ brewers: undefined, club: 'The Brü Club' }, { brewers: undefined, club: 'the bru club' }, { brewers: 'Nobody, Pat, Stephen Schmitt', club: undefined }]) {
+        // eslint-disable-next-line no-await-in-loop
+        const { messages, value } = await captureStderr(later(run, { custom: unrecognized, miniBos }, filters));
+
+        expect(value).to.deep.equal(['Porter|1st|10|Mini|Some Style|Pat|The Brü Club']);
+        expect(messages).to.have.length(1);
+        expect(messages[0]).to.match(/^WARNING: BAP custom award "Best of Show - Beer".*could NOT be read and is missing from this output/);
+        expect(messages[0]).to.include(old);
+      }
+    });
+
+    it('unrecognized line: a filter that only appears inside another word is not a mention', async () => {
+      const cash = { awards: [award('Cup', ['Pat / Club: CASH CIDER / X (6B – Rauchbier'])] };
+      const ashland = { awards: [award('Cup', ['Pat / Club: ASHLAND / X (6B – Rauchbier'])] };
+
+      for (const custom of [cash, ashland]) {
+        // eslint-disable-next-line no-await-in-loop
+        const { messages } = await captureStderr(later(run, { custom }, { brewers: undefined, club: 'ASH' }));
+        expect(messages[0]).to.match(/^Skipping BAP custom award "Cup"/);
+        expect(messages[0]).to.not.include('WARNING');
+      }
+    });
+
+    it('unrecognized line not naming the filter: skipped with a notice, and the empty-result message mentions it', async () => {
+      const note = '(1 custom award line was skipped for an unrecognized format; see above)';
+      const cases: [{ brewers: string | undefined, club: string | undefined }, string][] = [
+        [OTHER_CLUB, 'Competition read, but no medals matched the given filters'],
+        [NO_FILTERS, 'Competition read, but it has no published medals'],
+      ];
+
+      for (const [filters, final] of cases) {
+        // eslint-disable-next-line no-await-in-loop
+        const { messages, value } = await captureStderr(later(run, { custom: unrecognized }, filters));
+
+        expect(value).to.deep.equal([]);
+        expect(messages[0]).to.include('Skipping BAP custom award "Best of Show - Beer"');
+        expect(messages).to.deep.equal([messages[0], `${final} ${note}`]);
+      }
+    });
+
+    it('unrecognized lines: each is reported and counted once when the saved-page fallback re-reads them', async () => {
+      const awards = { awards: [award('Best of Show - Beer', [OLD_WORDING]), award('Best of Show - Mead', [OLD_WORDING])] };
+      const fetcher = (async (u: string) =>
+        u.includes('loadCompetitionInfo') ? { competition: { competitionId: 'abc' } } : { results: { custom: awards } }) as typeof fetchJson;
+      const section = (heading: string) =>
+        `<div><p>${heading}</p><div><span title="#1"></span><div><p>${OLD_WORDING}</p></div></div></div>`;
+      const page = `<div>${section('Best of Show - Beer')}${section('Best of Show - Mead')}</div>`;
+      const reader = new BAPParser(fetcher);
+
+      const { messages, value } = await captureStderr(later(reader.parseResults.bind(reader), page, NO_FILTERS, 'https://beerawardsplatform.com/k/results'));
+      expect(value).to.equal(undefined);
+      expect(skipNotices(messages)).to.have.length(2);
+      expect(messages.at(-1)).to.equal('Competition read, but it has no published medals (2 custom award lines were skipped for an unrecognized format; see above)');
+    });
+
+    it('unrecognized line on a saved page with nothing else: the "no results" message mentions it', async () => {
+      const card =
+        '<div><p>Best of Show</p><div><span title="#1"></span><div>' +
+        `<p>${OLD_WORDING}</p></div></div></div>`;
+
+      const { messages, value } = await captureStderr(later(parser.parseResults.bind(parser), card, NO_FILTERS));
+      expect(value).to.equal(undefined);
+      expect(messages[1]).to.equal('No results found in BAP format (1 custom award line was skipped for an unrecognized format; see above)');
+    });
+
+    it('unrecognized line: concurrent calls on one parser report independent counts', async () => {
+      const bodies: Record<string, unknown> = {
+        one: { custom: { awards: [award('A', [old])] } },
+        three: { custom: { awards: [award('A', [old, `${old} 2`, `${old} 3`])] } },
+      };
+      const fetcher = (async (u: string) => {
+        const params = new URL(u).searchParams;
+        const key = params.get('competitionKey') ?? params.get('competitionId') ?? '';
+        await new Promise(resolve => { setTimeout(resolve, key === 'one' ? 5 : 1); });
+        return u.includes('loadCompetitionInfo') ? { competition: { competitionId: key } } : { results: bodies[key] };
+      }) as typeof fetchJson;
+      const shared = new BAPParser(fetcher);
+
+      const { messages } = await captureStderr(async () => Promise.all([
+        shared.parseResults('', NO_FILTERS, 'https://beerawardsplatform.com/one/results'),
+        shared.parseResults('', NO_FILTERS, 'https://beerawardsplatform.com/three/results'),
+      ]));
+
+      expect(messages.filter(message => message.includes('no published medals'))).to.have.members([
+        'Competition read, but it has no published medals (1 custom award line was skipped for an unrecognized format; see above)',
+        'Competition read, but it has no published medals (3 custom award lines were skipped for an unrecognized format; see above)',
+      ]);
+    });
+
+    it('reads Collaboration parts after the brewer, before or after the club, and ignores them', async () => {
+      const custom = { awards: [award('Cup', [
+        String.raw`E \ 6B - Rauchbier \ Pat, T, ST, USA \ Collaboration with Lee \ Club: X`,
+        String.raw`F \ 6B - Rauchbier \ Pat, T, ST, USA \ Club: X \ Collaboration with Lee`,
+        String.raw`G \ 6B - Rauchbier \ Pat, T, ST, USA \ Collaboration with Lee`,
+      ])] };
+
+      expect(await run({ custom })).to.deep.equal([
+        'Cup|1st||E|Rauchbier|Pat|X',
+        'Cup|2nd||F|Rauchbier|Pat|X',
+        'Cup|3rd||G|Rauchbier|Pat|',
+      ]);
+    });
+
+    describe('a Best of Show table that BAP also lists as bos or custom', () => {
+      const table = (name: string) => ({ t: { name, positions: { 1: [entry('Winner', 'Pat', 'X')], 2: [entry('Other', 'Lee', 'X')] } } });
+      const winner = entry('Winner', 'Pat', 'X');
+
+      it('emits the medal once, from the table with its count', async () => {
+        const bos = { positions: { 1: [winner] } };
+        const custom = { awards: [award('Best of Show - Beer', [String.raw`Winner \ 1A - Some Style \ Pat, T, ST, USA \ Club: X`])] };
+
+        expect(await run({ bos, miniBos: table('Best of Show 3 Entries') })).to.deep.equal([
+          'Best of Show|1st|3|Winner|Some Style|Pat|X',
+          'Best of Show|2nd|3|Other|Some Style|Lee|X',
+        ]);
+        expect(await run({ custom, miniBos: table('Best of Show - Beer 3 Entries') })).to.deep.equal([
+          'Best of Show - Beer|1st|3|Winner|Some Style|Pat|X',
+          'Best of Show - Beer|2nd|3|Other|Some Style|Lee|X',
+        ]);
+      });
+
+      it('compares repeated rows ignoring case, accents and spacing', async () => {
+        const custom = { awards: [award('BEST OF SHOW - BEER', [String.raw`WÏNNER  \ 1A - SOME STYLE \ PAT, T, ST, USA \ Club: x`])] };
+        expect(await run({ custom, miniBos: table('Best of Show - Beer 3 Entries') })).to.have.length(2);
+      });
+
+      it('keeps rows that differ in place, brewer, club or entry, tied rows, and rows repeating a table not named Best of Show', async () => {
+        const bos = { positions: {
+          1: [winner, entry('Winner', 'Kim', 'X'), entry('Winner', 'Pat', 'Y'), entry('Else', 'Pat', 'X')],
+          2: [winner],
+          3: [entry('New', 'Pat', 'X'), entry('New', 'Pat', 'X')],
+        } };
+
+        expect(await run({ bos, miniBos: table('Best of Show 3 Entries') })).to.deep.equal([
+          'Best of Show|1st|3|Winner|Some Style|Pat|X',
+          'Best of Show|2nd|3|Other|Some Style|Lee|X',
+          'Best of Show|1st||Winner|Some Style|Kim|X',
+          'Best of Show|1st||Winner|Some Style|Pat|Y',
+          'Best of Show|1st||Else|Some Style|Pat|X',
+          'Best of Show|2nd||Winner|Some Style|Pat|X',
+          'Best of Show|3rd||New|Some Style|Pat|X',
+          'Best of Show|3rd||New|Some Style|Pat|X',
+        ]);
+
+        const line = String.raw`Winner \ 1A - Some Style \ Pat, T, ST, USA \ Club: X`;
+        for (const name of ['Cup', 'Mead Best of Show']) {
+          // eslint-disable-next-line no-await-in-loop
+          expect(await run({ custom: { awards: [award(name, [line])] }, miniBos: table(`${name} 3 Entries`) })).to.have.length(3);
+        }
+      });
     });
   });
 });
