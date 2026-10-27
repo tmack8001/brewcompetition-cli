@@ -7,6 +7,7 @@ This document describes how to create and publish releases of Brew Competition C
 - [Prerequisites](#prerequisites)
 - [Pre-Release Checklist](#pre-release-checklist)
 - [Version Numbering](#version-numbering)
+- [Writing changelog entries](#writing-changelog-entries)
 - [Release Steps](#release-steps)
   - [Cutting a release](#cutting-a-release)
   - [If a release goes wrong](#if-a-release-goes-wrong)
@@ -157,6 +158,20 @@ For testing before official release:
 - **Alpha**: `1.0.0-alpha.1` - Early testing
 - **Beta**: `1.0.0-beta.1` - Feature complete, testing
 - **RC**: `1.0.0-rc.1` - Release candidate
+
+## Writing changelog entries
+
+The `[Unreleased]` section becomes the release notes: the Release workflow copies it onto
+the release page. Write for someone deciding whether to upgrade, not for a reviewer.
+
+- One line per change, saying what a user would notice. Put the "why" and the edge cases
+  in the PR, the code comments or `docs/`, and link to them if they matter.
+- Group under `### Added`, `### Changed`, `### Fixed` or `### Removed`. Merge related
+  changes into one entry rather than listing each commit.
+- Lines may be wrapped for your editor: the release notes join them (`changelog.py notes`),
+  so a bullet shows up as one line on the release page.
+- Skip internal-only changes (test refactors, lint fixes) unless they change what
+  contributors have to do.
 
 ## Release Steps
 

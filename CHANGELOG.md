@@ -13,7 +13,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
--
+- Release notes join wrapped changelog lines, so each entry is one line on the release page.
 
 ### Fixed
 
@@ -24,113 +24,28 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
-- A `Release` workflow, dispatched from the GitHub Actions tab, that bumps the
-  version, rolls the changelog, tags, publishes the release page with notes and a
-  tarball, and optionally publishes to npm. Guards against releasing off `main`,
-  releasing an empty changelog, or reusing an existing tag, and takes a
-  `retry_tag` input to finish a release whose second half failed.
-- A `Rollback release` workflow for pulling or neutralising a broken release:
-  demote npm's `latest` tag, deprecate, unpublish (inside npm's 72-hour window),
-  delete the release page, delete the tag. Requires the version typed twice and
-  defaults to a dry run.
+- `Release` and `Rollback release` workflows, run from the GitHub Actions tab. npm publishes are staged behind a protected environment.
 
 ### Changed
 
-- Added `.nvmrc` pinning Node.js 22.23.4 for development and documented that
-  contributors need Node.js 22.22.2 or newer (dev-tooling dependencies require it).
-  The runtime floor (`engines.node`) and the CI matrix are unchanged.
-- Raised the minimum Node.js to 20.18.1 (`engines.node`), the floor required by the
-  dependencies a fresh install resolves (`cheerio` 1.2, `undici` 7). Node 20
-  reached end of life on 2026-04-30, so this is a minor change under the
-  [Runtime Support Policy](docs/RELEASING.md#runtime-support-policy). Node 22 or 24
-  is recommended.
-- CI tests the supported Node.js lines only (22, 24 and 26) on all three operating
-  systems; end-of-life Node 20 is no longer tested. Release and rollback workflows
-  run on Node 24.
-- Platform detection matches `beerawardsplatform.com` and `reggiebeer.com` by
-  domain, not substring, so lookalike hosts are not routed to those parsers and a
-  trailing-dot host is.
-- Replaced `ts-node` (unmaintained; the source of the `--experimental-loader` and
-  `DEP0180` warnings) with `tsx` for the test run and `bin/dev`.
-- Moved linting to ESLint 10 with `eslint-config-oclif` 7 (flat config), which
-  supports current TypeScript; the previous config warned on TypeScript 5.4 and
-  newer. Built with TypeScript 6.
-- Updated dependencies, including `mocha` 12 and `chai` 6. Production dependencies
-  audit clean. `@oclif/*` stays on the current majors because the next ones require
-  Node 22.
-- Regenerated `package-lock.json` and `yarn.lock` against the public npm registry;
-  they previously pointed at an internal mirror, so `npm ci` hung outside it.
+- The minimum Node.js is now 20.18.1, because Node 20 is end of life. Node 22 or 24 is recommended, and CI tests 22, 24 and 26.
+- `--club` and `--brewers` ignore case, diacritics, and apostrophe and dash variants, so `The Bru Club` finds `The Brü Club`. Matching is still whole-name.
+- Platform detection matches `beerawardsplatform.com` and `reggiebeer.com` by domain, not substring.
+- Development tooling: `tsx` replaces `ts-node`, ESLint 10, TypeScript 6, updated dependencies, and `.nvmrc` pins Node 22.23.4. Lockfiles now point at the public npm registry.
 
 ### Removed
 
-- Unused dependencies: `node-persist`, `json2csv`, `node-localstorage`, `shx` and
-  their `@types/*` packages. The build script now clears `dist/` with Node itself.
+- Unused dependencies: `node-persist`, `json2csv`, `node-localstorage` and `shx`.
 
 ### Fixed
 
-- `medals` on a BAP competition dropped Best of Show. The overall Best of Show
-  (`results.bos`, category `Best of Show`) and custom awards such as `Best of Show -
-  Mead & Cider` (`results.custom.awards`, category = the award name) are now emitted
-  with a blank entry count (also when the saved page's Best of Show card shows a
-  count), from the API and from a saved rendered page alike. A 4th Best of Show
-  place is reported as `HM`, as for other tables. A custom award string in an
-  unrecognized format is never guessed at and never fatal when read from the API:
-  the other medals are still returned, the line is reported once on stderr, and a prominent `WARNING`
-  says so when the line names the requested `--club`/`--brewers`. The final "no
-  medals" message counts skipped lines. A table whose name starts with `Best of
-  Show` is no longer skipped; a Best of Show or custom-award row that repeats one
-  of its rows (compared ignoring case, accents and spacing) is dropped. That is
-  fully effective on the API path; on a saved page a table named exactly `Best of
-  Show` is indistinguishable from the overall card. On a saved page a single-line
-  row that contains neither ` \ ` nor ` / Club:` still raises the structure error.
-- `medals` and `competitions` crashed with `The requested module 'cheerio' does not provide an
-  export named 'default'` on a fresh install, because `^1.0.0-rc.12` resolves to
-  cheerio 1.x, which has no default export. The parsers now use the namespace
-  import, which works on both rc.12 and 1.x. `Element` is now typed from `domhandler`,
-  since 1.x no longer re-exports it from cheerio.
-- `competitions` on BCOEM no longer reads the "At a Glance" cards by CSS class.
-  Cards are found by their heading and `Open`/`Close` (or `Start`/`End`) items, so
-  a theme that renames or drops the classes keeps its registration, drop-off and
-  shipping windows. A window that cannot be tied to exactly one heading and one
-  list is left out and the prose is used, as on builds without the cards. A card
-  that carries a second heading of its own is left out the same way.
-- `medals` on a bare BAP competition URL (no trailing slash) printed "No results
-  found in BAP format". The competition key is now read from the parsed URL path,
-  so bare, trailing-slash, `/results`, query-string and fragment forms resolve.
-- A BAP URL with no extractable key, or a key BAP does not know (such as
-  `https://beerawardsplatform.com/competitions`), now reports an error naming it.
-  An API failure the saved-HTML fallback cannot cover is reported as that failure.
-  A competition that was read but has no medals matching the filters says so and
-  still exits 0.
-- `medals` exits non-zero when a competition cannot be read. With a config file, a
-  failing competition no longer stops the others printing, and every failure is
-  reported.
-- The `--club` and `--brewers` filters now ignore diacritics, case, apostrophe and
-  dash variants and repeated whitespace, so `--club "The Bru Club"` finds entries
-  published as "The Brü Club" and vice versa. Matching is still whole-name. A
-  blank filter value matches nothing.
-- The BAP saved-page fallback found no awards on a freshly saved results page
-  because it selected rows by generated class names. It now reads the page by its
-  content: category headings, the `#N` title on each medal, the style line
-  (`6B - Rauchbier`), the brewer line and the `Club:` line. A saved page
-  that is an unrendered app shell or has an unrecognized structure now throws
-  `BapHtmlStructureError` when no URL is given; with a URL the error is swallowed
-  and the result is empty.
-- BAP category names written as "Spiced and Specialty Mead 9 Entries" left
-  `Entry Count` empty and the count in the category name. This form and the older
-  "Porter and Stout (10)" are both read, including "1 Entry".
-- The BCOEM results parser selected tables by the `bcoem-winner-table` class. It now
-  recognises a medal table by its header (Place, Brewer, Entry Name or Name, Style,
-  Club) and names it by the closest heading in front of it, so restyled pages parse
-  the same. A page with no medal table, a table with no heading, or a row that does
-  not match its header now throws `BcoemHtmlStructureError` instead of printing
-  "Table not found" and exiting 0.
-- BCOEM Best of Show tables on newer builds (Bootstrap 5 markup, no
-  `bcoem-winner-table` wrapper) were dropped, along with any Best of Show medal won
-  by the club. They are now included, as they already were on older builds.
-- `--brewers` on a BCOEM page missed entries with a co-brewer, because the cell text
-  "Pat SmithCo-Brewer: Sam Smith" was compared whole. The brewer named before the
-  "Co-Brewer:" line is now what is matched; the output cell is unchanged.
+- BAP: `medals` now includes Best of Show and custom awards such as `Best of Show - Mead & Cider`. An award line it cannot read is skipped with a warning, and the other medals are still returned.
+- A fresh `npm install` no longer crashes on load (`cheerio` has no default export).
+- BAP: bare competition URLs now work, an unknown competition key reports an error, and category names like `Porter and Stout 9 Entries` fill in `Entry Count`.
+- BAP: reading a saved results page no longer depends on generated CSS class names.
+- BCOEM: results parsing no longer depends on CSS class names, and Best of Show tables on newer builds are included. A page with no medal table is now an error instead of empty output.
+- BCOEM: `--brewers` matches entries that have a co-brewer. `competitions` finds the "At a Glance" windows by heading rather than by class.
+- `medals` exits non-zero when a competition cannot be read. With `--file`, one failure no longer stops the others.
 
 
 ## [1.1.0] - 2026-09-13
