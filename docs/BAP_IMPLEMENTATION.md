@@ -126,13 +126,15 @@ change between BAP builds. It reads the page the way a person does:
   category is rejected; ties are allowed.
 - The category is the nearest preceding text block that holds no medal marker
   (the heading, e.g. `Amber Lager 17 Entries` or `Porter and Stout (10)`).
-  Headings containing `Best of Show` are skipped, as in the API path.
+  The overall `Best of Show` card is read like any other table, except that its `Entry Count` is always blank, even if the heading shows a count (the API path has none).
 - Within a row, the paragraphs/headings in document order are: entry name, a style
   line matching `<code> - <style>`, the brewer line (`Name, city, ST, USA`), an
   optional `Collaboration with ...` line and a `Club: X` line. Rows containing
-  `No award...`, and custom-award rows whose only text is one line
-  (`name \ style \ brewer \ Club: X`), are skipped; any other row that collapsed
-  to one line throws.
+  `No award...` are skipped. A row whose only text is one line is a custom award
+  (`name \ style \ brewer \ Club: X`, the club part optional) and is read as such
+  (see Best of Show below). So is a one-line row in the old wording (it contains
+  ` / Club:`), under any heading. Any other one-line row is a damaged row and throws.
+  A custom award's category is its heading without a trailing `N Entries` or `(N)`.
 - A saved page with no medal markers, a row without a style line or a row that
   lost its medal title usually throws `BapHtmlStructureError`. When the API was tried
   first (a URL was given) the error is swallowed and the result is empty.
@@ -193,8 +195,53 @@ This entry count is included as a dedicated column in the output, making it easy
 
 The parser handles all BAP category types:
 - Regular beer/mead/cider categories
-- Best of Show (currently skipped, can be added)
-- Mini-BOS (category-level best of show)
+- Mini-BOS (category-level best of show, `results.miniBos`)
+- Best of Show (`results.bos`)
+- Custom awards (`results.custom.awards`)
+
+### Best of Show
+
+BAP keeps the overall Best of Show outside `miniBos`, in two places of the
+`getResults` response. Both are emitted, by the API path and the saved-HTML path
+alike, with a blank `Entry Count`:
+
+- `results.bos.positions` (`{"1": [entry...], "2": [...], ...}`, same entry shape as
+  `miniBos`) becomes rows in the category `Best of Show`, the heading BAP's own
+  page uses. Places follow the usual mapping, so a 4th place is `HM`.
+- `results.custom.awards` (`[{name, positions: [string, ...]}]`) becomes one row per
+  position, in the category named by the award verbatim (for example
+  `Best of Show - Mead & Cider`); the place is the position's index plus one.
+  A position is one display string, `entry \ M2A - Cyser \ Brewer, City, ST, USA \ Club: X`:
+  the style id is dropped, the brewer is the text before the first comma and the
+  club part may be absent. `No award...` positions give no row (but still use up
+  their place number).
+
+A custom string in any other wording (older competitions used
+`Brewer / Club: X - Entry (style)`) is never guessed at and, on the API path, never
+fatal, so the competition's other medals are always returned. (On a saved page a
+single-line row that contains neither ` \ ` nor ` / Club:` is a damaged row and still
+raises `BapHtmlStructureError`; that is deliberate.) Each distinct unreadable line is
+reported once per run on stderr:
+
+- `Skipping BAP custom award "<name>": unrecognized format ...` for an ordinary line.
+- `WARNING: BAP custom award "<name>" has a line in an unrecognized format that
+  mentions the requested club or brewer; its medal could NOT be read and is missing
+  from this output: ...` when the line names the requested `--club` or `--brewers`
+  (whole words, compared like the filters compare names, so `Brü` equals `Bru` and
+  `ASH` does not match `CASH CIDER`). Check such a competition by hand.
+
+If nothing at all is returned, the final stderr message adds how many lines were
+skipped. The format also accepts `Collaboration with ...` parts after the brewer,
+which are ignored.
+
+The `--club` and `--brewers` filters apply to the rows that are read like any other.
+A table in `miniBos` whose name starts with `Best of Show` is emitted as an
+ordinary table with its entry count. A `bos` or custom-award row that repeats one of
+its rows (same category, place, entry, style, brewer and club, compared ignoring
+case, accents and spacing) is dropped, so a medal listed both ways is counted once;
+tied entries and other rows are kept. This is fully effective on the API path; on
+a saved page a table named exactly `Best of Show` is indistinguishable from the
+overall card.
 
 ## Testing
 
@@ -236,7 +283,6 @@ The parser gracefully handles:
 
 Potential improvements:
 - Parse metadata (competition name, dates, location)
-- Include Best of Show results
 - Extract judge scores
 - Handle collaboration brewers
 - Parse sponsor information
