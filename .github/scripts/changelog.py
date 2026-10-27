@@ -8,7 +8,7 @@ substitution, which is how the tag-triggered release workflow failed on v1.1.0.
 Usage:
     changelog.py check                # fail if [Unreleased] has nothing real
     changelog.py roll <version>       # [Unreleased] -> [<version>] - today
-    changelog.py notes <version>      # print that version's notes to stdout
+    changelog.py notes <version>      # print that version's notes to stdout, reflowed
 """
 
 from __future__ import annotations
@@ -91,6 +91,55 @@ def cmd_roll(version: str) -> None:
     print(f'Rolled [Unreleased] into [{version}] with sections: {", ".join(kept)}')
 
 
+# Lines that always start their own block and never join the line before them.
+BULLET = re.compile(r'^\s*(?:[-*+]|\d+\.)\s')
+OTHER_BLOCK = re.compile(r'^(?:\s*$|#|\s*\||\s*>|\[[^\]]+\]:\s|\s*<)')
+FENCE = re.compile(r'^\s*(?:```|~~~)')
+
+
+def reflow(text: str) -> str:
+    """Join hard-wrapped lines so each bullet or paragraph is one line.
+
+    CHANGELOG.md is wrapped for reading in an editor, but the release page shows the
+    text as written, so a bullet wrapped at 80 columns arrives as a ragged column of
+    short lines. Headings, blank lines, code fences (and what is inside them), tables,
+    block quotes, link references and nested bullets are left as they are; a line
+    ending in two spaces or a backslash keeps its hard break.
+    """
+    out: list[str] = []
+    current: str | None = None
+    in_fence = False
+
+    def flush() -> None:
+        nonlocal current
+        if current is not None:
+            out.append(current)
+            current = None
+
+    for line in text.splitlines():
+        if FENCE.match(line):
+            flush()
+            out.append(line.rstrip())
+            in_fence = not in_fence
+        elif in_fence:
+            out.append(line)
+        elif OTHER_BLOCK.match(line):
+            flush()
+            out.append(line.rstrip())
+        else:
+            hard_break = line.endswith(('  ', '\\'))
+            if BULLET.match(line):
+                flush()
+            # A hard break keeps its trailing marker and ends the line there.
+            piece = line if hard_break else line.rstrip()
+            current = piece if current is None else f'{current} {piece.lstrip()}'
+            if hard_break:
+                flush()
+
+    flush()
+    return '\n'.join(out)
+
+
 def cmd_notes(version: str) -> None:
     text = read()
     start, end = section_bounds(text, version)
@@ -98,7 +147,7 @@ def cmd_notes(version: str) -> None:
 
     # Strip the version heading; the release page supplies its own title.
     body = re.sub(r'^## \[[^\]]+\][^\n]*\n', '', body, count=1)
-    sys.stdout.write(body.strip() + '\n')
+    sys.stdout.write(reflow(body.strip()) + '\n')
 
 
 def main() -> None:
