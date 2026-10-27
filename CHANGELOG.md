@@ -9,6 +9,21 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+-
+
+### Changed
+
+-
+
+### Fixed
+
+-
+
+
+## [1.2.0] - 2026-10-27
+
+### Added
+
 - A `Release` workflow, dispatched from the GitHub Actions tab, that bumps the
   version, rolls the changelog, tags, publishes the release page with notes and a
   tarball, and optionally publishes to npm. Guards against releasing off `main`,
@@ -45,6 +60,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   Node 22.
 - Regenerated `package-lock.json` and `yarn.lock` against the public npm registry;
   they previously pointed at an internal mirror, so `npm ci` hung outside it.
+
+### Removed
+
+- Unused dependencies: `node-persist`, `json2csv`, `node-localstorage`, `shx` and
+  their `@types/*` packages. The build script now clears `dist/` with Node itself.
 
 ### Fixed
 
@@ -111,11 +131,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `--brewers` on a BCOEM page missed entries with a co-brewer, because the cell text
   "Pat SmithCo-Brewer: Sam Smith" was compared whole. The brewer named before the
   "Co-Brewer:" line is now what is matched; the output cell is unchanged.
-
-### Removed
-
-- Unused dependencies: `node-persist`, `json2csv`, `node-localstorage`, `shx` and
-  their `@types/*` packages. The build script now clears `dist/` with Node itself.
 
 
 ## [1.1.0] - 2026-09-13
