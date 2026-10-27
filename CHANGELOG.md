@@ -45,6 +45,21 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- `medals` on a BAP competition dropped Best of Show. The overall Best of Show
+  (`results.bos`, category `Best of Show`) and custom awards such as `Best of Show -
+  Mead & Cider` (`results.custom.awards`, category = the award name) are now emitted
+  with a blank entry count (also when the saved page's Best of Show card shows a
+  count), from the API and from a saved rendered page alike. A 4th Best of Show
+  place is reported as `HM`, as for other tables. A custom award string in an
+  unrecognized format is never guessed at and never fatal when read from the API:
+  the other medals are still returned, the line is reported once on stderr, and a prominent `WARNING`
+  says so when the line names the requested `--club`/`--brewers`. The final "no
+  medals" message counts skipped lines. A table whose name starts with `Best of
+  Show` is no longer skipped; a Best of Show or custom-award row that repeats one
+  of its rows (compared ignoring case, accents and spacing) is dropped. That is
+  fully effective on the API path; on a saved page a table named exactly `Best of
+  Show` is indistinguishable from the overall card. On a saved page a single-line
+  row that contains neither ` \ ` nor ` / Club:` still raises the structure error.
 - `medals` and `competitions` crashed with `The requested module 'cheerio' does not provide an
   export named 'default'` on a fresh install, because `^1.0.0-rc.12` resolves to
   cheerio 1.x, which has no default export. The parsers now use the namespace

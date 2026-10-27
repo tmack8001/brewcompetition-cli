@@ -1,6 +1,6 @@
 import { expect } from 'chai';
 
-import { normalizeForMatch, shouldIncludeEntry } from '../../src/parsers/filters.js';
+import { normalizeForMatch, shouldIncludeEntry, wantedBrewers } from '../../src/parsers/filters.js';
 
 describe('Result filters', () => {
   describe('normalizeForMatch', () => {
@@ -74,6 +74,13 @@ describe('Result filters', () => {
     it('leaves zero-width space and soft hyphen in place (documented limit)', () => {
       expect(normalizeForMatch(u('Br', 0x20_0b, 'u'))).to.equal(u('br', 0x20_0b, 'u'));
       expect(normalizeForMatch(u('Br', 0xad, 'u'))).to.equal(u('br', 0xad, 'u'));
+    });
+  });
+
+  describe('wantedBrewers', () => {
+    it('splits on commas, normalizes each name and drops blank ones', () => {
+      expect(wantedBrewers(' Zoë  Smith , ,Ørjan,')).to.deep.equal(['zoe smith', 'orjan']);
+      expect(wantedBrewers(' , ')).to.deep.equal([]);
     });
   });
 

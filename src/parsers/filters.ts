@@ -39,6 +39,16 @@ export function normalizeForMatch(value: string): string {
 }
 
 /**
+ * The names in a comma-separated --brewers value, as comparison keys (blank names dropped).
+ *
+ * @param brewers the --brewers value
+ * @returns the normalized names
+ */
+export function wantedBrewers(brewers: string): string[] {
+  return brewers.split(',').map(b => normalizeForMatch(b)).filter(Boolean);
+}
+
+/**
  * Shared --brewers / --club filter. An entry passes when its brewer equals one
  * of the comma-separated --brewers names or its club equals --club, compared
  * with normalizeForMatch. Whole-value match, not substring. A filter value that
@@ -55,7 +65,7 @@ export function shouldIncludeEntry(brewer: string, club: string, filters: Result
   }
 
   if (filters.brewers) {
-    const wanted = filters.brewers.split(',').map(b => normalizeForMatch(b)).filter(Boolean);
+    const wanted = wantedBrewers(filters.brewers);
     if (wanted.includes(normalizeForMatch(brewer))) {
       return true;
     }

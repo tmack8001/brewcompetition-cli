@@ -106,6 +106,41 @@
           ]
         }
       }
-    }
+    },
+    "bos": {
+      "positions": {
+        "1": [
+          {
+            "name": "One Bad Apple...",
+            "styleSubcategory": "Cyser",
+            "participant": {
+              "name": "Scott Estlund",
+              "club": "The Brü Club"
+            }
+          }
+        ],
+        "2": [
+          {
+            "name": "Smoke Wagon",
+            "styleSubcategory": "Rauchbier",
+            "participant": {
+              "name": "Taylor Shastid",
+              "club": "Diablo Order of Zymiracle Enthusiasts (DOZE)"
+            }
+          }
+        ],
+        "3": [
+          {
+            "name": "Bigwig IPA",
+            "styleSubcategory": "Specialty IPA",
+            "participant": {
+              "name": "Danny Sack",
+              "club": "Evanston Homebrew Club"
+            }
+          }
+        ]
+      }
+    },
+    "custom": {}
   }
 }
