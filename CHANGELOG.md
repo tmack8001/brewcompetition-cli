@@ -24,160 +24,65 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
-- `Release` and `Rollback release` workflows, run from the GitHub Actions tab. npm publishes are staged behind a protected environment.
+- `Release` and `Rollback release` workflows (GitHub Actions)
 
 ### Changed
 
-- The minimum Node.js is now 20.18.1, because Node 20 is end of life. Node 22 or 24 is recommended, and CI tests 22, 24 and 26.
-- `--club` and `--brewers` ignore case, diacritics, and apostrophe and dash variants, so `The Bru Club` finds `The Brü Club`. Matching is still whole-name.
-- Platform detection matches `beerawardsplatform.com` and `reggiebeer.com` by domain, not substring.
-- Development tooling: `tsx` replaces `ts-node`, ESLint 10, TypeScript 6, updated dependencies, and `.nvmrc` pins Node 22.23.4. Lockfiles now point at the public npm registry.
+- Minimum Node.js is now 20.18.1 (Node 20 is end of life); CI tests Node 22, 24 and 26
+- `--club` and `--brewers` ignore case and diacritics, so `The Bru Club` finds `The Brü Club`
+- Platform detection matches `beerawardsplatform.com` and `reggiebeer.com` by domain, not substring
+- Dev tooling: `tsx` replaces `ts-node`, ESLint 10, TypeScript 6, updated dependencies
 
 ### Removed
 
-- Unused dependencies: `node-persist`, `json2csv`, `node-localstorage` and `shx`.
+- Unused dependencies: `node-persist`, `json2csv`, `node-localstorage`, `shx`
 
 ### Fixed
 
-- BAP: `medals` now includes Best of Show and custom awards such as `Best of Show - Mead & Cider`. An award line it cannot read is skipped with a warning, and the other medals are still returned.
-- A fresh `npm install` no longer crashes on load (`cheerio` has no default export).
-- BAP: bare competition URLs now work, an unknown competition key reports an error, and category names like `Porter and Stout 9 Entries` fill in `Entry Count`.
-- BAP: reading a saved results page no longer depends on generated CSS class names.
-- BCOEM: results parsing no longer depends on CSS class names, and Best of Show tables on newer builds are included. A page with no medal table is now an error instead of empty output.
-- BCOEM: `--brewers` matches entries that have a co-brewer. `competitions` finds the "At a Glance" windows by heading rather than by class.
-- `medals` exits non-zero when a competition cannot be read. With `--file`, one failure no longer stops the others.
+- BAP: `medals` now includes Best of Show and custom awards such as `Best of Show - Mead & Cider`
+- BAP: an award line that cannot be read is skipped with a warning instead of failing the run
+- BAP: bare competition URLs work, and `N Entries` in a category name fills in `Entry Count`
+- BCOEM: results parsing no longer depends on CSS class names; Best of Show tables on newer builds are included
+- BCOEM: `--brewers` matches entries that have a co-brewer
+- A fresh `npm install` no longer crashes on load (`cheerio` has no default export)
+- `medals` exits non-zero when a competition cannot be read
 
 
 ## [1.1.0] - 2026-09-13
 
 ### Added
 
-- Automatic browser impersonation fallback for competition sites behind bot
-  protection (Cloudflare, Hostinger CDN). Requests that come back as a
-  "Just a moment..." / "Enable JavaScript and cookies" interstitial are
-  retried with a Chrome, then Firefox, TLS fingerprint via `impit`.
-- `BotChallengeError` with the list of attempted strategies, so a site that
-  genuinely cannot be reached reports why instead of failing to parse.
+- Retry with browser impersonation (Chrome, then Firefox) for sites behind bot protection such as Cloudflare
+- `BotChallengeError` listing the strategies tried when a site cannot be reached
 
 ### Changed
 
-- A platform whose metadata parsing is not implemented now reports that, instead of
-  reporting that the competition published no metadata. Trying a second URL on the
-  same site cannot help, so it is fatal rather than a candidate failure.
-- `competitions` now tries `?section=entry` when the given URL publishes no
-  metadata, and reports plainly when a competition publishes none at all
-  (BCOEM gates the entry-info page behind a login once the windows close).
-- BCOEM metadata resolution now matches on `<h2>` headings first and falls back
-  to the original named anchors, which are derived from translated labels and so
-  differ on non-English installs. The section prose is kept as the readable value
-  - it carries the drop-off locations and shipping address that the dates alone do
-  not - while the "At a Glance" cards supply the timestamps.
-- Minimum supported Node.js version raised from 18 to 20 (`impit` requires
-  Node 20+). Released as a minor version rather than a major one: Node 18 reached
-  end of life on 2025-04-30, so it receives no security patches and nobody should
-  be running the CLI on it. See the Runtime Support Policy in `docs/RELEASING.md`.
-- Upgraded `mocha` from v10 to v11. mocha 10 pulls `yargs` 16, which cannot be
-  loaded on Node 22.12+ and prevented the test suite from starting.
-- HTTP requests in `medals`, `competitions`, and the BAP API client now go
-  through the shared `fetchHtml`/`fetchJson` helpers instead of calling
-  `axios` directly.
+- Minimum Node.js is now 20 (Node 18 is end of life)
+- `competitions` tries `?section=entry` when the URL has no metadata, and says so when a competition publishes none
+- BCOEM metadata is found by `<h2>` heading first, then the original anchors
+- Requests go through the shared `fetchHtml` / `fetchJson` helpers
+- Upgraded `mocha` to v11 (v10 could not start on Node 22.12+)
 
 ### Removed
 
-- `src/bcoem.ts`, the pre-refactor BCOEM implementation. It was superseded by
-  `src/parsers/bcoem-parser.ts` when multi-platform support landed and has been
-  unreferenced since: nothing imported it, its `parseResults(html, tableSelector,
-  filters)` signature predates the `CompetitionParser` interface, and removing it
-  leaves the build, the full suite and all three platforms working. It still
-  carried three date-handling bugs fixed in this release, next to the corrected code and
-  under a near-identical name, which made it a hazard rather than the reference
-  implementation it was kept as.
+- `src/bcoem.ts`, the unused pre-refactor BCOEM implementation
 
 ### Fixed
 
-- A bot-protection retry is no longer the answer to every failure. A 404, a 500,
-  a DNS failure and a refused connection are reported as themselves; only a
-  response that actually looks like an interstitial triggers impersonation, and a
-  bare refusal that survives every strategy is reported as its status rather than
-  as a browser problem.
-- `fetchJson` no longer returns a non-JSON body typed as its caller's payload.
-  axios hands back the raw string rather than throwing, so an HTML error page was
-  reaching the BAP parser as though it were the API response.
-- Requests now carry a timeout on the direct attempt as well as the impersonated
-  one, so a hanging server can no longer stall the CLI indefinitely.
-- A missing `impit` native binary now reports one actionable line instead of
-  embedding the loader's multi-paragraph dump in the error twice.
-- A `|` in competition text no longer desynchronises the output row from its
-  header. These fields are admin free-text and nothing upstream prevents one.
-- Dates are emitted as ISO-8601 rather than `Date.prototype.toString()`, which
-  rendered in the host machine's timezone and in no parseable format.
-- All of BCOEM's date renderings are now read, not just the US default. Date
-  order, 12- versus 24-hour time and the long/short forms are each independently
-  configurable, so a non-English install previously yielded empty date columns for
-  every window. Numeric date order is inferred from the page.
-- An unrecognised timezone abbreviation now yields no date instead of the host
-  machine's zone. A Sydney competition in summer was read 15 hours out. The
-  abbreviation table is derived from upstream's own zone list rather than
-  hand-maintained in two places that had already diverged.
-- A window stating only its closing date no longer reports that date as the
-  window's start. This covers the sentences an *open* competition renders, where
-  BCOEM replaces the opening timestamp with the words "today" or "now" and the
-  only date present is the deadline.
-- The bottle requirement is no longer satisfied by prose that happens to end in a
-  clock, such as "Ship bottles to arrive by 9/16 at 5:00".
-- An admin-authored heading in the rules blurb can no longer outrank the real
-  section it resembles.
-- A standard timezone abbreviation now resolves to a zone that never leaves it, so
-  an Arizona or Saskatchewan competition is no longer an hour out every summer.
-- The short numeric timezone stamp PHP emits for zones without a lettered
-  abbreviation (`-03`, `+08`, `+07` and others, covering 13 of the 46 zones BCOEM
-  supports) is now accepted; previously every date on such a page was dropped.
-- A rate-limited or transient response from one browser profile no longer stops
-  the other from being tried.
-- A connection reset now retries with a browser fingerprint instead of giving up.
-  Some WAFs reject an unrecognised TLS fingerprint by destroying the socket rather
-  than answering with a status, so a reset is a plausible fingerprint problem. DNS
-  failures and refused connections are still reported as themselves.
-- A failure that never reached an HTTP status is no longer reported as "status
-  code 0".
-- A line break in competition text becomes a space rather than gluing two lines
-  together, so a venue no longer runs into its own street address.
-- The readable window column is rendered in the competition's own offset for the
-  19 zones BCOEM supports that have no lettered abbreviation. A fixed offset is
-  not a moment-timezone zone, so these were silently rendered in the machine's own
-  zone - rolling the clock and sometimes the date - with a warning on stderr.
-- The awards ceremony is read as a moment rather than a window, so a cue word in
-  the venue name or address no longer moves it into the closing column. Real
-  venues supply them: "Deadline Brewing Parlor", "Brewery by the Bay".
-- The bottle requirement is no longer taken from another section's prose. Only the
-  explicitly labelled form is searched for page-wide; the looser shape is confined
-  to the Entry Acceptance Rules section.
-- Impersonated retries carry a shorter timeout, so a host that accepts a
-  connection and never answers costs 50s rather than 90s per page.
-- A window rendered without any wrapping element - which the public page does for
-  judge-and-steward-only registration - is no longer skipped, and stays one
-  sentence across its own inline markup so the "through" cue is not stranded from
-  the date it governs.
-- `competitions` no longer gives up when the first candidate URL fails to fetch,
-  which is precisely the case the second candidate exists to cover.
-- `competitions` no longer aborts a whole page when one section states no dates.
-  A closed competition renders "Registration is closed." with no window, which
-  previously threw `No date ranges found` and lost every other field.
-- BCOEM metadata is now found on newer "landing page" builds, which state each
-  window in an "At a Glance" card grid and emit duplicate anchors that cannot
-  distinguish drop-off from shipping from awards.
-- Section paragraphs no longer leak across headings. A short section used to
-  absorb the following section's text, so volunteer registration could report
-  the entry-registration window.
-- Midnight is no longer read as midday. `12:00 AM` was parsed with a 24-hour
-  format, putting every window that opens at midnight twelve hours late.
-- Both dates of a window are now read. The regex required the trailing full stop
-  that only terminates the closing date, so opening dates were dropped.
-- Drop-off is found when a competition has a single location, where BCOEM labels
-  the section `Entry Delivery` rather than `Drop-Off Locations`.
-- The bottle requirement is found even when its heading is not rendered, which
-  BCOEM does once the drop-off and shipping windows have closed.
-- Standard-time zones (EST, CST, MST, PST) are recognised alongside daylight ones.
+- Only a real bot challenge triggers impersonation; 404s, 500s, DNS failures and refused connections are reported as themselves
+- Requests time out instead of hanging, and a connection reset retries with a browser fingerprint
+- `fetchJson` no longer passes a non-JSON body through as the payload
+- `|` in competition text no longer shifts the output columns, and dates are ISO-8601
+- BCOEM dates: all date and time formats are read (non-English installs gave empty dates)
+- BCOEM dates: `12:00 AM` is no longer read as midday, and both ends of a window are read
+- BCOEM time zones: an unknown abbreviation yields no date instead of the host zone
+- BCOEM time zones: standard abbreviations (EST, CST, MST, PST) no longer shift in summer, and `-03`-style stamps are accepted
+- BCOEM: the awards ceremony is read as a moment, so words like "Deadline" in a venue name do not move it
+- BCOEM: the bottle requirement is read only from its own labelled text
+- BCOEM: metadata is found on newer "landing page" builds and when a heading is not rendered
+- BCOEM: a section no longer picks up text from the next one
+- `competitions` no longer gives up when the first URL fails or one section has no dates
+- A missing `impit` binary reports one clear line
 
 
 ## [1.0.1] - 2026-01-16
