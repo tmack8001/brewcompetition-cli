@@ -34,6 +34,10 @@ jobs:
     
     - name: Run linter
       run: npm run lint
+
+    - name: Test release scripts
+      if: runner.os == 'Linux'
+      run: python3 -m unittest discover -s .github/scripts
     
     - name: Run tests
       run: npm test
