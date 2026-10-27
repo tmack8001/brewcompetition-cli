@@ -16,6 +16,8 @@ function fixture(name: string): string {
  * of counting pipes.
  *
  * @param result the parsed metadata
+ * @param result.data the pipe-delimited row
+ * @param result.header the pipe-delimited header
  * @returns column name to value
  */
 function asRecord(result: { data: string; header: string }): Record<string, string> {

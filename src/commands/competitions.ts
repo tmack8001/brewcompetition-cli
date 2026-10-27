@@ -143,6 +143,8 @@ const INCIDENTAL_COLUMNS = new Set(['num_required']);
  * next candidate page rather than printing a row of empty columns.
  *
  * @param result the parsed metadata
+ * @param result.data the pipe-delimited row
+ * @param result.header the pipe-delimited header
  * @returns `true` when at least one substantive field has a value
  */
 function hasMetadata(result: { data: string; header: string }): boolean {
@@ -161,6 +163,7 @@ function hasMetadata(result: { data: string; header: string }): boolean {
  * the user nothing was published and dropping the value.
  *
  * @param result the parsed metadata
+ * @param result.data the pipe-delimited row
  * @returns `true` when any field has a value
  */
 function hasAnyField(result: { data: string }): boolean {
