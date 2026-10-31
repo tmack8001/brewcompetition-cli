@@ -22,6 +22,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [1.2.0] - 2026-10-27
 
+Fixes missing Best of Show results on BAP, makes club and brewer matching ignore case and diacritics, and adds release and rollback workflows.
+
 ### Added
 
 - `Release` and `Rollback release` workflows (GitHub Actions)
@@ -49,6 +51,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 
 ## [1.1.0] - 2026-09-13
+
+Makes the CLI work against competition sites behind bot protection, and fixes a long list of BCOEM date and metadata parsing problems.
 
 ### Added
 
