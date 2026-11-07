@@ -78,6 +78,7 @@ To add support for a new platform:
 - **Data Source**: Competition results pages with embedded JSON data
 - **Metadata Support**: Planned for future release
 - **Known Limitations**: Metadata parsing not yet implemented
+- **Notes**: Reggie publishes some names double-encoded (UTF-8 read as Windows-1252, e.g. `â€œ` for `“`); the parser repairs these (`src/parsers/mojibake.ts`). A medal with no brew name is emitted with an empty `Brew Name`. The "Heavy Medal" points summaries (MedalType 2 and 3) are not medals and are skipped
 
 ### BAP (Beer Awards Platform)
 - **Parsing Method**: API-based data fetching

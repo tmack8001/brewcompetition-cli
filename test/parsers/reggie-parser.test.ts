@@ -390,4 +390,108 @@ var aaReggieMedals=[
       expect(rowsOf(await parser.parseResults(html, brü))).to.have.length(1);
     });
   });
+
+  describe('Typographic quotes published as mojibake', () => {
+    const load = (name: string): string => fs.readFileSync(path.join(process.cwd(), 'test/resources/results', name), 'utf8');
+    const scott = 'Randall \u201CScott\u201D Gordon';
+
+    it('fixture really holds the double-encoded name (not the repaired one)', () => {
+      expect(load('reggie_trimmed_2024_hot_n_humid.html')).to.include('Randall \u00E2\u20AC\u0153Scott\u00E2\u20AC\u009D Gordon');
+    });
+
+    it('restores the curly quotes of a brewer name (Hot N Humid 2024)', async () => {
+      const result = await parser.parseResults(load('reggie_trimmed_2024_hot_n_humid.html'), { brewers: undefined, club: 'The Bru Club' });
+
+      expect(rowsOf(result)).to.include(`Spiced Beer|2nd|12|${scott}|30A: Spice/Herb/Vegetable Beer|Midnight Mocha|The Bru Club`);
+      expect(result?.data).to.not.match(/[\u00C2\u00E2][\u0080-\u00BF\u20AC]/);
+    });
+
+    it('restores the quotes in every row of Ozarks Open Season 2024', async () => {
+      const result = await parser.parseResults(load('reggie_trimmed_2024_ozark_open_season.html'), { brewers: undefined, club: 'The Bru Club' });
+
+      expect(rowsOf(result).filter(row => cell(row, 3) === scott)).to.have.length(2);
+    });
+
+    it('matches --brewers written with the real quotes', async () => {
+      const result = await parser.parseResults(load('reggie_trimmed_2024_hot_n_humid.html'), { brewers: scott, club: undefined });
+
+      expect(rowsOf(result)).to.have.length(1);
+      expect(cell(rowsOf(result)[0], 3)).to.equal(scott);
+    });
+
+    it('keeps every row splitting into seven pipe-delimited fields', async () => {
+      const result = await parser.parseResults(load('reggie_trimmed_2024_hot_n_humid.html'), { brewers: undefined, club: undefined });
+
+      for (const row of rowsOf(result)) expect(row.split('|')).to.have.length(7);
+    });
+
+    it('repairs the HTML table fallback as well, including the category used for the entry count', async () => {
+      const html = `<table><tbody>
+        <tr><td class="GroupHeader" colspan="5">Fruit/ Spice \u00E2\u20AC\u0153Mix\u00E2\u20AC\u009D (10 entries)</td></tr>
+        <tr><td>Randall \u00E2\u20AC\u0153Scott\u00E2\u20AC\u009D Gordon</td><td>3rd</td><td>30A: Spice</td><td>Midnight Mocha</td><td>The Bru Club</td></tr>
+      </tbody></table>`;
+      const result = await parser.parseResults(html, { brewers: undefined, club: undefined });
+
+      expect(rowsOf(result)).to.deep.equal([`Fruit/ Spice \u201CMix\u201D|3rd|10|${scott}|30A: Spice|Midnight Mocha|The Bru Club`]);
+    });
+
+    it('keeps the entry count of a category whose name needed repair (JavaScript data)', async () => {
+      const html = `var saReggieGroups=[ ["Caf\u00C3\u00A9 Beer","","",9,[]] ];
+var aaReggieMedals=[
+["1","0","1","Pat Doe","Caf\u00C3\u00A9 Beer","1A: Cafe","Brew","The Bru Club (Fresno, CA)"]
+];`;
+      const result = await parser.parseResults(html, { brewers: undefined, club: undefined });
+
+      expect(rowsOf(result)).to.deep.equal(['Caf\u00E9 Beer|1st|9|Pat Doe|1A: Cafe|Brew|The Bru Club']);
+    });
+
+    it('repairs a double-encoded brew name and club in both the HTML table and the JavaScript data', async () => {
+      const bruClub = 'The Br\u00C3\u00BC Club';
+      const table = `<table><tbody>
+        <tr><td class="GroupHeader" colspan="5">Stout (4 entries)</td></tr>
+        <tr><td>Pat Doe</td><td>1st</td><td>16A: Sweet Stout</td><td>Motor Boatin\u00E2\u20AC\u2122</td><td>${bruClub}</td></tr>
+      </tbody></table>`;
+      const script = `var saReggieGroups=[ ["Stout","","",4,[]] ];
+var aaReggieMedals=[
+["1","0","1","Pat Doe","Stout","16A: Sweet Stout","Motor Boatin\u00E2\u20AC\u2122","${bruClub} (Fresno, CA)"]
+];`;
+
+      for (const html of [table, script]) {
+        // eslint-disable-next-line no-await-in-loop
+        const result = await parser.parseResults(html, { brewers: undefined, club: 'The Br\u00FC Club' });
+
+        expect(rowsOf(result)).to.deep.equal(['Stout|1st|4|Pat Doe|16A: Sweet Stout|Motor Boatin\u2019|The Br\u00FC Club']);
+      }
+    });
+  });
+
+  describe('Fields found by mutation testing', () => {
+    const none = { brewers: undefined, club: undefined };
+
+    it('emits a medal whose ShowLabel is empty and skips one with no brewer (JavaScript data)', async () => {
+      const html = `var saReggieGroups=[ ["Stout","","",4,[]] ];
+var aaReggieMedals=[
+["1","0","","Pat Doe","Stout","16A: Sweet Stout","Milk Run","The Bru Club"]
+,["2","0","1","","Stout","16A: Sweet Stout","Ghost","The Bru Club"]
+];`;
+
+      expect(rowsOf(await parser.parseResults(html, none))).to.deep.equal(['Stout|1st|4|Pat Doe|16A: Sweet Stout|Milk Run|The Bru Club']);
+    });
+
+    it('repairs a double-encoded style in the JavaScript data and in the HTML table', async () => {
+      const style = '16A: Sweet Stout \u00E2\u20AC\u201C Caf\u00C3\u00A9';
+      const expected = ['Stout|1st|4|Pat Doe|16A: Sweet Stout \u2013 Caf\u00E9|Milk Run|The Bru Club'];
+      const script = `var saReggieGroups=[ ["Stout","","",4,[]] ];
+var aaReggieMedals=[
+["1","0","1","Pat Doe","Stout","${style}","Milk Run","The Bru Club"]
+];`;
+      const table = `<table><tbody>
+        <tr><td class="GroupHeader" colspan="5">Stout (4 entries)</td></tr>
+        <tr><td>Pat Doe</td><td>1st</td><td>${style}</td><td>Milk Run</td><td>The Bru Club</td></tr>
+      </tbody></table>`;
+
+      expect(rowsOf(await parser.parseResults(script, none))).to.deep.equal(expected);
+      expect(rowsOf(await parser.parseResults(table, none))).to.deep.equal(expected);
+    });
+  });
 });
