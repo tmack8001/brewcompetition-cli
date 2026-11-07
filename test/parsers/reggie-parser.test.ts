@@ -276,4 +276,118 @@ describe('Reggie Parser', () => {
       expect(rowsOf(result)).to.deep.equal(expected);
     });
   });
+
+  describe('Heavy Medal summary rows are not medals', () => {
+    const none = { brewers: undefined, club: undefined };
+    const load = (name: string): string => fs.readFileSync(path.join(process.cwd(), 'test/resources/results', name), 'utf8');
+    const script = `var saReggieGroups=[ ["Stout","","",4,[]],["Heavy Medal - Brewer","","",0,[]],["Heavy Medal - Club","","",0,[]] ];
+var aaReggieMedals=[
+["1","0","1","Bill Edwards","Stout","16A: Sweet Stout","Milk Run","Hogtown Brewers (Gainesville, FL)"]
+,["1","2","0","Bill Edwards","Heavy Medal - Brewer","3 medals:  1st:2 2nd:1","Total points: 8","","","6294","","",""]
+,["2","2","0","Max Furth","Heavy Medal - Brewer","2 medals:  1st:2","Total points: 6","","","9533","","",""]
+,["1","3","0","The Bru Club (Fresno, CA)","Heavy Medal - Club","14 medals:  1st:6 2nd:4 3rd:4","Total points: 30","","","0","","",""]
+];`;
+
+    it('emits only the medal, unfiltered', async () => {
+      expect(rowsOf(await parser.parseResults(script, none))).to.deep.equal(['Stout|1st|4|Bill Edwards|16A: Sweet Stout|Milk Run|Hogtown Brewers']);
+    });
+
+    it('emits only the medal for --brewers "Bill Edwards" and for the club row\'s club', async () => {
+      const expected = ['Stout|1st|4|Bill Edwards|16A: Sweet Stout|Milk Run|Hogtown Brewers'];
+
+      expect(rowsOf(await parser.parseResults(script, { brewers: 'Bill Edwards', club: undefined }))).to.deep.equal(expected);
+      expect(await parser.parseResults(script, { brewers: undefined, club: 'The Bru Club' })).to.equal(undefined);
+    });
+
+    it('still emits Best of Show (type 1) rows and drops the summaries in the trimmed Hot N Humid fixture', async () => {
+      const result = await parser.parseResults(load('reggie_trimmed_2024_hot_n_humid.html'), none);
+
+      expect(rowsOf(result)).to.have.length(11);
+      expect(rowsOf(result)).to.include('Best Of Show - Beer|HM|0|Dick Wallace|6B: Rauchbier|Aint no hollaRauch girl aint no hollaRauch|The Bru Club');
+      expect(result?.data).to.not.include('Heavy Medal');
+      expect(result?.data).to.not.include('Total points');
+    });
+
+    it('counts exactly the medals of the existing full-page fixtures (JavaScript data and HTML table)', async () => {
+      for (const name of ['reggie_results_raw.html', 'reggie_results.html']) {
+        // eslint-disable-next-line no-await-in-loop
+        const result = await parser.parseResults(load(name), none);
+
+        expect(rowsOf(result), name).to.have.length(103);
+        expect(result?.data, name).to.not.include('Heavy Medal');
+      }
+
+      expect(rowsOf(await parser.parseResults(noScript(load('reggie_results.html')), none))).to.have.length(103);
+    });
+
+    it('skips a Heavy Medal table in the rendered HTML', async () => {
+      const html = `<table><tbody>
+        <tr><td class="GroupHeader" colspan="5">Stout (4 entries)</td></tr>
+        <tr><td>Bill Edwards</td><td>1st</td><td>16A: Sweet Stout</td><td>Milk Run</td><td>Hogtown Brewers</td></tr>
+        <tr><td class="GroupHeader" colspan="5">Heavy Medal - Brewer</td></tr>
+        <tr><td>Bill Edwards</td><td>1st</td><td>3 medals: 1st:2 2nd:1</td><td>Total points: 8</td><td>Hogtown Brewers</td></tr>
+      </tbody></table>`;
+
+      expect(rowsOf(await parser.parseResults(html, none))).to.deep.equal(['Stout|1st|4|Bill Edwards|16A: Sweet Stout|Milk Run|Hogtown Brewers']);
+    });
+  });
+
+  describe('Entries published without a brew name', () => {
+    const brü = { brewers: undefined, club: 'The Bru Club' };
+    const load = (name: string): string => fs.readFileSync(path.join(process.cwd(), 'test/resources/results', name), 'utf8');
+
+    it('emits a blank-named medal with an empty Brew Name (Hot N Humid 2024)', async () => {
+      const result = await parser.parseResults(load('reggie_trimmed_2024_hot_n_humid.html'), brü);
+      const row = rowsOf(result).find(line => cell(line, 3) === 'Ken Johnson');
+
+      expect(row).to.equal('Czech Lager|2nd|3|Ken Johnson|3A: Czech Pale Lager||The Bru Club');
+    });
+
+    it('emits both blank-named medals of Ozarks Open Season 2024', async () => {
+      const result = await parser.parseResults(load('reggie_trimmed_2024_ozark_open_season.html'), brü);
+      const rows = rowsOf(result);
+
+      expect(rows).to.include('American Pale Ale|3rd|4|Kurt LaPak|18B: American Pale Ale||The Bru Club');
+      expect(rows).to.include('Amber Waves of Grain|3rd|5|Alex Zwerdling|19A: American Amber Ale||The Bru Club');
+    });
+
+    it('emits every medal of the page when unfiltered, blank-named ones included', async () => {
+      const html = load('reggie_trimmed_2024_hot_n_humid.html');
+      const result = await parser.parseResults(html, { brewers: undefined, club: undefined });
+
+      expect(rowsOf(result)).to.have.length(html.match(/^,?\["\d+","[01]",/gm)?.length ?? -1);
+      expect(rowsOf(result).filter(row => cell(row, 5) === '')).to.have.length(2);
+    });
+
+    it('keeps the seven columns of a blank-named row (the empty cell is not dropped)', async () => {
+      const result = await parser.parseResults(load('reggie_trimmed_2024_ozark_open_season.html'), brü);
+
+      for (const row of rowsOf(result)) expect(row.split('|')).to.have.length(7);
+    });
+
+    it('emits a blank-named medal from the HTML table fallback too', async () => {
+      const html = `<table><tbody>
+        <tr><td class="GroupHeader" colspan="5">Czech Lager (3 entries)</td></tr>
+        <tr><td>Ken Johnson</td><td>2nd</td><td>3A: Czech Pale Lager</td><td></td><td>The Bru Club</td></tr>
+      </tbody></table>`;
+      const result = await parser.parseResults(html, brü);
+
+      expect(rowsOf(result)).to.deep.equal(['Czech Lager|2nd|3|Ken Johnson|3A: Czech Pale Lager||The Bru Club']);
+    });
+
+    it('emits a medal whose club is blank when unfiltered, and filters it out by club', async () => {
+      const html = `var saReggieGroups=[ ["Stout","","",4,[]] ];
+var aaReggieMedals=[
+["1","0","1","Pat Doe","Stout","16A: Sweet Stout","Milk Run",""]
+,["2","0","1","Sam Roe","Stout","16A: Sweet Stout","","The Bru Club (Fresno, CA)"]
+];`;
+      const all = await parser.parseResults(html, { brewers: undefined, club: undefined });
+
+      expect(rowsOf(all)).to.deep.equal([
+        'Stout|1st|4|Pat Doe|16A: Sweet Stout|Milk Run|',
+        'Stout|2nd|4|Sam Roe|16A: Sweet Stout||The Bru Club'
+      ]);
+      expect(rowsOf(await parser.parseResults(html, brü))).to.have.length(1);
+    });
+  });
 });

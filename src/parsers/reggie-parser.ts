@@ -103,6 +103,7 @@ export class ReggieParser implements CompetitionParser {
     const data: string[][] = [];
     let currentCategory = '';
     let currentEntryCount = '';
+    let inHeavyMedals = false;
 
     // Reggie renders results in tbody with GroupHeader rows followed by data rows
     $('tbody tr').each((_index, row) => {
@@ -115,6 +116,8 @@ export class ReggieParser implements CompetitionParser {
         const extracted = this.extractCategoryAndEntryCount(categoryRaw);
         currentCategory = extracted.category;
         currentEntryCount = extracted.entryCount;
+        // The Heavy Medal tables are points summaries, not medals
+        inHeavyMedals = /^heavy medal\b/i.test(currentCategory);
         return;
       }
 
@@ -122,6 +125,8 @@ export class ReggieParser implements CompetitionParser {
       if ($row.find('th').length > 0) {
         return;
       }
+
+      if (inHeavyMedals) return;
 
       const cells = $row.find('td');
       if (cells.length < 5) return;
@@ -173,7 +178,11 @@ export class ReggieParser implements CompetitionParser {
 
       // Parse each medal entry using regex to extract the string values
       // Format: ["Place","Type","ShowLabel","BrewerName","Group","Style","BeerName","Club",...]
-      const medalRegex = /\["(\d+)","(\d+)","([^"]+)","([^"]+)","([^"]+)","([^"]+)","([^"]+)","([^"]+)"/g;
+      // MedalType 0 is a medal and 1 a Best of Show medal; 2 and 3 are the "Heavy Medal" points summaries
+      // (brewer and club), which are not medals and carry no brew name or club.
+      // Entries are published without a brew name (and, for unaffiliated brewers, without a club), so those two
+      // may be empty; an entry with no brew name is still a medal.
+      const medalRegex = /\["(\d+)","([01])","([^"]*)","([^"]+)","([^"]+)","([^"]+)","([^"]*)","([^"]*)"/g;
 
       let match;
       while ((match = medalRegex.exec(medalsData)) !== null) {
