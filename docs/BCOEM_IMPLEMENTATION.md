@@ -247,7 +247,7 @@ Registration opens...|2025-03-01T00:00:00.000Z|2025-03-15T23:59:59.000Z|...
 The parser supports filtering by:
 
 1. **Brewer Name**: Comma-separated list of exact matches
-2. **Club Name**: Exact match (case-sensitive)
+2. **Club Name**: Whole-name match ignoring case and accents; a field listing several clubs (` / `, `;` or `,`) matches when any one of them equals the filter (see `src/parsers/filters.ts`)
 3. **Both**: Results matching either condition
 
 ```typescript

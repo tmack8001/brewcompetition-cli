@@ -102,7 +102,7 @@ brewcompetition medals <url> [options]
 
 **Options:**
 - `-b, --brewers <names>` - Filter by specific brewer names (comma-separated)
-- `-c, --club <name>` - Filter by club name
+- `-c, --club <name>` - Filter by club name: the whole name, ignoring case and accents. A field that lists several clubs (`The Brü Club / Little Mountain Brewers`; separators ` / `, `;` and `,`) matches when any one of them equals the name (so a name that itself contains a comma, such as `Brewers, Inc.`, can also match a filter equal to just one part, `Brewers`)
 - `-o, --output <format>` - Output format: `json` (default) or `csv`
 - `-f, --file <path>` - Use a config file for batch processing
 - `-h, --help` - Show help

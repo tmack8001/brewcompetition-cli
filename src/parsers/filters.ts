@@ -49,9 +49,29 @@ export function wantedBrewers(brewers: string): string[] {
 }
 
 /**
+ * Separators between the several names a brewer or club field can list: " / " (BAP's "The Brü Club / Little
+ * Mountain Brewers"), ";" and ",". A bare "/" inside a word is not one, so "AC/DC Brewers" stays whole.
+ */
+const FIELD_SEPARATOR = /\s+\/\s+|\s*[,;]\s*/;
+
+/**
+ * The comparison keys an entry's brewer or club field can be matched by: the whole value, and each name when the
+ * field lists several (split on " / ", ";" or ","). Blank keys are dropped.
+ *
+ * @param field the brewer or club as published
+ * @returns the normalized whole value followed by the normalized parts
+ */
+export function fieldKeys(field: string): string[] {
+  return [...new Set([field, ...field.split(FIELD_SEPARATOR)].map(part => normalizeForMatch(part)).filter(Boolean))];
+}
+
+/**
  * Shared --brewers / --club filter. An entry passes when its brewer equals one
  * of the comma-separated --brewers names or its club equals --club, compared
- * with normalizeForMatch. Whole-value match, not substring. A filter value that
+ * with normalizeForMatch. Whole-value match, not substring: when the entry's
+ * brewer or club field lists several names ("The Brü Club / Little Mountain
+ * Brewers"), the filter must equal the whole field or one complete name in it
+ * (see fieldKeys), so "ASH" does not match "CASH CIDER". A filter value that
  * is blank once normalized matches nothing (it does not widen the result).
  *
  * @param brewer the entry's brewer
@@ -66,14 +86,14 @@ export function shouldIncludeEntry(brewer: string, club: string, filters: Result
 
   if (filters.brewers) {
     const wanted = wantedBrewers(filters.brewers);
-    if (wanted.includes(normalizeForMatch(brewer))) {
+    if (fieldKeys(brewer).some(key => wanted.includes(key))) {
       return true;
     }
   }
 
   if (filters.club) {
     const wanted = normalizeForMatch(filters.club);
-    if (wanted !== '' && wanted === normalizeForMatch(club)) {
+    if (wanted !== '' && fieldKeys(club).includes(wanted)) {
       return true;
     }
   }

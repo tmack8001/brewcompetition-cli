@@ -18,6 +18,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 
 - Reggie: a medal published without a brew name (or without a club) is no longer dropped; it is emitted with an empty `Brew Name`. The "Heavy Medal" points summaries (brewer and club) are not medals and are never emitted
+- `--club` (and `--brewers`) now match any one name in a multi-club field such as BAP's `The Brü Club / Little Mountain Brewers` (separators ` / `, `;` and `,`); the match is still whole-name, so `ASH` does not match `CASH CIDER`. Known side effect of splitting on `,`: a club or brewer name that itself contains a comma (`Brewers, Inc.`) can also match a filter equal to just one part (`Brewers`)
 
 
 ## [1.2.0] - 2026-10-27
