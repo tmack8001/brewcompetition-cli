@@ -1,6 +1,6 @@
 import { expect } from 'chai';
 
-import { normalizeForMatch, shouldIncludeEntry, wantedBrewers } from '../../src/parsers/filters.js';
+import { fieldKeys, normalizeForMatch, shouldIncludeEntry, wantedBrewers } from '../../src/parsers/filters.js';
 
 describe('Result filters', () => {
   describe('normalizeForMatch', () => {
@@ -140,6 +140,80 @@ describe('Result filters', () => {
       expect(shouldIncludeEntry('Ann Lee', 'Elsewhere', filters)).to.equal(true);
       expect(shouldIncludeEntry('Bob', 'The Brü Club', filters)).to.equal(true);
       expect(shouldIncludeEntry('Bob', 'Elsewhere', filters)).to.equal(false);
+    });
+  });
+
+  describe('fieldKeys', () => {
+    it('returns the whole value then each name of a multi-club field', () => {
+      expect(fieldKeys('The Brü Club / Little Mountain Brewers')).to.deep.equal(['the bru club / little mountain brewers', 'the bru club', 'little mountain brewers']);
+    });
+
+    it('splits on semicolons and commas, trimming and dropping blank parts', () => {
+      expect(fieldKeys('A Club;B Club ,, C Club')).to.deep.equal(['a club;b club ,, c club', 'a club', 'b club', 'c club']);
+    });
+
+    it('keeps a single name, and a slash without spaces, whole', () => {
+      expect(fieldKeys('AC/DC Brewers')).to.deep.equal(['ac/dc brewers']);
+    });
+
+    it('splits on runs of whitespace around a slash, but not on a colon', () => {
+      expect(fieldKeys('A Club  /\tB Club')).to.deep.equal(['a club / b club', 'a club', 'b club']);
+      expect(fieldKeys('Club: Name')).to.deep.equal(['club: name']);
+    });
+
+    it('returns nothing for a blank field', () => {
+      expect(fieldKeys(' ')).to.deep.equal([]);
+    });
+  });
+
+  describe('multi-club and multi-name fields', () => {
+    const bru = { brewers: undefined, club: 'The Brü Club' };
+
+    it('matches the club filter against each club of a " / " field, in either spelling', () => {
+      expect(shouldIncludeEntry('Steve Micco', 'The Brü Club / Little Mountain Brewers', bru)).to.equal(true);
+      expect(shouldIncludeEntry('Steve Micco', 'Little Mountain Brewers / The Bru Club', bru)).to.equal(true);
+      expect(shouldIncludeEntry('Steve Micco', 'the bru club / Little Mountain Brewers', { brewers: undefined, club: 'The Brü Club' })).to.equal(true);
+    });
+
+    it('matches across ";" and "," separators', () => {
+      expect(shouldIncludeEntry('X', 'Little Mountain Brewers; The Bru Club', bru)).to.equal(true);
+      expect(shouldIncludeEntry('X', 'Little Mountain Brewers, The Brü Club', bru)).to.equal(true);
+    });
+
+    it('matches a filter naming the other club of the field', () => {
+      expect(shouldIncludeEntry('X', 'The Brü Club / Little Mountain Brewers', { brewers: undefined, club: 'Little Mountain Brewers' })).to.equal(true);
+    });
+
+    it('still matches the whole field when the filter spells out all of it', () => {
+      expect(shouldIncludeEntry('X', 'The Brü Club / Little Mountain Brewers', { brewers: undefined, club: 'the bru club / little mountain brewers' })).to.equal(true);
+    });
+
+    it('is not a substring match: "ASH" does not match "CASH CIDER" or a club listed after it', () => {
+      const ash = { brewers: undefined, club: 'ASH' };
+
+      expect(shouldIncludeEntry('X', 'CASH CIDER', ash)).to.equal(false);
+      expect(shouldIncludeEntry('X', 'CASH CIDER / Other Club', ash)).to.equal(false);
+      expect(shouldIncludeEntry('X', 'Hash House / ASHtray Society', ash)).to.equal(false);
+      expect(shouldIncludeEntry('X', 'CASH CIDER / ASH', ash)).to.equal(true);
+    });
+
+    it('does not match a club that only starts with the filter', () => {
+      expect(shouldIncludeEntry('X', 'The Brü Club Jr / Other', bru)).to.equal(false);
+      expect(shouldIncludeEntry('X', 'AC/DC Brewers', { brewers: undefined, club: 'AC' })).to.equal(false);
+    });
+
+    it('does not let a blank club filter match a multi-club field', () => {
+      expect(shouldIncludeEntry('X', 'A / B', { brewers: undefined, club: ' ' })).to.equal(false);
+      expect(shouldIncludeEntry('X', ' / ', { brewers: undefined, club: ' ' })).to.equal(false);
+    });
+
+    it('applies the same splitting to --brewers', () => {
+      const filters = { brewers: 'Ann Lee, Bob Roe', club: undefined };
+
+      expect(shouldIncludeEntry('Ann Lee / Cy Poe', '', filters)).to.equal(true);
+      expect(shouldIncludeEntry('Cy Poe; Bob Roe', '', filters)).to.equal(true);
+      expect(shouldIncludeEntry('Ann Leeds / Cy Poe', '', filters)).to.equal(false);
+      expect(shouldIncludeEntry('Cy Poe / Di Fox', '', filters)).to.equal(false);
     });
   });
 });

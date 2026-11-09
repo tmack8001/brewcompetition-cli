@@ -1,6 +1,7 @@
 import * as cheerio from 'cheerio';
 
 import { shouldIncludeEntry } from './filters.js';
+import { repairMojibake } from './mojibake.js';
 import { CompetitionParser, ParsedMetadata, ParsedResults, UnsupportedOperationError } from './types.js';
 
 export class ReggieParser implements CompetitionParser {
@@ -103,6 +104,7 @@ export class ReggieParser implements CompetitionParser {
     const data: string[][] = [];
     let currentCategory = '';
     let currentEntryCount = '';
+    let inHeavyMedals = false;
 
     // Reggie renders results in tbody with GroupHeader rows followed by data rows
     $('tbody tr').each((_index, row) => {
@@ -111,10 +113,12 @@ export class ReggieParser implements CompetitionParser {
       // Check if this is a category header row
       const groupHeader = $row.find('td.GroupHeader');
       if (groupHeader.length > 0) {
-        const categoryRaw = groupHeader.text().trim();
+        const categoryRaw = repairMojibake(groupHeader.text()).trim();
         const extracted = this.extractCategoryAndEntryCount(categoryRaw);
         currentCategory = extracted.category;
         currentEntryCount = extracted.entryCount;
+        // The Heavy Medal tables are points summaries, not medals
+        inHeavyMedals = /^heavy medal\b/i.test(currentCategory);
         return;
       }
 
@@ -123,6 +127,8 @@ export class ReggieParser implements CompetitionParser {
         return;
       }
 
+      if (inHeavyMedals) return;
+
       const cells = $row.find('td');
       if (cells.length < 5) return;
 
@@ -130,11 +136,11 @@ export class ReggieParser implements CompetitionParser {
       const brewerCell = $(cells[0]);
       // Extract just the brewer name (remove MHP badge which is in a span)
       const brewerSpan = brewerCell.find('span').first();
-      const brewer = brewerSpan.length > 0 ? brewerSpan.text().trim() : brewerCell.text().trim();
+      const brewer = repairMojibake(brewerSpan.length > 0 ? brewerSpan.text() : brewerCell.text()).trim();
       const medal = $(cells[1]).text().trim();
-      const style = $(cells[2]).text().trim();
-      const brewName = $(cells[3]).text().trim();
-      const clubRaw = $(cells[4]).text().trim();
+      const style = repairMojibake($(cells[2]).text()).trim();
+      const brewName = repairMojibake($(cells[3]).text()).trim();
+      const clubRaw = repairMojibake($(cells[4]).text()).trim();
       const club = this.extractClubName(clubRaw);
 
       const shouldInclude = shouldIncludeEntry(brewer, club, filters);
@@ -166,23 +172,27 @@ export class ReggieParser implements CompetitionParser {
 
       let groupMatch;
       while ((groupMatch = groupRegex.exec(groupsData)) !== null) {
-        const categoryName = groupMatch[1].trim();
+        const categoryName = repairMojibake(groupMatch[1]).trim();
         const entryCount = groupMatch[2].trim();
         entryCountMap[categoryName] = entryCount;
       }
 
       // Parse each medal entry using regex to extract the string values
       // Format: ["Place","Type","ShowLabel","BrewerName","Group","Style","BeerName","Club",...]
-      const medalRegex = /\["(\d+)","(\d+)","([^"]+)","([^"]+)","([^"]+)","([^"]+)","([^"]+)","([^"]+)"/g;
+      // MedalType 0 is a medal and 1 a Best of Show medal; 2 and 3 are the "Heavy Medal" points summaries
+      // (brewer and club), which are not medals and carry no brew name or club.
+      // Entries are published without a brew name (and, for unaffiliated brewers, without a club), so those two
+      // may be empty; an entry with no brew name is still a medal.
+      const medalRegex = /\["(\d+)","([01])","([^"]*)","([^"]+)","([^"]+)","([^"]+)","([^"]*)","([^"]*)"/g;
 
       let match;
       while ((match = medalRegex.exec(medalsData)) !== null) {
         const place = match[1].trim();
-        const brewer = match[4].trim();
-        const category = match[5].trim();
-        const style = match[6].trim();
-        const beerName = match[7].trim();
-        const clubRaw = match[8].trim();
+        const brewer = repairMojibake(match[4]).trim();
+        const category = repairMojibake(match[5]).trim();
+        const style = repairMojibake(match[6]).trim();
+        const beerName = repairMojibake(match[7]).trim();
+        const clubRaw = repairMojibake(match[8]).trim();
         const club = this.extractClubName(clubRaw);
 
         // Get entry count for this category

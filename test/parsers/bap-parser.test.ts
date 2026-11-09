@@ -446,6 +446,35 @@ describe('BAP Parser', () => {
       expect(result?.data.split('\n').every(row => row.endsWith('|Arizona Society of Homebrewers'))).to.equal(true);
     });
 
+    describe('multi-club field (2024 ASH Copper State Cup)', () => {
+      const copperUrl = 'https://beerawardsplatform.com/2024-ash-copper-state-cup';
+      const copperFetcher = (async (u: string) => (
+        u.includes('loadCompetitionInfo') ? { competition: { competitionId: 'copper-2024' } } : readFixture('bap_trimmed_results_2024_ash_copper_state_cup.json')
+      )) as typeof fetchJson;
+      const micco = 'Porters & Stouts|2nd|7|Avg Brü Porter Darkness of Oz|American Porter|Steve Micco|The Brü Club / Little Mountain Brewers';
+
+      for (const club of ['The Brü Club', 'The Bru Club', 'the brü club', 'Little Mountain Brewers']) {
+        it(`finds Steve Micco's medal for --club "${club}"`, async () => {
+          const result = await new BAPParser(copperFetcher).parseResults('', { brewers: undefined, club }, copperUrl);
+
+          expect(rowsOf(result)).to.deep.equal([micco]);
+        });
+      }
+
+      it('does not find it for a filter that is only part of a club name', async () => {
+        const result = await new BAPParser(copperFetcher).parseResults('', { brewers: undefined, club: 'Little Mountain' }, copperUrl);
+
+        expect(result).to.equal(undefined);
+      });
+
+      it('keeps single-club rows matching only their own club', async () => {
+        const result = await new BAPParser(copperFetcher).parseResults('', { brewers: undefined, club: 'Arizona Society of Homebrewers' }, copperUrl);
+
+        expect(rowsOf(result)).to.have.length(1);
+        expect(cell(rowsOf(result)[0], 5)).to.equal('Trevor Tyner');
+      });
+    });
+
     it('should percent-encode the key in the API URL', async () => {
       const requested: string[] = [];
       await new BAPParser(fixtureFetcher(requested)).parseResults('', noFilters, 'https://beerawardsplatform.com/foo%26x%3Dy/results');
